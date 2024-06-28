@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Dtos\Banner\**" />
+    <Compile Remove="Dtos\Blog\**" />
+    <Compile Remove="Dtos\Category\**" />
+    <Compile Remove="Dtos\Gallery\**" />
+    <Compile Remove="Dtos\Material\**" />
+    <Compile Remove="Dtos\ProductDetail\**" />
+    <Compile Remove="Dtos\Product\**" />
+    <Compile Remove="Dtos\UserDetail\**" />
+    <EmbeddedResource Remove="Dtos\Banner\**" />
+    <EmbeddedResource Remove="Dtos\Blog\**" />
+    <EmbeddedResource Remove="Dtos\Category\**" />
+    <EmbeddedResource Remove="Dtos\Gallery\**" />
+    <EmbeddedResource Remove="Dtos\Material\**" />
+    <EmbeddedResource Remove="Dtos\ProductDetail\**" />
+    <EmbeddedResource Remove="Dtos\Product\**" />
+    <EmbeddedResource Remove="Dtos\UserDetail\**" />
+    <None Remove="Dtos\Banner\**" />
+    <None Remove="Dtos\Blog\**" />
+    <None Remove="Dtos\Category\**" />
+    <None Remove="Dtos\Gallery\**" />
+    <None Remove="Dtos\Material\**" />
+    <None Remove="Dtos\ProductDetail\**" />
+    <None Remove="Dtos\Product\**" />
+    <None Remove="Dtos\UserDetail\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.6.2" />
+  </ItemGroup>
+
+
+
+
+	<ItemGroup>
+		<Compile Remove="Dtos\Account\**" />
+		<EmbeddedResource Remove="Dtos\Account\**" />
+		<None Remove="Dtos\Account\**" />
+	</ItemGroup>
+
+</Project>

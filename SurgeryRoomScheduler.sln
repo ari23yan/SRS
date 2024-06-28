@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34701.34
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurgeryRoomScheduler.Domain", "SurgeryRoomScheduler.Domain\SurgeryRoomScheduler.Domain.csproj", "{23A946E9-494B-458A-8320-D6C61257AA62}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurgeryRoomScheduler.Data", "SurgeryRoomScheduler.Data\SurgeryRoomScheduler.Data.csproj", "{626A949D-5E66-4777-95AE-3C442F9732AE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurgeryRoomScheduler.Application", "SurgeryRoomScheduler.Application\SurgeryRoomScheduler.Application.csproj", "{61B51335-F7DD-4A90-82EE-3871550AFC8D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurgeryRoomScheduler.Ioc", "SurgeryRoomScheduler.Ioc\SurgeryRoomScheduler.Ioc.csproj", "{3DC4B0E3-7DD6-4C6E-A416-DB23136BD367}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SurgeryRoomScheduler.Presentation", "SurgeryRoomScheduler.Presentation\SurgeryRoomScheduler.Presentation.csproj", "{F02EC374-E6BF-4E41-96DC-C4D77EA319EA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{23A946E9-494B-458A-8320-D6C61257AA62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23A946E9-494B-458A-8320-D6C61257AA62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23A946E9-494B-458A-8320-D6C61257AA62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23A946E9-494B-458A-8320-D6C61257AA62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{626A949D-5E66-4777-95AE-3C442F9732AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{626A949D-5E66-4777-95AE-3C442F9732AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{626A949D-5E66-4777-95AE-3C442F9732AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{626A949D-5E66-4777-95AE-3C442F9732AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61B51335-F7DD-4A90-82EE-3871550AFC8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61B51335-F7DD-4A90-82EE-3871550AFC8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61B51335-F7DD-4A90-82EE-3871550AFC8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61B51335-F7DD-4A90-82EE-3871550AFC8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DC4B0E3-7DD6-4C6E-A416-DB23136BD367}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DC4B0E3-7DD6-4C6E-A416-DB23136BD367}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DC4B0E3-7DD6-4C6E-A416-DB23136BD367}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DC4B0E3-7DD6-4C6E-A416-DB23136BD367}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F02EC374-E6BF-4E41-96DC-C4D77EA319EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F02EC374-E6BF-4E41-96DC-C4D77EA319EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F02EC374-E6BF-4E41-96DC-C4D77EA319EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F02EC374-E6BF-4E41-96DC-C4D77EA319EA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5DCA9BC7-AED3-48A2-96C4-8E1AB2951AF1}
+	EndGlobalSection
+EndGlobal

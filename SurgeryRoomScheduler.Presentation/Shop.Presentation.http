@@ -1,0 +1,6 @@
+@SurgeryRoomSchedulerPresentation_HostAddress = http://localhost:5072
+
+GET {{SurgeryRoomScheduler.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
