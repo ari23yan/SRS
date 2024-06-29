@@ -30,11 +30,11 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
         [MaxLength(1028)]
         public string? Description { get; set; }
         public DateTime RequestedDate { get; set; }
-        public bool IsConfirmedByMedicalRecords { get; set; } = false; // مدارک پزشکی
-        public Guid? ConfirmedMedicalRecordsUserId { get; set; } 
-        public bool? IsConfirmedBySupervisor { get; set; } = false;//  سوپروایزر
-        public Guid? ConfirmedSupervisorUserId { get; set; }
         public TimeSpan RequestedTime { get; set; }
-        public ReservationStatus Status { get; set; }
+        public bool IsCanceled { get; set; } = false;
+        [MaxLength(5000)]
+        public string? CancelationDescription { get; set; }
+        public Guid ReservationConfirmationId { get; set; }
+        public ReservationConfirmation ReservationConfirmation { get; set; }
     }
 }

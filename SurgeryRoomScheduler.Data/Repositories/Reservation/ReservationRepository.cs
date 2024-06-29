@@ -49,12 +49,12 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                 RoomCode = room.Code,
                                 Description = reservation.Description,
                                 RequestedDate = reservation.RequestedDate,
-                                IsConfirmedByMedicalRecords = reservation.IsConfirmedByMedicalRecords,
-                                ConfirmedMedicalRecordsUserId = reservation.ConfirmedMedicalRecordsUserId,
-                                IsConfirmedBySupervisor = reservation.IsConfirmedBySupervisor,
-                                ConfirmedSupervisorUserId = reservation.ConfirmedSupervisorUserId,
+                                //IsConfirmedByMedicalRecords = reservation.IsConfirmedByMedicalRecords,
+                                //ConfirmedMedicalRecordsUserId = reservation.ConfirmedMedicalRecordsUserId,
+                                //IsConfirmedBySupervisor = reservation.IsConfirmedBySupervisor,
+                                //ConfirmedSupervisorUserId = reservation.ConfirmedSupervisorUserId,
                                 RequestedTime = reservation.RequestedTime,
-                                Status = reservation.Status
+                                //Status = reservation.Status
                             };
             if (!string.IsNullOrWhiteSpace(paginationRequest.Searchkey))
             {
@@ -91,12 +91,12 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                 RoomCode = room.Code,
                                 Description = reservation.Description,
                                 RequestedDate = reservation.RequestedDate,
-                                IsConfirmedByMedicalRecords = reservation.IsConfirmedByMedicalRecords,
-                                ConfirmedMedicalRecordsUserId = reservation.ConfirmedMedicalRecordsUserId,
-                                IsConfirmedBySupervisor = reservation.IsConfirmedBySupervisor,
-                                ConfirmedSupervisorUserId = reservation.ConfirmedSupervisorUserId,
-                                RequestedTime = reservation.RequestedTime,
-                                Status = reservation.Status
+                                //IsConfirmedByMedicalRecords = reservation.IsConfirmedByMedicalRecords,
+                                //ConfirmedMedicalRecordsUserId = reservation.ConfirmedMedicalRecordsUserId,
+                                //IsConfirmedBySupervisor = reservation.IsConfirmedBySupervisor,
+                                //ConfirmedSupervisorUserId = reservation.ConfirmedSupervisorUserId,
+                                //RequestedTime = reservation.RequestedTime,
+                                //Status = reservation.Status
                             };
             if (!string.IsNullOrWhiteSpace(paginationRequest.Searchkey))
             {

@@ -1,4 +1,5 @@
 ﻿using SurgeryRoomScheduler.Domain.Entities.General;
+using SurgeryRoomScheduler.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -9,17 +10,15 @@ using System.Threading.Tasks;
 
 namespace SurgeryRoomScheduler.Domain.Entities.Common
 {
-    [Table("OperationConfirmationLogs", Schema = "Common")]
-    public class OperationConfirmationLog:BaseEntity
+    [Table("ReservationConfirmationLogs", Schema = "Common")]
+    public class ReservationConfirmationLog:BaseEntity
     {
-        public Guid OperationConfirmationId { get; set; }
-        public Guid RequestedUserId { get; set; }
-        public Guid ConfirmedByUserId { get; set; }
-        [Required]
-        public Guid StatusId { get; set; }
-        public OperationConfirmationStatus Status { get; set; }
+        public Guid UserId { get; set; }
+        public ConfirmationAction ConfirmationAction { get; set; }
         [MaxLength(250)]
         public string? LogDetails { get; set; }
         public DateTime LogDate { get; set; }
+        public Guid ReservationConfirmationTypeId { get; set; }
+        public ReservationConfirmationType ReservationConfirmationType { get; set; }
     }
 }

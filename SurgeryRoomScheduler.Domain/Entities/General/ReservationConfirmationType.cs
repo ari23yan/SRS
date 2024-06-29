@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace SurgeryRoomScheduler.Domain.Entities.General
 {
-    [Table("OperationConfirmationTypes", Schema = "General")]
+    [Table("ReservationConfirmationTypes", Schema = "General")]
 
-    public class OperationConfirmationType: BaseEntity
+    public class ReservationConfirmationType : BaseEntity
     {
         [MaxLength(100)]
 

@@ -11,12 +11,12 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
         public ReservationProfile()
         {
             CreateMap<Reservation, AddReservationDto>();
-            CreateMap<AddReservationDto, Reservation>()
-            .ForMember(dest => dest.IsConfirmedByMedicalRecords, opt => opt.Ignore())
-            .ForMember(dest => dest.ConfirmedMedicalRecordsUserId, opt => opt.Ignore())
-            .ForMember(dest => dest.IsConfirmedBySupervisor, opt => opt.Ignore())
-            .ForMember(dest => dest.ConfirmedSupervisorUserId, opt => opt.Ignore())
-            .ForMember(dest => dest.Status, opt => opt.Ignore());
+            CreateMap<AddReservationDto, Reservation>();
+            //.ForMember(dest => dest.IsConfirmedByMedicalRecords, opt => opt.Ignore())
+            //.ForMember(dest => dest.ConfirmedMedicalRecordsUserId, opt => opt.Ignore())
+            //.ForMember(dest => dest.IsConfirmedBySupervisor, opt => opt.Ignore())
+            //.ForMember(dest => dest.ConfirmedSupervisorUserId, opt => opt.Ignore())
+            //.ForMember(dest => dest.Status, opt => opt.Ignore());
 
             CreateMap<UpdateReservationDto,Reservation>()
             .ForMember(dest => dest.ModifiedDate, opt => opt.MapFrom(src => DateTime.Now))
