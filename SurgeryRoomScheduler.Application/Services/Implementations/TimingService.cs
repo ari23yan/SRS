@@ -98,7 +98,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         public async Task<ResponseDto<IEnumerable<TimingDto>>> GetPaginatedTimingListByRoomAndDate(PaginationDto request, long roomCode, DateTime date)
         {
             var timings = await _timingRepository.GetPaginatedTimingListByRoomAndDate(request,roomCode,date);
-            var timingsCount = await _timingRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.AssignedRoomCode.Equals(roomCode) && x.ScheduledStartDate >= date && x.ScheduledEndDate <= date);
+            var timingsCount = await _timingRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.AssignedRoomCode == roomCode && x.ScheduledStartDate >= date && x.ScheduledEndDate <= date);
             //var mappedTimings = _mapper.Map<IEnumerable<Timing>, IEnumerable<TimingListDto>>(timings);
             return new ResponseDto<IEnumerable<TimingDto>>
             {
@@ -191,7 +191,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             var mappedTiming = _mapper.Map(request, timing);
             timing.ModifiedBy = operatorId;
             timing.IsModified = true;
-            await _timingRepository.UpdateAsync(timing);
+            await _timingRepository.UpdateAsync(mappedTiming);
             return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
         }
     }

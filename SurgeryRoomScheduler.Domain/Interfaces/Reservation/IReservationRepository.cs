@@ -15,7 +15,7 @@ namespace SurgeryRoomScheduler.Domain.Interfaces
         Task<bool> CheckReservationExist(AddReservationDto request);
         Task<IEnumerable<ReservationDto>> GetPaginatedReservedList(PaginationDto request,string noNezam);
         Task<IEnumerable<ReservationDto>> GetPaginatedReservervationsList(PaginationDto request);
-      
+        Task<Reservation?> GetReservationById(Guid id);
        
     }
 }

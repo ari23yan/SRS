@@ -63,7 +63,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
         }
 
         [HttpGet]
-        //[PermissionChecker(Permission = PermissionType.Admin_GetTimingList)]
+        [PermissionChecker(Permission = PermissionType.Admin_GetTimingList)]
         public async Task<IActionResult> GetListByDateAndRoom([FromQuery] PaginationDto request, long roomCode,DateTime date)
         {
             try
