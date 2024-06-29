@@ -129,7 +129,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
                         issuer: _configuration["Authentication:Issuer"],
                         audience: _configuration["Authentication:Audience"],
                         claims: claims,
-                        expires: DateTime.Now.AddMinutes(30),
+                        expires: DateTime.Now.AddDays(2),
                         signingCredentials: credentials
                     );
                     var tokenString = new JwtSecurityTokenHandler().WriteToken(token);

@@ -23,7 +23,7 @@ namespace SurgeryRoomScheduler.Data.Repositories
         public async Task<bool> CheckReservationExist(AddReservationDto request)
         {
             return await Context.Reservations
-                      .AnyAsync(x => x.DoctorNonNezam.Equals(request.DoctorNoNezam) &&
+                      .AnyAsync(x => x.DoctorNoNezam.Equals(request.DoctorNoNezam) &&
                       x.RoomCode.Equals(request.RoomCode) &&
                       x.TimingId.Equals(request.TimingId));
         }
@@ -32,9 +32,9 @@ namespace SurgeryRoomScheduler.Data.Repositories
         {
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from reservation in Context.Reservations
-                            join doctor in Context.Doctors on reservation.DoctorNonNezam equals doctor.NoNezam
+                            join doctor in Context.Doctors on reservation.DoctorNoNezam equals doctor.NoNezam
                             join room in Context.Rooms on reservation.RoomCode equals room.Code
-                            where !reservation.IsDeleted && reservation.IsActive && reservation.DoctorNonNezam.Equals(noNezam)
+                            where !reservation.IsDeleted && reservation.IsActive && reservation.DoctorNoNezam.Equals(noNezam)
                             select new ReservationDto
                             {
                                 Id = reservation.Id,
@@ -74,7 +74,7 @@ namespace SurgeryRoomScheduler.Data.Repositories
         {
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from reservation in Context.Reservations
-                            join doctor in Context.Doctors on reservation.DoctorNonNezam equals doctor.NoNezam
+                            join doctor in Context.Doctors on reservation.DoctorNoNezam equals doctor.NoNezam
                             join room in Context.Rooms on reservation.RoomCode equals room.Code
                             where !reservation.IsDeleted && reservation.IsActive
                             select new ReservationDto

@@ -47,6 +47,25 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 {
                     return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Exist, Status = "Failed" };
                 }
+                var timing = await _timingRepository.GetTimingById(request.TimingId);
+                if (timing == null)
+                {
+                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "زمان بندی مورد نظر یافت نشد" };
+                }
+                if (timing.ScheduledDuration <= request.RequestedTime)
+                {
+                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "مدت زمان درخواستی نمیتواند از زمان زمانبندی شده باشد" };
+                }
+                if(timing.AssignedDoctorNoNezam != request.DoctorNoNezam)
+                {
+                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "زمانبندی مورد نظر برای دکتر دیگری در نظر گرفته شده است" };
+                }
+                if (timing.AssignedRoomCode != request.RoomCode)
+                {
+                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "زمانبندی مورد نظر برای اتاق عمل دیگری در نظر گرفته شده است" };
+                }
+
+
                 var doctor = await _userRepository.GetUserByUserId(currentUser);
                 if (doctor == null)
                 {
@@ -181,7 +200,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         {
             if (!noNezam.IsNullOrEmpty())
             {
-                return await _reservationRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.DoctorNonNezam.Equals(noNezam));
+                return await _reservationRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.DoctorNoNezam.Equals(noNezam));
             }
             return await _reservationRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted);
         }

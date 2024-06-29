@@ -17,17 +17,17 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowOrigin",
-//        builder =>
-//        {
-//            builder.WithOrigins("")
-//                .AllowAnyMethod()
-//                .AllowAnyHeader() // Allow any header
-//                .AllowCredentials();
-//        });
-//});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigin",
+        builder =>
+        {
+            builder.WithOrigins("https://localhost:3000/", "https://localhost:3001/")
+                .AllowAnyMethod()
+                .AllowAnyHeader() // Allow any header
+                .AllowCredentials();
+        });
+});
 
 builder.Services.AddDbContext<AppDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
