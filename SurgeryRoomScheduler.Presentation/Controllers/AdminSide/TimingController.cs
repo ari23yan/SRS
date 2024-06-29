@@ -62,6 +62,32 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             }
         }
 
+        [HttpGet]
+        //[PermissionChecker(Permission = PermissionType.Admin_GetTimingList)]
+        public async Task<IActionResult> GetListByDateAndRoom([FromQuery] PaginationDto request, long roomCode,DateTime date)
+        {
+            try
+            {
+                var result = await _timingService.GetPaginatedTimingListByRoomAndDate(request, roomCode, date);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                #region Inserting Log 
+                if (_configuration.GetValue<bool>("ApplicationLogIsActive"))
+                {
+                    var userAgent = _httpContextAccessor.HttpContext?.Request.Headers["User-Agent"];
+                    var userIp = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+                    var routeData = ControllerContext.RouteData;
+                    var controllerName = routeData.Values["controller"]?.ToString();
+                    var actionName = routeData.Values["action"]?.ToString();
+                    _logService.InsertLog(userIp, controllerName, actionName, userAgent, ex);
+                }
+                #endregion
+                return Ok(new ResponseDto<Exception> { IsSuccessFull = false, Data = ex, Message = ErrorsMessages.InternalServerError, Status = "Internal Server Error" });
+            }
+        }
+
         [HttpPost]
         [PermissionChecker(Permission = PermissionType.Admin_GetTiming)]
         public async Task<IActionResult> Get(GetByIdDto request)

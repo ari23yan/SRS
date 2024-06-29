@@ -95,6 +95,21 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             };
         }
 
+        public async Task<ResponseDto<IEnumerable<TimingDto>>> GetPaginatedTimingListByRoomAndDate(PaginationDto request, long roomCode, DateTime date)
+        {
+            var timings = await _timingRepository.GetPaginatedTimingListByRoomAndDate(request,roomCode,date);
+            var timingsCount = await _timingRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.AssignedRoomCode.Equals(roomCode) && x.ScheduledStartDate >= date && x.ScheduledEndDate <= date);
+            //var mappedTimings = _mapper.Map<IEnumerable<Timing>, IEnumerable<TimingListDto>>(timings);
+            return new ResponseDto<IEnumerable<TimingDto>>
+            {
+                IsSuccessFull = true,
+                Data = timings,
+                Message = ErrorsMessages.Success,
+                Status = "SuccessFul",
+                TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? timingsCount : timings.Count()
+            };
+        }
+
         public async Task<ResponseDto<GetTimingCalenderDto>> GetTimingCalender(GetListByMonthDto request)
         {
             DateTime startDate;

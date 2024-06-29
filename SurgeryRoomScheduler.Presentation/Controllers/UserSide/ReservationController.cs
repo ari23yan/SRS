@@ -121,7 +121,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
 
 
         //[HttpPut]
-        ////[PermissionChecker(Permission = PermissionType.Admin_UpdateTiming)]
+        //[PermissionChecker(Permission = PermissionType.Admin_UpdateTiming)]
         //public async Task<IActionResult> Update(Guid timingId, UpdateTimingDto request)
         //{
         //    try
