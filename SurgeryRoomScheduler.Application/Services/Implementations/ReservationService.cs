@@ -38,6 +38,12 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             _timingRepository = timingRepository;
             _doctorRepository = doctorRepository;
         }
+
+        public Task<ResponseDto<bool>> CancelReservation(GetByIdDto request, Guid operatorId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<ResponseDto<bool>> CreateReservation(AddReservationDto request, Guid currentUser)
         {
             try
@@ -203,6 +209,20 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 return await _reservationRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.DoctorNoNezam.Equals(noNezam));
             }
             return await _reservationRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted);
+        }
+
+        public async Task<ResponseDto<bool>> UpdateReservationByReservationId(Guid reservationId, UpdateReservationDto request, Guid operatorId)
+        {
+            var reservation = await _reservationRepository.GetReservationById(reservationId);
+            if (reservation == null)
+            {
+                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Not Found" };
+            }
+            var mappedTiming = _mapper.Map(request, reservation);
+            reservation.ModifiedBy = operatorId;
+            reservation.IsModified = true;
+            await _reservationRepository.UpdateAsync(mappedTiming);
+            return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
         }
     }
 }

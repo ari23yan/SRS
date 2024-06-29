@@ -118,7 +118,7 @@ builder.Services.AddSwaggerGen(c =>
 
 
 var app = builder.Build();
-//app.UseCors("AllowOrigin"); // Use CORS middleware with the defined policy
+app.UseCors("AllowOrigin"); // Use CORS middleware with the defined policy
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,4 +1,5 @@
 ﻿using SurgeryRoomScheduler.Domain.Dtos;
+using SurgeryRoomScheduler.Domain.Dtos.Common;
 using SurgeryRoomScheduler.Domain.Dtos.Common.Pagination;
 using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
 using SurgeryRoomScheduler.Domain.Dtos.Reservation;
@@ -20,5 +21,7 @@ namespace SurgeryRoomScheduler.Application.Services.Interfaces
         Task<ResponseDto<IEnumerable<ReservationDto>>> GetPaginatedReservervationsList(PaginationDto request);
         Task<int> GetReservedCount(string? noNezam);
 
+        Task<ResponseDto<bool>> CancelReservation(GetByIdDto request, Guid operatorId);
+        Task<ResponseDto<bool>> UpdateReservationByReservationId(Guid reservationId, UpdateReservationDto request, Guid operatorId);
     }
 }

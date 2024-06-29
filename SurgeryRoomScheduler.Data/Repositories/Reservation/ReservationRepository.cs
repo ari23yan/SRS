@@ -111,5 +111,10 @@ namespace SurgeryRoomScheduler.Data.Repositories
 
             return await pagedQuery.ToListAsync();
         }
+
+        public async Task<Reservation?> GetReservationById(Guid id)
+        {
+            return await Context.Reservations.FirstOrDefaultAsync(u => u.Id.Equals(id) && !u.IsDeleted && u.IsActive);
+        }
     }
 }
