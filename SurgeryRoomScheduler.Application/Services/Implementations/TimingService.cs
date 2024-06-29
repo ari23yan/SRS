@@ -133,7 +133,8 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     DayOfTheWeek = item.DayOfTheWeek,
                     Timings = filtredTiming.Where(u => u.ScheduledStartDate.Date == item.MiladiDate.Date).ToList(),
                     IsEnable = item.IsEnable,
-                    CountPerDay = filtredTiming.Where(u => u.ScheduledStartDate.Date == item.MiladiDate.Date).Count()
+                    CountPerDay = filtredTiming.Where(u => u.ScheduledStartDate.Date == item.MiladiDate.Date).Count(),
+                    Date = item.ShamsiDate
                 };
                 calenderDto.Days.Add(dayDto);
             }

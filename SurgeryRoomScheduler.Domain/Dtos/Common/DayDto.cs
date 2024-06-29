@@ -12,6 +12,7 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Common
     {
         public string Day { get; set; }
         public string DayOfTheWeek { get; set; }
+        public string Date { get; set; }
         public List<T> Timings { get; set; }
         public bool IsEnable { get; set; }
         public int? CountPerDay { get; set; }
