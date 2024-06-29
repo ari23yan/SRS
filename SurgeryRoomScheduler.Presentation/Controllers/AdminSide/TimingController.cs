@@ -36,7 +36,6 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
         }
 
 
-
         [HttpGet]
         [PermissionChecker(Permission = PermissionType.Admin_GetTimingList)]
         public async Task<IActionResult> GetList([FromQuery] PaginationDto request)

@@ -82,7 +82,6 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                 RoomName = room.Name,
                                 RoomCode = room.Code,
                                 ScheduledDate = timing.ScheduledStartDate.Date,
-                                ScheduledTime = timing.ScheduledStartDate.TimeOfDay,
                                 ScheduledStartDate = timing.ScheduledStartDate,
                                 ScheduledEndDate = timing.ScheduledEndDate,
                                 ScheduledDuration = timing.ScheduledEndDate - timing.ScheduledStartDate,
