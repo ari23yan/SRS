@@ -14,8 +14,8 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Timing
         public string DoctorName { get; set; }
         public string RoomName { get; set; }
         public long? RoomCode { get; set; }
-        public DateTime ScheduledDate { get; set; }
-        public TimeSpan ScheduledTime { get; set; }
+        public DateTime? ScheduledDate { get; set; }
+        public TimeSpan? ScheduledTime { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime ScheduledStartDate { get; set; }
         public DateTime ScheduledEndDate { get; set; }
