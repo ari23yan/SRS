@@ -27,8 +27,9 @@ namespace SurgeryRoomScheduler.Data.Repositories
             return await Context.Timings
                  .AnyAsync(x => x.AssignedDoctorNoNezam.Equals(request.NoNezam) &&
                                 x.AssignedRoomCode.Equals(request.RoomCode) &&
-                                x.ScheduledStartDate < request.ScheduledEndDate &&
-                                x.ScheduledEndDate > request.ScheduledStartDate);
+                                x.ScheduledDate < request.Date &&
+                                x.ScheduledStartTime < request.EndTime &&
+                                x.ScheduledEndTime > request.StartTime);
         }
 
         public async Task<IEnumerable<TimingDto>> GetDoctorTimingByRoomIdAndDate(long roomCode,string noNezam, DateTime sDate, DateTime eDate)
@@ -40,8 +41,8 @@ namespace SurgeryRoomScheduler.Data.Repositories
                where timing.AssignedRoomCode == roomCode
                    && !timing.IsDeleted
                    && timing.IsActive
-                   && timing.ScheduledStartDate.Date >= sDate.Date
-                   && timing.ScheduledEndDate.Date <= eDate.Date
+                   && timing.ScheduledDate == DateOnly.FromDateTime(sDate.Date)
+                   //&& timing.ScheduledEndDate.Date <= eDate.Date
                    && timing.AssignedDoctorNoNezam.Equals(noNezam)
                select new TimingDto
                {
@@ -50,13 +51,11 @@ namespace SurgeryRoomScheduler.Data.Repositories
                    DoctorName = doctor.Name,
                    RoomName = room.Name,
                    RoomCode = room.Code,
-                   ScheduledDate = timing.ScheduledStartDate.Date,
-                   ScheduledTime = timing.ScheduledStartDate.TimeOfDay,
-                   ScheduledStartDate = timing.ScheduledStartDate,
-                   ScheduledEndDate = timing.ScheduledEndDate,
-                   ScheduledDuration = timing.ScheduledEndDate - timing.ScheduledStartDate,
-                   ScheduledStartDate_Shamsi = timing.ScheduledStartDate_Shamsi,
-                   ScheduledEndDate_Shamsi = timing.ScheduledEndDate_Shamsi,
+                   ScheduledDate = timing.ScheduledDate,
+                   ScheduledStartTime = timing.ScheduledStartTime,
+                   ScheduledEndTime = timing.ScheduledEndTime,
+                   ScheduledDuration = timing.ScheduledDuration,
+                   ScheduledDate_Shamsi = timing.ScheduledDate_Shamsi,
                    CreatedDate = timing.CreatedDate,
                    CreatedDate_Shamsi = timing.CreatedDate_Shamsi,
                    IsDeleted = timing.IsDeleted,
@@ -81,12 +80,11 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                 DoctorName = doctor.Name,
                                 RoomName = room.Name,
                                 RoomCode = room.Code,
-                                ScheduledDate = timing.ScheduledStartDate.Date,
-                                ScheduledStartDate = timing.ScheduledStartDate,
-                                ScheduledEndDate = timing.ScheduledEndDate,
-                                ScheduledDuration = timing.ScheduledEndDate - timing.ScheduledStartDate,
-                                ScheduledStartDate_Shamsi = timing.ScheduledStartDate_Shamsi,
-                                ScheduledEndDate_Shamsi = timing.ScheduledEndDate_Shamsi,
+                                ScheduledDate = timing.ScheduledDate,
+                                ScheduledStartTime = timing.ScheduledStartTime,
+                                ScheduledEndTime = timing.ScheduledEndTime,
+                                ScheduledDuration = timing.ScheduledDuration,
+                                ScheduledDate_Shamsi = timing.ScheduledDate_Shamsi,
                                 CreatedDate = timing.CreatedDate,
                                 CreatedDate_Shamsi = timing.CreatedDate_Shamsi,
                                 IsDeleted = timing.IsDeleted,
@@ -107,14 +105,14 @@ namespace SurgeryRoomScheduler.Data.Repositories
             return await pagedQuery.ToListAsync();
         }
 
-        public async Task<IEnumerable<TimingDto>> GetPaginatedTimingListByRoomAndDate(PaginationDto paginationRequest, long roomCode, DateTime date)
+        public async Task<IEnumerable<TimingDto>> GetPaginatedTimingListByRoomAndDate(PaginationDto paginationRequest, long roomCode, DateOnly date)
         {
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from timing in Context.Timings
                             join doctor in Context.Doctors on timing.AssignedDoctorNoNezam equals doctor.NoNezam
                             join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
-                            where !timing.IsDeleted && timing.IsActive && timing.AssignedRoomCode.Equals(roomCode)  && timing.ScheduledStartDate.Date == date.Date
-                            && timing.ScheduledEndDate.Date <= date.Date
+                            where !timing.IsDeleted && timing.IsActive && timing.AssignedRoomCode.Equals(roomCode)  && timing.ScheduledDate == date
+                            && timing.ScheduledDate <= date
                             select new TimingDto
                             {
                                 Id = timing.Id,
@@ -122,12 +120,11 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                 DoctorName = doctor.Name,
                                 RoomName = room.Name,
                                 RoomCode = room.Code,
-                                ScheduledDate = timing.ScheduledStartDate,
-                                ScheduledStartDate = timing.ScheduledStartDate,
-                                ScheduledEndDate = timing.ScheduledEndDate,
-                                ScheduledDuration = timing.ScheduledEndDate - timing.ScheduledStartDate,
-                                ScheduledStartDate_Shamsi = timing.ScheduledStartDate_Shamsi,
-                                ScheduledEndDate_Shamsi = timing.ScheduledEndDate_Shamsi,
+                                ScheduledDate = timing.ScheduledDate,
+                                ScheduledStartTime = timing.ScheduledStartTime,
+                                ScheduledEndTime = timing.ScheduledEndTime,
+                                ScheduledDuration = timing.ScheduledDuration,
+                                ScheduledDate_Shamsi = timing.ScheduledDate_Shamsi,
                                 CreatedDate = timing.CreatedDate,
                                 CreatedDate_Shamsi = timing.CreatedDate_Shamsi,
                                 IsDeleted = timing.IsDeleted,
@@ -161,8 +158,8 @@ namespace SurgeryRoomScheduler.Data.Repositories
                 where timing.AssignedRoomCode == roomCode
                     && !timing.IsDeleted
                     && timing.IsActive
-                    && timing.ScheduledStartDate.Date >= sDate.Date
-                    && timing.ScheduledEndDate.Date <= eDate.Date
+                    && timing.ScheduledDate >= DateOnly.FromDateTime(sDate)
+                    && timing.ScheduledDate <= DateOnly.FromDateTime(eDate)
                 select new TimingDto
                 {
                     Id = timing.Id,
@@ -170,13 +167,11 @@ namespace SurgeryRoomScheduler.Data.Repositories
                     DoctorName = doctor.Name,
                     RoomName = room.Name,
                     RoomCode = room.Code,
-                    ScheduledDate = timing.ScheduledStartDate.Date,
-                    ScheduledTime = timing.ScheduledStartDate.TimeOfDay,
-                    ScheduledStartDate = timing.ScheduledStartDate,
-                    ScheduledEndDate = timing.ScheduledEndDate,
-                    ScheduledDuration = timing.ScheduledEndDate - timing.ScheduledStartDate,
-                    ScheduledStartDate_Shamsi = timing.ScheduledStartDate_Shamsi,
-                    ScheduledEndDate_Shamsi = timing.ScheduledEndDate_Shamsi,
+                    ScheduledDate = timing.ScheduledDate,
+                    ScheduledStartTime = timing.ScheduledStartTime,
+                    ScheduledEndTime = timing.ScheduledEndTime,
+                    ScheduledDuration = timing.ScheduledDuration,
+                    ScheduledDate_Shamsi = timing.ScheduledDate_Shamsi,
                     CreatedDate = timing.CreatedDate,
                     CreatedDate_Shamsi = timing.CreatedDate_Shamsi,
                     IsDeleted = timing.IsDeleted,
@@ -201,13 +196,11 @@ namespace SurgeryRoomScheduler.Data.Repositories
                     DoctorName = doctor.Name,
                     RoomName = room.Name,
                     RoomCode = room.Code,
-                    ScheduledDate = timing.ScheduledStartDate.Date,
-                    ScheduledTime = timing.ScheduledStartDate.TimeOfDay,
-                    ScheduledStartDate = timing.ScheduledStartDate,
-                    ScheduledEndDate = timing.ScheduledEndDate,
-                    ScheduledDuration = timing.ScheduledEndDate - timing.ScheduledStartDate,
-                    ScheduledStartDate_Shamsi = timing.ScheduledStartDate_Shamsi,
-                    ScheduledEndDate_Shamsi = timing.ScheduledEndDate_Shamsi,
+                    ScheduledDate = timing.ScheduledDate,
+                    ScheduledStartTime = timing.ScheduledStartTime,
+                    ScheduledEndTime = timing.ScheduledEndTime,
+                    ScheduledDuration = timing.ScheduledDuration,
+                    ScheduledDate_Shamsi = timing.ScheduledDate_Shamsi,
                     CreatedDate = timing.CreatedDate,
                     CreatedDate_Shamsi = timing.CreatedDate_Shamsi,
                     IsDeleted = timing.IsDeleted,

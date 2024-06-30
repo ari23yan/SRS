@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace SurgeryRoomScheduler.Domain.Enums
 {
-    public enum ReservationStatus:byte
+    public enum ConfirmationAction:byte
     {
-        All,
-        Pending,
-        Approved,
-        Rejected
+        Rejected = 0,
+        Accepted = 1
     }
 }

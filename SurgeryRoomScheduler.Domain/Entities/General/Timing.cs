@@ -14,11 +14,11 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
     {
         public string AssignedDoctorNoNezam { get; set; }
         public long? AssignedRoomCode { get; set; }
-        public DateTime ScheduledStartDate { get; set; }
-        public DateTime ScheduledEndDate { get; set; }
+        public TimeOnly ScheduledStartTime { get; set; }
+        public TimeOnly ScheduledEndTime { get; set; }
+        public DateOnly ScheduledDate { get; set; }
         public TimeSpan ScheduledDuration { get; set; }
-        public string ScheduledStartDate_Shamsi { get; set; }
-        public string ScheduledEndDate_Shamsi { get; set; }
+        public string ScheduledDate_Shamsi { get; set; }
         public string CreatedDate_Shamsi { get; set; }
     }
 }

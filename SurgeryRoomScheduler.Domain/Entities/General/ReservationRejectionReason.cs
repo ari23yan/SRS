@@ -1,4 +1,5 @@
 ﻿using SurgeryRoomScheduler.Domain.Entities.Common;
+using SurgeryRoomScheduler.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -9,13 +10,11 @@ using System.Threading.Tasks;
 
 namespace SurgeryRoomScheduler.Domain.Entities.General
 {
-    [Table("OperationConfirmationStatus", Schema = "General")]
-
-    public class OperationConfirmationStatus:BaseEntity
+    [Table("ReservationRejectionReasons", Schema = "General")]
+    public class ReservationRejectionReason:BaseEntity
     {
-        [MaxLength(100)]
-        public string Name { get; set; }
-        [MaxLength(200)]
-        public string? Description { get; set; }
+        public RejectionReasonType RejectionReasonType { get; set; }
+        [MaxLength(5000)]
+        public string Reason { get; set; }
     }
 }

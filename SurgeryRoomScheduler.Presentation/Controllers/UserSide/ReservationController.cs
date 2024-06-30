@@ -35,7 +35,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
 
 
         [HttpGet]
-        [PermissionChecker(Permission = PermissionType.GetDoctorReservedList)]
+        //[PermissionChecker(Permission = PermissionType.GetDoctorReservedList)]
         public async Task<IActionResult> GetList([FromQuery] PaginationDto request)
         {
             try
@@ -93,7 +93,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
 
 
         [HttpPost]
-        [PermissionChecker(Permission = PermissionType.AddReservation)]
+        //[PermissionChecker(Permission = PermissionType.AddReservation)]
         public async Task<IActionResult> Add(AddReservationDto request)
         {
             try

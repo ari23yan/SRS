@@ -25,10 +25,11 @@ namespace SurgeryRoomScheduler.Data.Context
         public DbSet<Menu> Menus { get; set; }
         public DbSet<RoleMenu> RoleMenus { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
-        public DbSet<OperationConfirmation> OperationConfirmations { get; set; }
-        public DbSet<OperationConfirmationLog> OperationConfirmationLogs { get; set; }
-        public DbSet<OperationConfirmationType> OperationConfirmationTypes { get; set; }
-        public DbSet<OperationConfirmationStatus> OperationConfirmationStatuses { get; set; }
+        public DbSet<ReservationConfirmation> ReservationConfirmations { get; set; }
+        public DbSet<ReservationConfirmationLog> ReservationConfirmationLogs { get; set; }
+        public DbSet<ReservationConfirmationType> ReservationConfirmationTypes { get; set; }
+        public DbSet<ReservationRejectionReason> ReservationRejectionReasons { get; set; }
+        public DbSet<ReservationRejection> ReservationRejections { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<Timing> Timings { get; set; }
@@ -41,6 +42,11 @@ namespace SurgeryRoomScheduler.Data.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Reservation>()
+                .HasOne(r => r.ReservationConfirmation)
+                .WithOne(rc => rc.Reservation)
+                .HasForeignKey<ReservationConfirmation>(rc => rc.ReservationId);
+
             base.OnModelCreating(modelBuilder);
         }
 

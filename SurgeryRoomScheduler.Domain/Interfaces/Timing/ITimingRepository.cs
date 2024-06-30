@@ -14,7 +14,7 @@ namespace SurgeryRoomScheduler.Domain.Interfaces
     public interface ITimingRepository:IRepository<Timing>
     {
         Task<IEnumerable<TimingDto>> GetPaginatedTimingList(PaginationDto request);
-        Task<IEnumerable<TimingDto>> GetPaginatedTimingListByRoomAndDate(PaginationDto request, long roomCode, DateTime date);
+        Task<IEnumerable<TimingDto>> GetPaginatedTimingListByRoomAndDate(PaginationDto request, long roomCode, DateOnly date);
         Task<IEnumerable<TimingDto>> GetTimingByRoomIdAndDate(long roomCode,DateTime sDate,DateTime eDate);
         Task<IEnumerable<TimingDto>> GetDoctorTimingByRoomIdAndDate(long roomCode,string noNezam,DateTime sDate,DateTime eDate);
         Task<TimingDto> GetTimingDetailByTimingId(Guid timingId);
