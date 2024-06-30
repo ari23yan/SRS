@@ -87,6 +87,10 @@ namespace SurgeryRoomScheduler.Data.Repositories.Users
         {
             return await Context.Users.Include(x => x.UserDetail).FirstOrDefaultAsync(x => x.Id.Equals(userId) && !x.IsDeleted);
         }
+        public async Task<User?> GetUserWithRolesByUserId(Guid userId)
+        {
+            return await Context.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id.Equals(userId) && !x.IsDeleted);
+        }
 
         public async Task<bool> CheckUserExistByPhoneMumber(string phoneNumber)
         {

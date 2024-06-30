@@ -23,6 +23,7 @@ namespace SurgeryRoomScheduler.Domain.Interfaces.Users
         Task<Otp?> GetOtpByUserId(Guid userId);
         Task<User?> GetUserByUserId(Guid userId);
         Task<User?> GetUserWithDetailsById(Guid userId);
+        Task<User?> GetUserWithRolesByUserId(Guid userId);
         Task<bool> CheckUserHavePermission(Guid roleId, Guid permissionId);
         Task<User?> GetUserByUsername(string userName);
         Task<User?> GetUserByNoNezam(string noNezam);

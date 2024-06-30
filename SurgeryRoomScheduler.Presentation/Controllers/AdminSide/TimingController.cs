@@ -64,7 +64,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
 
         [HttpGet]
         [PermissionChecker(Permission = PermissionType.Admin_GetTimingList)]
-        public async Task<IActionResult> GetListByDateAndRoom([FromQuery] PaginationDto request, long roomCode,DateTime date)
+        public async Task<IActionResult> GetListByDateAndRoom([FromQuery] PaginationDto request, long roomCode,DateOnly date)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
         }
 
         [HttpPost]
-        [PermissionChecker(Permission = PermissionType.Admin_AddTiming)]
+        //[PermissionChecker(Permission = PermissionType.Admin_AddTiming)]
         public async Task<IActionResult> Add(AddTimingDto request)
         {
             try
@@ -172,7 +172,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
         }
 
         [HttpPut]
-        [PermissionChecker(Permission = PermissionType.Admin_UpdateTiming)]
+        //[PermissionChecker(Permission = PermissionType.Admin_UpdateTiming)]
         public async Task<IActionResult> Update(Guid timingId, UpdateTimingDto request)
         {
             try
@@ -303,7 +303,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
         }
 
         [HttpGet]
-        [PermissionChecker(Permission = PermissionType.Admin_GetTimingCalender)]
+        //[PermissionChecker(Permission = PermissionType.Admin_GetTimingCalender)]
         public async Task<IActionResult> GetTimingCalender([FromQuery] GetListByMonthDto request)
         {
             try

@@ -31,6 +31,8 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
 
 
             CreateMap<UpdateTimingDto, Timing>()
+                       .ForMember(dest => dest.AssignedDoctorNoNezam, opt => opt.MapFrom(src => src.NoNezam))
+                       .ForMember(dest => dest.AssignedRoomCode, opt => opt.MapFrom(src => src.RoomCode))
                        .ForMember(dest => dest.ModifiedDate, opt => opt.MapFrom(src => DateTime.Now))
                        .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
                        .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

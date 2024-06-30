@@ -25,10 +25,9 @@ namespace SurgeryRoomScheduler.Data.Context
         public DbSet<Menu> Menus { get; set; }
         public DbSet<RoleMenu> RoleMenus { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
-        public DbSet<ReservationConfirmation> OperationConfirmations { get; set; }
-        public DbSet<ReservationConfirmationLog> OperationConfirmationLogs { get; set; }
-        public DbSet<ReservationConfirmationType> OperationConfirmationTypes { get; set; }
-        public DbSet<ReservationConfirmationStatus> OperationConfirmationStatuses { get; set; }
+        public DbSet<ReservationConfirmation> ReservationConfirmations { get; set; }
+        public DbSet<ReservationConfirmationLog> ReservationConfirmationLogs { get; set; }
+        public DbSet<ReservationConfirmationType> ReservationConfirmationTypes { get; set; }
         public DbSet<ReservationRejectionReason> ReservationRejectionReasons { get; set; }
         public DbSet<ReservationRejection> ReservationRejections { get; set; }
         public DbSet<Room> Rooms { get; set; }

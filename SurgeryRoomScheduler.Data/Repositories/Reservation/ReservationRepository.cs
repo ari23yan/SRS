@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Extensions;
 using SurgeryRoomScheduler.Data.Context;
 using SurgeryRoomScheduler.Domain.Dtos.Common.Pagination;
 using SurgeryRoomScheduler.Domain.Dtos.Reservation;
@@ -70,13 +71,14 @@ namespace SurgeryRoomScheduler.Data.Repositories
             return await pagedQuery.ToListAsync();
         }
 
-        public async Task<IEnumerable<ReservationDto>> GetPaginatedReservervationsList(PaginationDto paginationRequest)
+        public async Task<IEnumerable<ReservationDto>> GetPaginatedReservervationsList(PaginationDto paginationRequest, string operatorType, ReservationStatus status)
         {
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from reservation in Context.Reservations
                             join doctor in Context.Doctors on reservation.DoctorNoNezam equals doctor.NoNezam
                             join room in Context.Rooms on reservation.RoomCode equals room.Code
-                            where !reservation.IsDeleted && reservation.IsActive
+                            join reservationConfirmation in Context.ReservationConfirmations on reservation.Id equals reservationConfirmation.ReservationId
+                            where !reservation.IsDeleted && reservation.IsActive && reservationConfirmation.IsActive && !reservationConfirmation.IsDeleted
                             select new ReservationDto
                             {
                                 Id = reservation.Id,
@@ -91,13 +93,51 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                 RoomCode = room.Code,
                                 Description = reservation.Description,
                                 RequestedDate = reservation.RequestedDate,
-                                //IsConfirmedByMedicalRecords = reservation.IsConfirmedByMedicalRecords,
-                                //ConfirmedMedicalRecordsUserId = reservation.ConfirmedMedicalRecordsUserId,
-                                //IsConfirmedBySupervisor = reservation.IsConfirmedBySupervisor,
-                                //ConfirmedSupervisorUserId = reservation.ConfirmedSupervisorUserId,
-                                //RequestedTime = reservation.RequestedTime,
-                                //Status = reservation.Status
+                                IsConfirmedByMedicalRecords = reservationConfirmation.IsConfirmedByMedicalRecords,
+                                IsConfirmedBySupervisor = reservationConfirmation.IsConfirmedBySupervisor,
+                                ConfirmedMedicalRecordsUserId = reservationConfirmation.ConfirmedMedicalRecordsUserId,
+                                ConfirmedSupervisorUserId = reservationConfirmation.ConfirmedSupervisorUserId,
+                                ReservationRejectionId = reservationConfirmation.ReservationRejectionId,
+                                RequestedTime = reservation.RequestedTime,
+                                Status = reservationConfirmation.Status,
                             };
+            if (operatorType == "Supervisor")
+            {
+                if (status == ReservationStatus.Approved)
+                {
+                    baseQuery = baseQuery.Where(x => x.Status == ReservationConfirmationStatus.ApprovedBySupervisor);
+                }
+                else if (status == ReservationStatus.Rejected)
+                {
+                    baseQuery = baseQuery.Where(x => x.Status == ReservationConfirmationStatus.RejectedBySupervisor);
+                }
+                else if (status == ReservationStatus.Pending)
+                {
+                    baseQuery = baseQuery.Where(x => x.Status == ReservationConfirmationStatus.Pending);
+                }
+            }
+            else if (operatorType == "MedicalRecord")
+            {
+                if (status == ReservationStatus.Approved)
+                {
+                    baseQuery = baseQuery.Where(x => x.Status == ReservationConfirmationStatus.ApprovedByMedicalRecord);
+                }
+                else if (status == ReservationStatus.Rejected)
+                {
+                    baseQuery = baseQuery.Where(x => x.Status == ReservationConfirmationStatus.RejectedByMedicalRecord);
+                }
+                else if (status == ReservationStatus.Pending)
+                {
+                    baseQuery = baseQuery.Where(x => x.Status == ReservationConfirmationStatus.Pending);
+                }
+                else
+                {
+                    baseQuery = baseQuery.Where(x => x.IsConfirmedBySupervisor);
+                }
+            }
+
+
+
             if (!string.IsNullOrWhiteSpace(paginationRequest.Searchkey))
             {
                 baseQuery = baseQuery.Where(u => u.DoctorNoNezam.Contains(paginationRequest.Searchkey) || u.DoctorName.Contains(paginationRequest.Searchkey));
@@ -108,7 +148,6 @@ namespace SurgeryRoomScheduler.Data.Repositories
                         baseQuery.OrderByDescending(u => u.Id);
 
             var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
-
             return await pagedQuery.ToListAsync();
         }
 
@@ -116,5 +155,20 @@ namespace SurgeryRoomScheduler.Data.Repositories
         {
             return await Context.Reservations.FirstOrDefaultAsync(u => u.Id.Equals(id) && !u.IsDeleted && u.IsActive);
         }
+        public async Task<ReservationConfirmation?> GetReservationConfirmationById(Guid id)
+        {
+            return await Context.ReservationConfirmations.FirstOrDefaultAsync(u => u.Id.Equals(id) && !u.IsDeleted && u.IsActive);
+        }
+
+        public async Task<ReservationConfirmation?> GetReservationConfirmationByReservationId(Guid id)
+        {
+            return await Context.ReservationConfirmations.FirstOrDefaultAsync(u => u.ReservationId.Equals(id) && !u.IsDeleted && u.IsActive);
+        }
+
+        public async Task<IEnumerable<ReservationRejectionReason>> GetReservationRejectionReasonByType(RejectionReasonType type)
+        {
+            return await Context.ReservationRejectionReasons.Where(u => u.RejectionReasonType == type && !u.IsDeleted && u.IsActive).ToListAsync();
+        }
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using SurgeryRoomScheduler.Domain.Entities.Common;
+using SurgeryRoomScheduler.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -15,15 +16,15 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
     {
         public Guid ReservationId { get; set; }
         public Reservation Reservation { get; set; }
-        public Guid OperationTypeId { get; set; }
-        public ReservationConfirmationType OperationType { get; set; }
-        public Guid StatusId { get; set; }
-        public ReservationConfirmationStatus Status { get; set; }
+        public Guid ReservationConfirmationTypeId { get; set; }
+        public ReservationConfirmationType ReservationConfirmationType { get; set; }
+        public ReservationConfirmationStatus Status { get; set; } 
         public bool IsConfirmedByMedicalRecords { get; set; } = false; // مدارک پزشکی
         public Guid? ConfirmedMedicalRecordsUserId { get; set; }
-        public bool? IsConfirmedBySupervisor { get; set; } = false;//  سوپروایزر
+        public bool IsConfirmedBySupervisor { get; set; } = false;//  سوپروایزر
         public Guid? ConfirmedSupervisorUserId { get; set; }
         public Guid? ReservationRejectionId { get; set; }
         public ReservationRejection ReservationRejection { get; set; }
+        public Guid? RejectionUserId { get; set; }
     }
 }

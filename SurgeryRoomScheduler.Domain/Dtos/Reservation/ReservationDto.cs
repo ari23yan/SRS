@@ -24,9 +24,11 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Reservation
         public DateTime RequestedDate { get; set; }
         public bool IsConfirmedByMedicalRecords { get; set; } = false; // مدارک پزشکی
         public Guid? ConfirmedMedicalRecordsUserId { get; set; }
-        public bool? IsConfirmedBySupervisor { get; set; } = false;//  سوپروایزر
+        public bool IsConfirmedBySupervisor { get; set; } = false;//  سوپروایزر
         public Guid? ConfirmedSupervisorUserId { get; set; }
         public TimeSpan RequestedTime { get; set; }
-        public ReservationStatus Status { get; set; }
+        public ReservationConfirmationStatus Status { get; set; }
+        public Guid? ReservationRejectionId { get; set; }
+
     }
 }

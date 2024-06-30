@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SurgeryRoomScheduler.Data.Context;
 
@@ -11,9 +12,11 @@ using SurgeryRoomScheduler.Data.Context;
 namespace SurgeryRoomScheduler.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240630080142_DeleteReservationConfirmationStatus")]
+    partial class DeleteReservationConfirmationStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1206,21 +1209,22 @@ namespace SurgeryRoomScheduler.Data.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateOnly>("ScheduledDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("ScheduledDate_Shamsi")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<TimeSpan>("ScheduledDuration")
                         .HasColumnType("time");
 
-                    b.Property<TimeOnly>("ScheduledEndTime")
-                        .HasColumnType("time");
+                    b.Property<DateTime>("ScheduledEndDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<TimeOnly>("ScheduledStartTime")
-                        .HasColumnType("time");
+                    b.Property<string>("ScheduledEndDate_Shamsi")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ScheduledStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ScheduledStartDate_Shamsi")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

@@ -56,6 +56,9 @@ namespace SurgeryRoomScheduler.Application.Utilities
         {
             if (!httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
             {
+                return new Guid("14F942EB-161B-4F28-9F04-B5A96A96D19E");// سوپروایزر
+                //return new Guid("FDA67C00-485B-49E8-A6A1-0BE507B19201");// دکتر
+                //return new Guid("E3597C08-046F-43E5-B85B-CA43F54066F6");// مدارک پزشکی
                 return Guid.Empty;
             }
             var user = httpContextAccessor.HttpContext.User;
@@ -86,6 +89,21 @@ namespace SurgeryRoomScheduler.Application.Utilities
             // Format the date as "yyyy/MM/dd HH:mm:ss"
             return $"{year:0000}/{month:00}/{day:00} {hour:00}:{minute:00}:{second:00}";
         }
+        public static string GregorianDateTimeToPersianDateOnly(DateOnly date)
+        {
+            // Convert DateOnly to DateTime using midnight time
+            DateTime dateTime = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeKind.Unspecified);
+
+            PersianCalendar persianCalendar = new PersianCalendar();
+            int year = persianCalendar.GetYear(dateTime);
+            int month = persianCalendar.GetMonth(dateTime);
+            int day = persianCalendar.GetDayOfMonth(dateTime);
+
+            // Format the date as "yyyy/MM/dd"
+            return $"{year:0000}/{month:00}/{day:00}";
+        }
+
+
         public static string GregorianDateTimeToPersianDateDashType(DateTime date)
         {
             PersianCalendar persianCalendar = new PersianCalendar();

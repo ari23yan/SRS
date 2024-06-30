@@ -54,12 +54,12 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 AssignedDoctorNoNezam = request.NoNezam,
                 AssignedRoomCode = request.RoomCode,
-                ScheduledEndDate = request.ScheduledEndDate,
-                ScheduledStartDate = request.ScheduledStartDate,
+                ScheduledDate = request.Date,
+                ScheduledStartTime = request.StartTime,
+                ScheduledEndTime = request.EndTime,
                 ScheduledDuration = request.ScheduledDuration,
                 CreatedDate_Shamsi = UtilityManager.GregorianDateTimeToPersianDate(DateTime.Now),
-                ScheduledEndDate_Shamsi = UtilityManager.GregorianDateTimeToPersianDate(request.ScheduledEndDate),
-                ScheduledStartDate_Shamsi = UtilityManager.GregorianDateTimeToPersianDate(request.ScheduledStartDate),
+                ScheduledDate_Shamsi = UtilityManager.GregorianDateTimeToPersianDateOnly(request.Date),
                 CreatedBy = operatorId
             };
             await _timingRepository.AddAsync(newTiming);
@@ -95,10 +95,10 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             };
         }
 
-        public async Task<ResponseDto<IEnumerable<TimingDto>>> GetPaginatedTimingListByRoomAndDate(PaginationDto request, long roomCode, DateTime date)
+        public async Task<ResponseDto<IEnumerable<TimingDto>>> GetPaginatedTimingListByRoomAndDate(PaginationDto request, long roomCode, DateOnly date)
         {
             var timings = await _timingRepository.GetPaginatedTimingListByRoomAndDate(request,roomCode,date);
-            var timingsCount = await _timingRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.AssignedRoomCode == roomCode && x.ScheduledStartDate >= date && x.ScheduledEndDate <= date);
+            var timingsCount = await _timingRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.AssignedRoomCode == roomCode && x.ScheduledDate >= date && x.ScheduledDate <= date);
             //var mappedTimings = _mapper.Map<IEnumerable<Timing>, IEnumerable<TimingListDto>>(timings);
             return new ResponseDto<IEnumerable<TimingDto>>
             {
@@ -146,9 +146,9 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 {
                     Day = item.Day,
                     DayOfTheWeek = item.DayOfTheWeek,
-                    Timings = filtredTiming.Where(u => u.ScheduledStartDate.Date == item.MiladiDate.Date).ToList(),
+                    Timings = filtredTiming.Where(u => u.ScheduledDate == DateOnly.FromDateTime(item.MiladiDate.Date)).ToList(),
                     IsEnable = item.IsEnable,
-                    CountPerDay = filtredTiming.Where(u => u.ScheduledStartDate.Date == item.MiladiDate.Date).Count(),
+                    CountPerDay = filtredTiming.Where(u => u.ScheduledDate == DateOnly.FromDateTime(item.MiladiDate.Date)).Count(),
                     Date = item.ShamsiDate
                 };
                 calenderDto.Days.Add(dayDto);

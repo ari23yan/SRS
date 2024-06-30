@@ -8,8 +8,9 @@ namespace SurgeryRoomScheduler.Domain.Enums
 {
     public enum ReservationStatus:byte
     {
+        All,
         Pending,
-        Confirmed,
-        Cancelled
+        Approved,
+        Rejected
     }
 }
