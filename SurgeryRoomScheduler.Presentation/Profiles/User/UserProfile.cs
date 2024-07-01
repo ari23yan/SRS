@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using SurgeryRoomScheduler.Application.Security;
+using SurgeryRoomScheduler.Application.Utilities;
+using SurgeryRoomScheduler.Domain.Dtos;
 using SurgeryRoomScheduler.Domain.Dtos.Permission;
 using SurgeryRoomScheduler.Domain.Dtos.Role;
 using SurgeryRoomScheduler.Domain.Dtos.User;
@@ -9,6 +12,8 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
 {
     public class UserProfile : Profile
     {
+
+
         public UserProfile()
         {
 
@@ -18,6 +23,99 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
             .ForMember(dest => dest.Token, opt => opt.Ignore())
             .ForMember(dest => dest.RoleMenus, opt => opt.Ignore());
 
+
+
+
+            CreateMap<DoctorDto, User>()
+           .ForMember(dest => dest.NationalCode, opt => opt.MapFrom(src => src.DoctorNationalCode))
+           .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.NoNezam))
+           .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => "F054C928-FDC4-469F-8307-4EF1A179F5CE"))
+           .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom((src, dest) =>
+            {
+                string FormatPhoneNumber(string phoneNumber, int type)
+                {
+                    if (type == 1)
+                    {
+                        if (!phoneNumber.StartsWith("0"))
+                        {
+                            return "0" + phoneNumber;
+                        }
+                        return phoneNumber;
+                    }
+                    else
+                    {
+                        if (phoneNumber.StartsWith("0"))
+                        {
+                            return phoneNumber.Substring(1);
+                        }
+                        return phoneNumber;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(src.Mobile0) && src.Mobile0.Trim().Length > 1)
+                {
+                    return FormatPhoneNumber(src.Mobile0.Trim(), 1);
+                }
+                else if (!string.IsNullOrEmpty(src.Mobile1.Trim()) && src.Mobile1.Trim().Length > 1)
+                {
+                    return FormatPhoneNumber(src.Mobile1, 1);
+                }
+                else if (!string.IsNullOrEmpty(src.Mobile2.Trim()) && src.Mobile2.Trim().Length > 1)
+                {
+                    return FormatPhoneNumber(src.Mobile2.Trim(), 1);
+                }
+                return null;
+            }))
+           .ForMember(dest => dest.Password, opt => opt.MapFrom((src, dest) =>
+           {
+               string FormatPhoneNumber(string phoneNumber, int type)
+               {
+                   if (type == 1)
+                   {
+                       if (!phoneNumber.StartsWith("0"))
+                       {
+                           return UtilityManager.EncodePasswordMd5(phoneNumber);
+                       }
+                       return UtilityManager.EncodePasswordMd5(phoneNumber);
+                   }
+                   else
+                   {
+                       if (phoneNumber.StartsWith("0"))
+                       {
+                           return UtilityManager.EncodePasswordMd5(phoneNumber);
+                       }
+                       return UtilityManager.EncodePasswordMd5(phoneNumber);
+                   }
+               }
+
+               if (!string.IsNullOrEmpty(src.Mobile0) && src.Mobile0.Length > 1)
+               {
+                   return FormatPhoneNumber(src.Mobile0, 2);
+               }
+               else if (!string.IsNullOrEmpty(src.Mobile1) && src.Mobile1.Length > 1)
+               {
+                   return FormatPhoneNumber(src.Mobile1, 2);
+               }
+               else if (!string.IsNullOrEmpty(src.Mobile2) && src.Mobile2.Length > 1)
+               {
+                   return FormatPhoneNumber(src.Mobile2, 2);
+               }
+               return null;
+           }))
+           .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.NP))
+           .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.FP))
+           .ForMember(dest => dest.NoNezam, opt => opt.MapFrom(src => src.NoNezam))
+           .ForMember(dest => dest.IsActive, opt => opt.MapFrom((src, dest) =>
+           {
+               if (src.Active == 1)
+               {
+                   return true;
+               }
+               else
+               {
+                   return false;
+               }
+           }));
 
 
 

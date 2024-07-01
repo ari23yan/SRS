@@ -19,7 +19,7 @@ namespace SurgeryRoomScheduler.Domain.Interfaces
         Task<Reservation?> GetReservationById(Guid id);
         Task<ReservationConfirmation?> GetReservationConfirmationById(Guid id);
         Task<ReservationConfirmation?> GetReservationConfirmationByReservationId(Guid id);
-        Task<IEnumerable<ReservationRejectionReason>> GetReservationRejectionReasonByType(RejectionReasonType type);
+        Task<IEnumerable<ReservationRejectionAndCancellationReason>> GetReservationRejectionReasonByType(RejectionReasonType type);
 
        
     }

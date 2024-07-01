@@ -35,7 +35,6 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             _doctorService = doctorService;
         }
 
-
         [HttpGet]
         [PermissionChecker(Permission = PermissionType.Admin_GetTimingList)]
         public async Task<IActionResult> GetList([FromQuery] PaginationDto request)
@@ -354,6 +353,5 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
                 return Ok(new ResponseDto<Exception> { IsSuccessFull = false, Data = ex, Message = ErrorsMessages.InternalServerError, Status = "Internal Server Error" });
             }
         }
-
     }
 }

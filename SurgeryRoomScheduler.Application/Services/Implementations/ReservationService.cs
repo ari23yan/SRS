@@ -48,9 +48,40 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             _reservationRejection = reservationRejection;
         }
 
-        public Task<ResponseDto<bool>> CancelReservation(GetByIdDto request, Guid operatorId)
+        public async Task<ResponseDto<bool>> CancelReservation(CancelReservationDto request, Guid operatorId)
         {
-            throw new NotImplementedException();
+            var user = await _userRepository.GetUserWithRolesByUserId(operatorId);
+            if (user == null)
+            {
+                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.UserNotfound, Status = "Failed" };
+            }
+            var reservationConf = await _reservationRepository.GetReservationConfirmationByReservationId(request.ReservationId);
+            if (reservationConf == null)
+            {
+                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "درخواست یافت نشد" };
+            }
+            var reservation = await _reservationRepository.GetReservationById(request.ReservationId);
+            if (reservation == null)
+            {
+                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "درخواست یافت نشد" };
+            }
+            if (reservationConf.IsConfirmedByMedicalRecords)
+            {
+                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "امکان کنسل کردن این رکورد وجود ندارد زیرا توسط مدارک پزشکی تایید شده است" };
+            }
+            reservationConf.Status = ReservationConfirmationStatus.CancelledByDoctor;
+            reservationConf.ModifiedDate = DateTime.Now;
+            reservationConf.IsModified = true;
+            reservationConf.ModifiedBy = operatorId;
+            await _reservationConfirmation.UpdateAsync(reservationConf);
+            reservation.IsCanceled = true;
+            reservation.CancelationDescription = request.CancellationDescription;
+            reservation.ReservationCancelationReasonId = request.ReservationRejectionReasonId;
+            reservation.ModifiedDate = DateTime.Now;
+            reservation.IsModified = true;
+            reservation.ModifiedBy = operatorId;
+            await _reservationRepository.UpdateAsync(reservation);
+            return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
         }
 
         public async Task<ResponseDto<bool>> ConfirmReservation(Guid reservationId, Guid operatorId)
@@ -69,37 +100,67 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا تعیین وضعیت شده است" };
             }
-            if (user.Role.RoleName == "Supervisor")
+
+            if (reservationConf.ReservationConfirmationType.Name == "Normal-Reservation") // نوبت های عادی
             {
-                if (reservationConf.IsConfirmedBySupervisor)
+                if (user.Role.RoleName == "MedicalRecord")
                 {
-                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا توسط  سوپروایزر تعیین وضعیت شده است" };
+                    if (reservationConf.IsConfirmedByMedicalRecords)
+                    {
+                        return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا توسط مدارک پزشکی تعیین وضعیت شده است" };
+                    }
+                    else
+                    {
+                        // Approved
+                        reservationConf.Status = ReservationConfirmationStatus.ApprovedByMedicalRecord;
+                        reservationConf.ConfirmedMedicalRecordsUserId = operatorId;
+                        reservationConf.IsConfirmedByMedicalRecords = true;
+                        await _reservationConfirmation.UpdateAsync(reservationConf);
+                        return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
+                    }
                 }
                 else
                 {
-                    // Approved
-                    reservationConf.Status = ReservationConfirmationStatus.ApprovedBySupervisor;
-                    reservationConf.ConfirmedSupervisorUserId = operatorId;
-                    reservationConf.IsConfirmedBySupervisor = true;
-                    await _reservationConfirmation.UpdateAsync(reservationConf);
-                    return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
+                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "کاربر مدارک پزشکی فقط امکان تایید نوبت های عادی را دارد" };
                 }
             }
-            else if (user.Role.RoleName == "MedicalRecord")
+            else if (reservationConf.ReservationConfirmationType.Name == "Extera-Reservation") // نوبت های مازاد
             {
-                if (!reservationConf.IsConfirmedBySupervisor)
+                if (user.Role.RoleName == "Supervisor")
                 {
-                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست اول باید توسط  سوپروایزر تعیین وضعیت شود" };
+                    if (reservationConf.IsConfirmedBySupervisor)
+                    {
+                        return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا توسط سوپروایزر تعیین وضعیت شده است" };
+                    }
+                    else
+                    {
+                        // Approved
+                        reservationConf.Status = ReservationConfirmationStatus.ApprovedBySupervisor;
+                        reservationConf.ConfirmedSupervisorUserId = operatorId;
+                        reservationConf.IsConfirmedBySupervisor = true;
+                        await _reservationConfirmation.UpdateAsync(reservationConf);
+                        return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
+                    }
                 }
-                else
+                else if (user.Role.RoleName == "MedicalRecord")
                 {
-                    //Approved
-                    reservationConf.Status = ReservationConfirmationStatus.ApprovedByMedicalRecord;
-                    reservationConf.ConfirmedMedicalRecordsUserId = operatorId;
-                    reservationConf.IsConfirmedByMedicalRecords = true;
-                    await _reservationConfirmation.UpdateAsync(reservationConf);
-                    return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
-
+                    if (!reservationConf.IsConfirmedBySupervisor)
+                    {
+                        return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست اول باید توسط  سوپروایزر تایید  شود " };
+                    }
+                    if (reservationConf.IsConfirmedByMedicalRecords)
+                    {
+                        return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا توسط مدارک پزشکی تعیین وضعیت شده است" };
+                    }
+                    else
+                    {
+                        //Approved
+                        reservationConf.Status = ReservationConfirmationStatus.ApprovedByMedicalRecord;
+                        reservationConf.ConfirmedMedicalRecordsUserId = operatorId;
+                        reservationConf.IsConfirmedByMedicalRecords = true;
+                        await _reservationConfirmation.UpdateAsync(reservationConf);
+                        return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
+                    }
                 }
             }
             return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.PermissionDenied, Status = "Failed" };
@@ -121,9 +182,8 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 }
                 if (timing.ScheduledDuration <= request.RequestedTime)
                 {
-                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "مدت زمان درخواستی نمیتواند از زمان زمانبندی شده باشد" };
+                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "مدت زمان درخواستی نمیتواند از زمان زمانبندی شده بیشتر باشد" };
                 }
-             
                 if (timing.AssignedRoomCode != request.RoomCode)
                 {
                     return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "زمانبندی مورد نظر برای اتاق عمل دیگری در نظر گرفته شده است" };
@@ -141,14 +201,26 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 {
                     return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "زمانبندی مورد نظر برای دکتر دیگری در نظر گرفته شده است" };
                 }
-                var mappedReservation = _mapper.Map<Reservation>(request);
-                await _reservationRepository.AddAsync(mappedReservation);
-                var ReservationConf = new ReservationConfirmation
+                var reservation = _mapper.Map<Reservation>(request);
+
+                // Step 2: Add the reservation to the repository asynchronously
+                await _reservationRepository.AddAsync(reservation);
+
+                // Step 3: Create a new ReservationConfirmation with the corresponding reservation ID
+                var reservationConfirmation = new ReservationConfirmation
                 {
-                    ReservationId = mappedReservation.Id,
+                    ReservationId = reservation.Id,
                     ReservationConfirmationTypeId = new Guid("c25c174c-efd0-4a69-8207-a48fe437268b")
                 };
-                await _reservationConfirmation.AddAsync(ReservationConf);
+
+                // Step 4: Add the reservation confirmation to the repository asynchronously
+                await _reservationConfirmation.AddAsync(reservationConfirmation);
+
+                // Step 5: Update the reservation with the new ReservationConfirmationId
+                reservation.ReservationConfirmationId = reservationConfirmation.Id;
+
+                // Step 6: Update the reservation in the repository asynchronously
+                await _reservationRepository.UpdateAsync(reservation);
                 return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
             }
             catch (Exception ex)
@@ -178,18 +250,15 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             };
         }
 
-        public async Task<ResponseDto<IEnumerable<ReservationDto>>> GetPaginatedReservervationsList(PaginationDto request, Guid operatorId,ReservationStatus status)
+        public async Task<ResponseDto<IEnumerable<ReservationDto>>> GetPaginatedReservervationsList(PaginationDto request, Guid operatorId, ReservationStatus status)
         {
-            var user = await _userRepository.GetUserWithRolesByUserId(operatorId);  
+            var user = await _userRepository.GetUserWithRolesByUserId(operatorId);
             if (user == null)
             {
                 return new ResponseDto<IEnumerable<ReservationDto>> { IsSuccessFull = false, Message = ErrorsMessages.UserNotfound, Status = "Failed" };
             }
-            var reservs = await _reservationRepository.GetPaginatedReservervationsList(request, user.Role.RoleName,status);
+            var reservs = await _reservationRepository.GetPaginatedReservervationsList(request, user.Role.RoleName, status);
             var reservsCount = await GetReservedConfirmationCountByType(user.Role.RoleName, status);
-
-          
-
 
             return new ResponseDto<IEnumerable<ReservationDto>>
             {
@@ -201,17 +270,30 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             };
         }
 
-        public async Task<ResponseDto<IEnumerable<ReservationRejectionReason>>> GetRejectionsReasons(Guid operatorId)
+        public async Task<ResponseDto<IEnumerable<ReservationRejectionAndCancellationReason>>> GetRejectionsReasons(Guid operatorId)
         {
             var user = await _userRepository.GetUserWithRolesByUserId(operatorId);
             if (user == null)
             {
-                return new ResponseDto<IEnumerable<ReservationRejectionReason>> { IsSuccessFull = false, Message = ErrorsMessages.UserNotfound, Status = "Failed" };
+                return new ResponseDto<IEnumerable<ReservationRejectionAndCancellationReason>> { IsSuccessFull = false, Message = ErrorsMessages.UserNotfound, Status = "Failed" };
+            }
+            IEnumerable<ReservationRejectionAndCancellationReason> records = new List<ReservationRejectionAndCancellationReason>();
+
+            if (user.Role.RoleName == "Supervisor")
+            {
+                records = await GetReservationRejectionReasonByType(RejectionReasonType.Supervisor);
+            }
+            else if (user.Role.RoleName == "MedicalRecord")
+            {
+                records = await GetReservationRejectionReasonByType(RejectionReasonType.MedicalRecords);
+
+            }
+            else
+            {
+                records = await GetReservationRejectionReasonByType(RejectionReasonType.doctor);
             }
 
-            var records = await GetReservationRejectionReasonByType(user.Role.RoleName == "Supervisor" ? RejectionReasonType.Supervisor : RejectionReasonType.MedicalRecords);
-
-            return new ResponseDto<IEnumerable<ReservationRejectionReason>>
+            return new ResponseDto<IEnumerable<ReservationRejectionAndCancellationReason>>
             {
                 IsSuccessFull = true,
                 Data = records,
@@ -297,7 +379,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             };
         }
 
-        public async Task<IEnumerable<ReservationRejectionReason>> GetReservationRejectionReasonByType(RejectionReasonType type)
+        public async Task<IEnumerable<ReservationRejectionAndCancellationReason>> GetReservationRejectionReasonByType(RejectionReasonType type)
         {
             return await _reservationRepository.GetReservationRejectionReasonByType(type);
         }
@@ -309,7 +391,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 if (status == ReservationStatus.Approved)
                 {
-                    return await _reservationConfirmation.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.IsConfirmedBySupervisor );
+                    return await _reservationConfirmation.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.IsConfirmedBySupervisor);
                 }
                 else if (status == ReservationStatus.Rejected)
                 {
@@ -363,53 +445,90 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا تعیین وضعیت شده است" };
             }
 
-            if (user.Role.RoleName == "Supervisor")
+            if (reservationConf.ReservationConfirmationType.Name == "Normal-Reservation") // نوبت های عادی
             {
-                if (reservationConf.IsConfirmedBySupervisor)
+                if (user.Role.RoleName == "MedicalRecord")
                 {
-                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا توسط  سوپروایزر تعیین وضعیت شده است" };
+                    if (reservationConf.IsConfirmedByMedicalRecords)
+                    {
+                        return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا توسط  مدارک پزشکی تعیین وضعیت شده است" };
+                    }
+                    else
+                    {
+                        var reservationRejection = new ReservationRejection
+                        {
+                            ReservationRejectionReasonId = request.ReservationRejectionReasonId,
+                            ReservationId = request.ReservationId,
+                            AdditionalDescription = request.AdditionalDescription,
+                        };
+                        await _reservationRejection.AddAsync(reservationRejection);
+
+                        reservationConf.Status = ReservationConfirmationStatus.RejectedByMedicalRecord;
+                        reservationConf.ReservationRejectionId = reservationRejection.Id;
+                        reservationConf.RejectionUserId = operatorId;
+                        await _reservationConfirmation.UpdateAsync(reservationConf);
+                        return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
+                    }
                 }
                 else
                 {
-                    var reservationRejection = new ReservationRejection
-                    {
-                        ReservationRejectionReasonId = request.ReservationRejectionReasonId,
-                        ReservationId = request.ReservationId,
-                        AdditionalDescription = request.AdditionalDescription,
-                    };
-                    await _reservationRejection.AddAsync(reservationRejection);
-
-                    reservationConf.Status = ReservationConfirmationStatus.RejectedBySupervisor;
-                    reservationConf.ReservationRejectionId = reservationRejection.Id;
-                    reservationConf.RejectionUserId = operatorId;
-                    await _reservationConfirmation.UpdateAsync(reservationConf);
-                    return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
+                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست باید توسط مدارک پزشکی تعیین وضعیت شود" };
                 }
             }
-            else if (user.Role.RoleName == "MedicalRecord")
+            else if (reservationConf.ReservationConfirmationType.Name == "Extera-Reservation") // نوبت های مازاد
             {
-                if (!reservationConf.IsConfirmedBySupervisor)
+                if (user.Role.RoleName == "MedicalRecord")
                 {
-                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست اول باید توسط  سوپروایزر تعیین وضعیت شود" };
-                }
-                else
-                {
-                    var reservationRejection = new ReservationRejection
+                    if (!reservationConf.IsConfirmedBySupervisor)
                     {
-                        ReservationRejectionReasonId = request.ReservationRejectionReasonId,
-                        ReservationId = request.ReservationId,
-                        AdditionalDescription = request.AdditionalDescription,
-                    };
-                    await _reservationRejection.AddAsync(reservationRejection);
+                        return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست اول باید توسط سوپروایز تعیین وضعیت شود" };
+                    }
+                    if (reservationConf.IsConfirmedByMedicalRecords)
+                    {
+                        return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا توسط  مدارک پزشکی تعیین وضعیت شده است" };
+                    }
+                    else
+                    {
+                        var reservationRejection = new ReservationRejection
+                        {
+                            ReservationRejectionReasonId = request.ReservationRejectionReasonId,
+                            ReservationId = request.ReservationId,
+                            AdditionalDescription = request.AdditionalDescription,
+                        };
+                        await _reservationRejection.AddAsync(reservationRejection);
 
-                    reservationConf.Status = ReservationConfirmationStatus.RejectedByMedicalRecord;
-                    reservationConf.ReservationRejectionId = reservationRejection.Id;
-                    reservationConf.RejectionUserId = operatorId;
-                    await _reservationConfirmation.UpdateAsync(reservationConf);
-                    return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
+                        reservationConf.Status = ReservationConfirmationStatus.RejectedByMedicalRecord;
+                        reservationConf.ReservationRejectionId = reservationRejection.Id;
+                        reservationConf.RejectionUserId = operatorId;
+                        await _reservationConfirmation.UpdateAsync(reservationConf);
+                        return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
+                    }
+                }
+                else if (user.Role.RoleName == "Supervisor")
+                {
+                    if (reservationConf.IsConfirmedBySupervisor)
+                    {
+                        return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا توسط  سوپروایزر تعیین وضعیت شده است" };
+                    }
+                    else
+                    {
+                        var reservationRejection = new ReservationRejection
+                        {
+                            ReservationRejectionReasonId = request.ReservationRejectionReasonId,
+                            ReservationId = request.ReservationId,
+                            AdditionalDescription = request.AdditionalDescription,
+                        };
+                        await _reservationRejection.AddAsync(reservationRejection);
+
+                        reservationConf.Status = ReservationConfirmationStatus.RejectedBySupervisor;
+                        reservationConf.ReservationRejectionId = reservationRejection.Id;
+                        reservationConf.RejectionUserId = operatorId;
+                        await _reservationConfirmation.UpdateAsync(reservationConf);
+                        return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
+                    }
                 }
             }
-            return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.PermissionDenied, Status = "Failed" };
+            return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.InternalServerError, Status = "Failed" };
         }
 
         public async Task<ResponseDto<bool>> UpdateReservationByReservationId(Guid reservationId, UpdateReservationDto request, Guid operatorId)

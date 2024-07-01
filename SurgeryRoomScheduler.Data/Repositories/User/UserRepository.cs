@@ -183,6 +183,17 @@ namespace SurgeryRoomScheduler.Data.Repositories.Users
              .OrderByDescending(x => x.CreatedDate).FirstOrDefaultAsync();
         }
 
-      
+        public async Task<bool> DeleteDoctors()
+        {
+            var doctors = await Context.Users.Where(x => x.NoNezam != null).ToListAsync();
+            if (doctors.Any())
+            {
+                Context.Users.RemoveRange(doctors);
+                await Context.SaveChangesAsync();
+
+                return true;
+            }
+            return false;
+        }
     }
 }

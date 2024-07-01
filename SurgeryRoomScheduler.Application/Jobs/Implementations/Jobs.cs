@@ -16,21 +16,30 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using SurgeryRoomScheduler.Domain.Interfaces;
 
 namespace SurgeryRoomScheduler.Application.Jobs.Implementations
 {
     public class Jobs : IJobs
     {
         private readonly IExternalService _externalService;
+        private readonly IUserService _userService;
+        private readonly IRepository<Doctor> _docRepository;
+        private readonly IRepository<User> _userRepository;
         private readonly IMedicalDataService _medicalDataService;
         private readonly ILogService _logService;
         private readonly IMapper _mapper;
-        public Jobs(IExternalService externalService, ILogService logService, IMapper mapper, IMedicalDataService medicalDataService)
+        public Jobs(IExternalService externalService, ILogService logService,
+            IMapper mapper,IUserService userService, IRepository<User> userrepository, IRepository<Doctor> docRepository
+            , IMedicalDataService medicalDataService)
         {
             _externalService = externalService;
             _logService = logService;
             _mapper = mapper;
             _medicalDataService = medicalDataService;
+            _userService = userService;
+            _docRepository = docRepository;
+            _userRepository = userrepository;
         }
         public async Task<bool> GetDoctorsListJob()
         {
@@ -43,9 +52,17 @@ namespace SurgeryRoomScheduler.Application.Jobs.Implementations
                     try
                     {
                         var doctors = JsonConvert.DeserializeObject<List<DoctorDto>>(doctorsListService.Data);
-                        var mappedDoctors = _mapper.Map<List<DoctorDto>,List <Doctor>> (doctors);
-                        var deleteOldData = await _medicalDataService.DeleteDoctors();
+                        var uniqeDoctors = doctors.DistinctBy(x => x.NoNezam).ToList();
 
+                        var mappedDoctors = _mapper.Map<List<DoctorDto>,List <Doctor>> (uniqeDoctors);
+
+                        var deleteDoctorsOldDataFromDoctorTable = await _medicalDataService.DeleteDoctors();
+                        await _docRepository.AddRangeAsync(mappedDoctors);
+
+                        var mappedUsersDoctors = _mapper.Map<List<DoctorDto>, List<User>>(uniqeDoctors);
+
+                        var deleteDoctorOldDataFromUserTable = await _userService.DeleteDoctors();
+                         await _userRepository.AddRangeAsync(mappedUsersDoctors);
                         log.EndTime = DateTime.Now;
                         log.IsSuccessful = true;
                         log.Description = "Total Doctor Count = " + doctors.Count();
@@ -72,12 +89,10 @@ namespace SurgeryRoomScheduler.Application.Jobs.Implementations
                 throw;
             }
         }
-
         public Task<bool> GetInsuranceListJob()
         {
             throw new NotImplementedException();
         }
-
         public Task<bool> GetRoomListJob()
         {
             throw new NotImplementedException();

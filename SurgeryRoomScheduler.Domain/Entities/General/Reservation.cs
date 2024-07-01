@@ -32,6 +32,8 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
         public DateTime RequestedDate { get; set; }
         public TimeSpan RequestedTime { get; set; }
         public bool IsCanceled { get; set; } = false;
+        public Guid ReservationCancelationReasonId { get; set; }
+        public ReservationRejectionAndCancellationReason ReservationRejectionAndCancellationReason { get; set; }
         [MaxLength(5000)]
         public string? CancelationDescription { get; set; }
         public Guid ReservationConfirmationId { get; set; }

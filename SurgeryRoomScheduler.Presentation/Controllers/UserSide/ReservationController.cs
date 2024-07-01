@@ -62,9 +62,8 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
             }
         }
 
-
         [HttpGet]
-        [PermissionChecker(Permission = PermissionType.GetReservationCalender)]
+        //[PermissionChecker(Permission = PermissionType.GetReservationCalender)]
         public async Task<IActionResult> GetReservationCalender([FromQuery] GetListByMonthDto request)
         {
             try
@@ -148,34 +147,60 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
             }
         }
 
+        [HttpGet]
+        //[PermissionChecker(Permission = PermissionType.Admin_GetReservations)]
+        public async Task<IActionResult> GetCancellationReasons()
+        {
+            try
+            {
+                var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
+                var result = await _reservationService.GetRejectionsReasons(currentUser);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                #region Inserting Log 
+                if (_configuration.GetValue<bool>("ApplicationLogIsActive"))
+                {
+                    var userAgent = _httpContextAccessor.HttpContext?.Request.Headers["User-Agent"];
+                    var userIp = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+                    var routeData = ControllerContext.RouteData;
+                    var controllerName = routeData.Values["controller"]?.ToString();
+                    var actionName = routeData.Values["action"]?.ToString();
+                    _logService.InsertLog(userIp, controllerName, actionName, userAgent, ex);
+                }
+                #endregion
+                return Ok(new ResponseDto<Exception> { IsSuccessFull = false, Data = ex, Message = ErrorsMessages.InternalServerError, Status = "Internal Server Error" });
+            }
+        }
 
-        //public async Task<IActionResult> CancelReservation(Guid reservationId)
-        //{
-        //    try
-        //    {
-        //        var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
-        //        var result = await _reservationService.UpdateReservationByReservationId(reservationId, request, currentUser);
-        //        return Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        #region Inserting Log 
-        //        if (_configuration.GetValue<bool>("ApplicationLogIsActive"))
-        //        {
+        [HttpPost]
+        //[PermissionChecker(Permission = PermissionType.Admin_GetReservations)]
+        public async Task<IActionResult> CancelReservation(CancelReservationDto request)
+        {
+            try
+            {
+                var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
+                var result = await _reservationService.CancelReservation(request,currentUser);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                #region Inserting Log 
+                if (_configuration.GetValue<bool>("ApplicationLogIsActive"))
+                {
 
-        //            var userAgent = _httpContextAccessor.HttpContext?.Request.Headers["User-Agent"];
-        //            var userIp = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
-        //            var routeData = ControllerContext.RouteData;
-        //            var controllerName = routeData.Values["controller"]?.ToString();
-        //            var actionName = routeData.Values["action"]?.ToString();
-        //            _logService.InsertLog(userIp, controllerName, actionName, userAgent, ex);
-        //        }
-        //        #endregion
-        //        return Ok(new ResponseDto<Exception> { IsSuccessFull = false, Data = ex, Message = ErrorsMessages.InternalServerError, Status = "Internal Server Error" });
-        //    }
-        //}
-
-
+                    var userAgent = _httpContextAccessor.HttpContext?.Request.Headers["User-Agent"];
+                    var userIp = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+                    var routeData = ControllerContext.RouteData;
+                    var controllerName = routeData.Values["controller"]?.ToString();
+                    var actionName = routeData.Values["action"]?.ToString();
+                    _logService.InsertLog(userIp, controllerName, actionName, userAgent, ex);
+                }
+                #endregion
+                return Ok(new ResponseDto<Exception> { IsSuccessFull = false, Data = ex, Message = ErrorsMessages.InternalServerError, Status = "Internal Server Error" });
+            }
+        }
 
     }
 }

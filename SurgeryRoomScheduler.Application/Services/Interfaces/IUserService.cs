@@ -41,5 +41,6 @@ namespace SurgeryRoomScheduler.Application.Services.Interfaces
         Task<int> GetUsersCount();
         Task<int> GetRolesCount();
         Task<bool> InserAccessLog(AccessLogType type,InsertUserAccessLogDto request);
+        Task<bool> DeleteDoctors();
     }
 }

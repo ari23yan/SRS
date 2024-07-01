@@ -27,18 +27,31 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.CodeJ))
             .ForMember(dest => dest.GroupCode, opt => opt.MapFrom(src => src.GroupCode))
             .ForMember(dest => dest.NoNezam, opt => opt.MapFrom(src => src.NoNezam))
-            .ForMember(dest => dest.PersonnelCode, opt => opt.MapFrom(src => src.Perscode))
+            .ForMember(dest => dest.PersonnelCode, opt => opt.MapFrom((src, dest) =>
+             {
+                 if (string.IsNullOrEmpty(src.Perscode))
+                 {
+                     return 0;
+                 }
+                 else 
+                 {
+                     if( string.IsNullOrEmpty(src.Perscode.Trim()))
+                     {
+                         return 0;
+                     }
+                     return Convert.ToInt32(src.Perscode.Trim());
+                 }
+             }))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom((src, dest) =>
             {
                 if (src.Active == 0)
                 {
                     return true;
                 }
-                else if (src.Active == 1 || src.Active == 2)
+                else
                 {
                     return false;
                 }
-                return false;
             }));
 
             CreateMap<Doctor, DoctorListDto>();

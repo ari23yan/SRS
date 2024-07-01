@@ -38,5 +38,7 @@ namespace SurgeryRoomScheduler.Domain.Interfaces.Users
         Task<Role> GetRoleById(Guid roleId);
         Task<IEnumerable<Menu>> GetMenusByRoleId(List<Guid>  menuIds);
         Task<Role> GetRoleWithDetailById(Guid roleId);
+        Task<bool> DeleteDoctors();
+
     }
 }

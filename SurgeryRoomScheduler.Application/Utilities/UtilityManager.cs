@@ -5,9 +5,12 @@ using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
 using SurgeryRoomScheduler.Domain.Entities.Account;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -22,7 +25,14 @@ namespace SurgeryRoomScheduler.Application.Utilities
             return Regex.IsMatch(input, mobilePattern);
         }
 
-
+        public static string GetDisplayName(this Enum enumValue)
+        {
+            return enumValue.GetType()
+                            .GetMember(enumValue.ToString())
+                            .First()
+                            .GetCustomAttribute<DisplayAttribute>()
+                            ?.GetName() ?? enumValue.ToString();
+        }
         public static bool IsValidNationalCode(string input)
         {
             string pattern = @"^[0-9]{10}$";
@@ -56,13 +66,26 @@ namespace SurgeryRoomScheduler.Application.Utilities
         {
             if (!httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
             {
-                return new Guid("14F942EB-161B-4F28-9F04-B5A96A96D19E");// سوپروایزر
-                //return new Guid("FDA67C00-485B-49E8-A6A1-0BE507B19201");// دکتر
+                //return new Guid("14F942EB-161B-4F28-9F04-B5A96A96D19E");// سوپروایزر
+                return new Guid("FDA67C00-485B-49E8-A6A1-0BE507B19201");// دکتر
                 //return new Guid("E3597C08-046F-43E5-B85B-CA43F54066F6");// مدارک پزشکی
                 return Guid.Empty;
             }
             var user = httpContextAccessor.HttpContext.User;
             return Guid.Parse(user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+        }
+
+        public static string EncodePasswordMd5(string pass)
+        {
+            Byte[] originalBytes;
+            Byte[] encodedBytes;
+            MD5 md5;
+            //Instantiate MD5CryptoServiceProvider, get bytes for original password and compute hash (encoded password)   
+            md5 = new MD5CryptoServiceProvider();
+            originalBytes = ASCIIEncoding.Default.GetBytes(pass);
+            encodedBytes = md5.ComputeHash(originalBytes);
+            //Convert encoded bytes back to a 'readable' string   
+            return BitConverter.ToString(encodedBytes);
         }
 
         public static string ConvertGregorianDateTimeToPersianDate(DateTime date)

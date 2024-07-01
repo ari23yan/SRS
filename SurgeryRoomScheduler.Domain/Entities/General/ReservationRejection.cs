@@ -15,7 +15,7 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
         public Guid ReservationId { get; set; }
         public Reservation Reservation { get; set; }
         public Guid ReservationRejectionReasonId { get; set; }
-        public ReservationRejectionReason ReservationRejectionReason { get; set; }
+        public ReservationRejectionAndCancellationReason ReservationRejectionAndCancellationReason { get; set; }
         [MaxLength(5000)]
         public string? AdditionalDescription { get; set; }
     }

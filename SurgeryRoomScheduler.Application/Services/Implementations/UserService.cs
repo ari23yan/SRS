@@ -700,5 +700,10 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "عملیات موفقیت آمیز" };
 
         }
+
+        public async Task<bool> DeleteDoctors()
+        {
+            return await _userRepository.DeleteDoctors();
+        }
     }
 }
