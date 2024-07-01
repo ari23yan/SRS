@@ -58,7 +58,6 @@ namespace SurgeryRoomScheduler.Data.Repositories.Users
                 .ThenInclude(rp => rp.Permission)
                 .ThenInclude(p => p.PermissionGroup_Permissions)
                 .ThenInclude(pg => pg.PermissionGroup)
-                .Include(u => u.UserDetail)
                 .IgnoreAutoIncludes()
                 .FirstOrDefaultAsync(u => u.Id.Equals(userId) && !u.IsDeleted && u.IsActive);
         }
@@ -66,16 +65,16 @@ namespace SurgeryRoomScheduler.Data.Repositories.Users
 
         public async Task<Domain.Entities.Account.User?> GetUserAndOtpByMobile(string mobile)
         {
-            return await Context.Users.Include(x=>x.Role).ThenInclude(x=>x.RoleMenus).Include(x => x.Otps).Include(x => x.UserDetail).FirstOrDefaultAsync(x => x.PhoneNumber.Equals(mobile) && !x.IsDeleted && x.IsActive);
+            return await Context.Users.Include(x=>x.Role).ThenInclude(x=>x.RoleMenus).Include(x => x.Otps).FirstOrDefaultAsync(x => x.PhoneNumber.Equals(mobile) && !x.IsDeleted && x.IsActive);
         }
         public async Task<Domain.Entities.Account.User?> GetUserByMobile(string mobile)
         {
-            return await Context.Users.Include(x => x.Otps).Include(x => x.UserDetail).FirstOrDefaultAsync(x => x.PhoneNumber.Equals(mobile) && !x.IsDeleted && x.IsActive);
+            return await Context.Users.Include(x => x.Otps).FirstOrDefaultAsync(x => x.PhoneNumber.Equals(mobile) && !x.IsDeleted && x.IsActive);
         }
 
         public async Task<Domain.Entities.Account.User?> GetUserByUsername(string userName)
         {
-            return await Context.Users.Include(x => x.Otps).Include(x => x.UserDetail).FirstOrDefaultAsync(x => x.Username.Equals(userName) && !x.IsDeleted && x.IsActive);
+            return await Context.Users.Include(x => x.Otps).FirstOrDefaultAsync(x => x.Username.Equals(userName) && !x.IsDeleted && x.IsActive);
         }
 
         public async Task<User?> GetUserByUserId(Guid userId)
@@ -85,7 +84,7 @@ namespace SurgeryRoomScheduler.Data.Repositories.Users
 
         public async Task<User?> GetUserWithDetailsById(Guid userId)
         {
-            return await Context.Users.Include(x => x.UserDetail).FirstOrDefaultAsync(x => x.Id.Equals(userId) && !x.IsDeleted);
+            return await Context.Users.FirstOrDefaultAsync(x => x.Id.Equals(userId) && !x.IsDeleted);
         }
         public async Task<User?> GetUserWithRolesByUserId(Guid userId)
         {
@@ -167,11 +166,11 @@ namespace SurgeryRoomScheduler.Data.Repositories.Users
 
         public async Task<User?> GetUserByNationalCode(string nationalCode)
         {
-            return await Context.Users.Include(x=>x.Otps).Include(x => x.UserDetail).FirstOrDefaultAsync(x => x.NationalCode.Equals(nationalCode) && !x.IsDeleted && x.IsActive);
+            return await Context.Users.Include(x=>x.Otps).FirstOrDefaultAsync(x => x.NationalCode.Equals(nationalCode) && !x.IsDeleted && x.IsActive);
         }
         public async Task<User?> GetUserByNoNezam(string noNezam)
         {
-            return await Context.Users.Include(x => x.Otps).Include(x => x.UserDetail).FirstOrDefaultAsync(x => x.NoNezam.Equals(noNezam) && !x.IsDeleted && x.IsActive);
+            return await Context.Users.Include(x => x.Otps).FirstOrDefaultAsync(x => x.NoNezam.Equals(noNezam) && !x.IsDeleted && x.IsActive);
         }
 
 

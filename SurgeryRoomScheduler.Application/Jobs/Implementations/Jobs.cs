@@ -41,9 +41,16 @@ namespace SurgeryRoomScheduler.Application.Jobs.Implementations
             _docRepository = docRepository;
             _userRepository = userrepository;
         }
+
+        public Task<bool> ExteraTiming()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<bool> GetDoctorsListJob()
         {
-            var log = new JobLog { JobName = "Doctors List", StartTime = DateTime.Now };
+            var log = new JobLog { JobName = "Doctors List", StartTime = DateTime.Now,IsSuccessful =false};
+            await _logService.InsertJobLog(log);
             try
             {
                 var doctorsListService = await _externalService.GetDoctorsList();
@@ -66,7 +73,7 @@ namespace SurgeryRoomScheduler.Application.Jobs.Implementations
                         log.EndTime = DateTime.Now;
                         log.IsSuccessful = true;
                         log.Description = "Total Doctor Count = " + doctors.Count();
-                        await _logService.InsertJobLog(log);
+                        await _logService.UpdateJobLog(log);
                         return true;
                     }
                     catch (Exception ex)
@@ -75,20 +82,33 @@ namespace SurgeryRoomScheduler.Application.Jobs.Implementations
                         log.IsSuccessful = false;
                         log.ErrorDetails = ex.ToString();
                         log.Description = "Exception On Deserialize Doctor Object";
-                        await _logService.InsertJobLog(log);
+                        await _logService.UpdateJobLog(log);
                         return false;
                     }
-
                 }
+                log.EndTime = DateTime.Now;
+                log.IsSuccessful = false;
+                log.ErrorDetails = "Authentication";
+                log.Description = "Auth Is Not SuccessFull";
+                await _logService.UpdateJobLog(log);
                 return false;
-
             }
             catch (Exception ex)
             {
-
-                throw;
+                log.EndTime = DateTime.Now;
+                log.IsSuccessful = false;
+                log.ErrorDetails = ex.ToString();
+                log.Description = "Exception On Authentication";
+                await _logService.UpdateJobLog(log);
+                return false;
             }
         }
+
+        public Task<bool> GetDoctorsRoomJob()
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<bool> GetInsuranceListJob()
         {
             throw new NotImplementedException();

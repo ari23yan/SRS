@@ -1,4 +1,6 @@
-﻿using SurgeryRoomScheduler.Domain.Entities.Common;
+﻿using SurgeryRoomScheduler.Domain.Dtos.Common.AccessLog;
+using SurgeryRoomScheduler.Domain.Entities.Common;
+using SurgeryRoomScheduler.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +13,7 @@ namespace SurgeryRoomScheduler.Application.Services.Interfaces
     {
         void InsertLog(string ip, string controllerName, string actionName, string userAgent, Exception ex);
         Task<bool> InsertJobLog(JobLog log);
+        Task<bool> UpdateJobLog(JobLog log);
+        Task<bool> InserAccessLog(AccessLogType type, InsertUserAccessLogDto request);
     }
 }

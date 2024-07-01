@@ -16,6 +16,8 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Reservation
         public string PatientLastName { get; set; }
         public string PatientNationalCode { get; set; }
         public string PatientPhoneNumber { get; set; }
+        public bool PatientHaveInsurance { get; set; }
+
         public string DoctorNoNezam { get; set; }
         public string DoctorName { get; set; }
         public string RoomName { get; set; }

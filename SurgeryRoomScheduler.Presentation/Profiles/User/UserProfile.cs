@@ -119,9 +119,8 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
 
 
 
-            CreateMap<User, AddUserDto>()
-           .ForMember(dest => dest.Gender, opt => opt.Ignore())
-           .ForMember(dest => dest.DateOfBirth, opt => opt.Ignore()).ReverseMap();
+            CreateMap<User, AddUserDto>();
+     
 
 
             CreateMap<UserDetail, AddUserDto>()

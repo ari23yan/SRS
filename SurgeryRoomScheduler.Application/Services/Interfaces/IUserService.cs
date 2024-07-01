@@ -40,7 +40,6 @@ namespace SurgeryRoomScheduler.Application.Services.Interfaces
         Task<ResponseDto<bool>> CreateRole(AddRoleDto request, Guid operatorId);
         Task<int> GetUsersCount();
         Task<int> GetRolesCount();
-        Task<bool> InserAccessLog(AccessLogType type,InsertUserAccessLogDto request);
         Task<bool> DeleteDoctors();
     }
 }

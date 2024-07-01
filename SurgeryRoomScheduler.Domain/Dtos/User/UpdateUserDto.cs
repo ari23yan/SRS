@@ -18,9 +18,9 @@ namespace SurgeryRoomScheduler.Domain.Dtos.User
         public bool? PhoneNumberConfirmed { get; set; }
         public string? Email { get; set; }
         public bool? EmailConfirmed { get; set; }
-        public GenderType? Gender { get; set; }
-        public DateTime? DateOfBirth { get; set; }
-        public string? ProfilePicture { get; set; }
+        //public GenderType? Gender { get; set; }
+        //public DateTime? DateOfBirth { get; set; }
+        //public string? ProfilePicture { get; set; }
         public bool? IsActive { get; set; }
         public Guid? RoleId { get; set; }
     }

@@ -13,9 +13,13 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Reservation
         public string PatientName { get; set; }
         public string PatientLastName { get; set; }
         public string PatientNationalCode { get; set; }
+
         public string PatientPhoneNumber { get; set; }
+        public bool PatientHaveInsurance { get; set; }
         [SwaggerSchema(ReadOnly = true)]
         public string DoctorNoNezam { get; set; }
+        [SwaggerSchema(ReadOnly = true)]
+
         public long RoomCode { get; set; }
         public string? Description { get; set; }
         public DateTime RequestedDate { get; set; }

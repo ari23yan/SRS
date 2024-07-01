@@ -33,7 +33,8 @@ namespace SurgeryRoomScheduler.Domain.Entities.Account
         public bool? EmailConfirmed { get; set; }
         public Guid RoleId { get; set; }
         public Role Role { get; set; }
-        public UserDetail UserDetail { get; set; }
+        public DateTime? LastLoginDate { get; set; }
+        //public UserDetail UserDetail { get; set; }
         public ICollection<Otp> Otps { get; set; } = new List<Otp>();
     }
 }

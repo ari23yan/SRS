@@ -2,11 +2,13 @@
 using SurgeryRoomScheduler.Domain.Entities.Account;
 using SurgeryRoomScheduler.Domain.Entities.Common;
 using SurgeryRoomScheduler.Domain.Entities.General;
+using SurgeryRoomScheduler.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ReservationConfirmationStatus = SurgeryRoomScheduler.Domain.Entities.General.ReservationConfirmationStatus;
 
 
 namespace SurgeryRoomScheduler.Data.Context
@@ -16,7 +18,7 @@ namespace SurgeryRoomScheduler.Data.Context
         public AppDbContext(DbContextOptions<AppDbContext> dbContext) : base(dbContext){}
         public DbSet<User> Users  { get; set; }
         public DbSet<Otp> Otps  { get; set; }
-        public DbSet<UserDetail> UserDetails { get; set; }
+        //public DbSet<UserDetail> UserDetails { get; set; }
         public DbSet<Role> Roles  { get; set; }
         public DbSet<Permission> Permissions  { get; set; }
         public DbSet<RolePermission> RolePermissions  { get; set; }
@@ -30,6 +32,7 @@ namespace SurgeryRoomScheduler.Data.Context
         public DbSet<ReservationConfirmationType> ReservationConfirmationTypes { get; set; }
         public DbSet<ReservationRejectionAndCancellationReason> ReservationRejectionAndCancellationReasons { get; set; }
         public DbSet<ReservationRejection> ReservationRejections { get; set; }
+        public DbSet<ReservationConfirmationStatus> ReservationConfirmationStatuses { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<Timing> Timings { get; set; }

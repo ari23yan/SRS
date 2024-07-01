@@ -14,5 +14,7 @@ namespace SurgeryRoomScheduler.Application.Jobs.Interfaces
         Task<bool> GetRoomListJob();
         Task<bool> GetInsuranceListJob();
         Task<bool> GetSurgeryNamesListJob();
+        Task<bool> GetDoctorsRoomJob();
+        Task<bool> ExteraTiming();
     }
 }

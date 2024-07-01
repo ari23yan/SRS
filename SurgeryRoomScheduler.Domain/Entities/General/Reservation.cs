@@ -24,6 +24,7 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
         public string PatientNationalCode { get; set; }
         [MaxLength(11)]
         public string PatientPhoneNumber { get; set; }
+        public bool PatientHaveInsurance { get; set; }
         [MaxLength(256)]
         public string DoctorNoNezam { get; set; }
         public long? RoomCode { get; set; }

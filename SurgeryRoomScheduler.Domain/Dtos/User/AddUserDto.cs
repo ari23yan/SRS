@@ -25,8 +25,8 @@ namespace SurgeryRoomScheduler.Domain.Dtos.User
         [SwaggerSchema(ReadOnly = true)]
         public Guid? CreatedBy { get; set; }
         public Guid RoleId { get; set; }
-        public GenderType? Gender { get; set; }
-        public DateTime? DateOfBirth { get; set; }
+        //public GenderType? Gender { get; set; }
+        //public DateTime? DateOfBirth { get; set; }
         [SwaggerSchema(ReadOnly = true)]
         public Guid UserId { get; set; }
     }

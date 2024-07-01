@@ -184,18 +184,13 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 {
                     return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "مدت زمان درخواستی نمیتواند از زمان زمانبندی شده بیشتر باشد" };
                 }
-                if (timing.AssignedRoomCode != request.RoomCode)
-                {
-                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "زمانبندی مورد نظر برای اتاق عمل دیگری در نظر گرفته شده است" };
-                }
-
-
                 var doctor = await _userRepository.GetUserByUserId(currentUser);
                 if (doctor == null)
                 {
                     return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
                 }
-                request.DoctorNoNezam = doctor.NoNezam;
+                request.DoctorNoNezam = timing.AssignedDoctorNoNezam;
+                request.RoomCode = timing.AssignedRoomCode;
 
                 if (timing.AssignedDoctorNoNezam != request.DoctorNoNezam)
                 {
