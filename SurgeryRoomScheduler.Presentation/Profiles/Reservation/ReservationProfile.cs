@@ -11,7 +11,9 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
         public ReservationProfile()
         {
             CreateMap<Reservation, AddReservationDto>();
-            CreateMap<AddReservationDto, Reservation>();
+            CreateMap<AddReservationDto, Reservation>()
+                
+                ;
             //.ForMember(dest => dest.IsConfirmedByMedicalRecords, opt => opt.Ignore())
             //.ForMember(dest => dest.ConfirmedMedicalRecordsUserId, opt => opt.Ignore())
             //.ForMember(dest => dest.IsConfirmedBySupervisor, opt => opt.Ignore())

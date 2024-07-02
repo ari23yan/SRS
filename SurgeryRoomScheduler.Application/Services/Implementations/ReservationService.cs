@@ -180,10 +180,10 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 {
                     return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "زمان بندی مورد نظر یافت نشد" };
                 }
-                if (timing.ScheduledDuration <= request.RequestedTime)
-                {
-                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "مدت زمان درخواستی نمیتواند از زمان زمانبندی شده بیشتر باشد" };
-                }
+                //if (timing.ScheduledDuration <= request.RequestedTime)
+                //{
+                //    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "مدت زمان درخواستی نمیتواند از زمان زمانبندی شده بیشتر باشد" };
+                //}
                 var doctor = await _userRepository.GetUserByUserId(currentUser);
                 if (doctor == null)
                 {
@@ -191,13 +191,13 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 }
                 request.DoctorNoNezam = timing.AssignedDoctorNoNezam;
                 request.RoomCode = timing.AssignedRoomCode;
-
                 if (timing.AssignedDoctorNoNezam != request.DoctorNoNezam)
                 {
                     return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "زمانبندی مورد نظر برای دکتر دیگری در نظر گرفته شده است" };
                 }
                 var reservation = _mapper.Map<Reservation>(request);
-
+                reservation.UsageTime = timing.ScheduledDuration - request.RequestedTime;
+                reservation.RequestedDate = timing.ScheduledDate.ToDateTime(TimeOnly.Parse("00:00:00 PM")); ;
                 // Step 2: Add the reservation to the repository asynchronously
                 await _reservationRepository.AddAsync(reservation);
 
@@ -207,7 +207,6 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     ReservationId = reservation.Id,
                     ReservationConfirmationTypeId = new Guid("c25c174c-efd0-4a69-8207-a48fe437268b")
                 };
-
                 // Step 4: Add the reservation confirmation to the repository asynchronously
                 await _reservationConfirmation.AddAsync(reservationConfirmation);
 
@@ -534,8 +533,9 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Not Found" };
             }
             var mappedTiming = _mapper.Map(request, reservation);
-            reservation.ModifiedBy = operatorId;
-            reservation.IsModified = true;
+            mappedTiming.ModifiedBy = operatorId;
+            mappedTiming.IsModified = true;
+            mappedTiming.UsageTime = request.RequestedTime;
             await _reservationRepository.UpdateAsync(mappedTiming);
             return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
         }

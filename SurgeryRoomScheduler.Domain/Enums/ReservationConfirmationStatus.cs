@@ -10,7 +10,7 @@ namespace SurgeryRoomScheduler.Domain.Enums
 {
     public enum ReservationConfirmationStatus
     {
-        Pending,
+        Pending=1,
         ApprovedBySupervisor,
         ApprovedByMedicalRecord,
         RejectedByMedicalRecord,

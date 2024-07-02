@@ -212,9 +212,16 @@ namespace SurgeryRoomScheduler.Data.Repositories
             return timingDto;
         }
 
-        public Task<ResponseDto<IEnumerable<TimingDto>>> GetTimingListByDate(DateOnly date)
+        public async Task<IEnumerable<Timing>> GetTimingListByDate(DateOnly date)
         {
-            throw new NotImplementedException();
+            var threeDaysAgoTimings = await Context.Timings.Where(x => x.ScheduledDate <= date && !x.IsExtraTiming && !x.IsDeleted && x.IsActive).ToListAsync();
+            var timingsIds = threeDaysAgoTimings.Select(x => x.Id).ToList();
+            var notReservedTimings = await Context.Reservations.Where(x=> !timingsIds.Contains(x.TimingId) && x.IsActive && !x.IsDeleted && !x.IsCanceled).ToListAsync();
+            //var notReservedTimingsIds = notReservedTimings.Select(x => !x.Id).ToList();
+
+            //return await threeDaysAgoTimings.Select(x => notReservedTimingsIds);
+
+            return new List<Timing>();
         }
     }
 }

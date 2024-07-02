@@ -18,7 +18,7 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
         public Reservation Reservation { get; set; }
         public Guid ReservationConfirmationTypeId { get; set; }
         public ReservationConfirmationType ReservationConfirmationType { get; set; }
-        public int StatusId { get; set; }
+        public int StatusId { get; set; } = 1;
         public ReservationConfirmationStatus Status { get; set; } 
         public bool IsConfirmedByMedicalRecords { get; set; } = false; // مدارک پزشکی
         public Guid? ConfirmedMedicalRecordsUserId { get; set; }

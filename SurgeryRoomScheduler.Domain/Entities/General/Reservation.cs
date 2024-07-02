@@ -32,6 +32,7 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
         public string? Description { get; set; }
         public DateTime RequestedDate { get; set; }
         public TimeSpan RequestedTime { get; set; }
+        public TimeSpan UsageTime { get; set; } // مدت زمان استفاده از زمان بندی 
         public bool IsCanceled { get; set; } = false;
         //public Guid ReservationCancelationReasonId { get; set; }
         //public ReservationRejectionAndCancellationReason ReservationRejectionAndCancellationReason { get; set; }
