@@ -176,6 +176,11 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             };
         }
 
+        public Task<ResponseDto<IEnumerable<TimingDto>>> GetTimingListByDate(DateOnly date)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<int> GetTimingsCount()
         {
             return await _timingRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted);

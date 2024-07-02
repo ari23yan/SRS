@@ -15,6 +15,7 @@ namespace SurgeryRoomScheduler.Application.Services.Interfaces
     {
         Task<ResponseDto<IEnumerable<TimingDto>>> GetPaginatedTimingList(PaginationDto request);
         Task<ResponseDto<IEnumerable<TimingDto>>> GetPaginatedTimingListByRoomAndDate(PaginationDto request, long roomCode, DateOnly date);
+        Task<ResponseDto<IEnumerable<TimingDto>>> GetTimingListByDate(DateOnly date);
         Task<ResponseDto<GetTimingCalenderDto>> GetTimingCalender(GetListByMonthDto request);
         Task<int> GetTimingsCount();
         Task<ResponseDto<TimingDto>> GetTimingDetailByTimingId(Guid timingId);

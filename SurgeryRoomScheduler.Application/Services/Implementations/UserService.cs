@@ -437,7 +437,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     UserId = roleId,
                     OperatorId = operatorId
                 };
-                await InserAccessLog(AccessLogType.MenuChange, logDto);
+                await _logService.InserAccessLog(AccessLogType.MenuChange, logDto);
             }
 
 
@@ -458,7 +458,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     UserId = roleId,
                     OperatorId = operatorId
                 };
-                await InserAccessLog(AccessLogType.PermissionChange, logDto);
+                await _logService.InserAccessLog(AccessLogType.PermissionChange, logDto);
             }
             role.ModifiedBy = operatorId;
             role.IsModified = true;

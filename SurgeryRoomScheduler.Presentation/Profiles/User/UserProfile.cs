@@ -29,26 +29,26 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
             CreateMap<DoctorDto, User>()
            .ForMember(dest => dest.NationalCode, opt => opt.MapFrom(src => src.DoctorNationalCode))
            .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.NoNezam))
-           .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => "F054C928-FDC4-469F-8307-4EF1A179F5CE"))
+           .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => "F054C928-FDC4-469F-8307-4EF1A179F5CE")) // Doctor Role
            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom((src, dest) =>
             {
                 string FormatPhoneNumber(string phoneNumber, int type)
                 {
                     if (type == 1)
                     {
-                        if (!phoneNumber.StartsWith("0"))
+                        if (!phoneNumber.Trim().StartsWith("0"))
                         {
-                            return "0" + phoneNumber;
+                            return "0" + phoneNumber.Trim();
                         }
-                        return phoneNumber;
+                        return phoneNumber.Trim();
                     }
                     else
                     {
-                        if (phoneNumber.StartsWith("0"))
+                        if (phoneNumber.Trim().StartsWith("0"))
                         {
-                            return phoneNumber.Substring(1);
+                            return phoneNumber.Trim().Substring(1);
                         }
-                        return phoneNumber;
+                        return phoneNumber.Trim();
                     }
                 }
 
@@ -72,7 +72,7 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
                {
                    if (type == 1)
                    {
-                       if (!phoneNumber.StartsWith("0"))
+                       if (!phoneNumber.Trim().StartsWith("0"))
                        {
                            return UtilityManager.EncodePasswordMd5(phoneNumber);
                        }
@@ -80,25 +80,24 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
                    }
                    else
                    {
-                       if (phoneNumber.StartsWith("0"))
+                       if (phoneNumber.Trim().StartsWith("0"))
                        {
                            return UtilityManager.EncodePasswordMd5(phoneNumber);
                        }
                        return UtilityManager.EncodePasswordMd5(phoneNumber);
                    }
                }
-
-               if (!string.IsNullOrEmpty(src.Mobile0) && src.Mobile0.Length > 1)
+               if (!string.IsNullOrEmpty(src.Mobile0) && src.Mobile0.Trim().Length > 1)
                {
-                   return FormatPhoneNumber(src.Mobile0, 2);
+                   return FormatPhoneNumber(src.Mobile0.Trim(), 2);
                }
-               else if (!string.IsNullOrEmpty(src.Mobile1) && src.Mobile1.Length > 1)
+               else if (!string.IsNullOrEmpty(src.Mobile1.Trim()) && src.Mobile1.Trim().Length > 1)
                {
-                   return FormatPhoneNumber(src.Mobile1, 2);
+                   return FormatPhoneNumber(src.Mobile1.Trim(), 2);
                }
-               else if (!string.IsNullOrEmpty(src.Mobile2) && src.Mobile2.Length > 1)
+               else if (!string.IsNullOrEmpty(src.Mobile2) && src.Mobile2.Trim().Length > 1)
                {
-                   return FormatPhoneNumber(src.Mobile2, 2);
+                   return FormatPhoneNumber(src.Mobile2.Trim(), 2);
                }
                return null;
            }))
@@ -195,8 +194,6 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
             CreateMap<UpdateUserDto, UserDetail>()
             .ForMember(dest => dest.ModifiedDate, opt => opt.MapFrom(src => DateTime.Now))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom((src, dest) => src.IsActive != null ? src.IsActive : dest.IsActive))
-            .ForMember(dest => dest.Gender, opt => opt.MapFrom((src, dest) => src.Gender != null ? src.Gender : dest.Gender))
-            .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom((src, dest) => src.DateOfBirth != null ? src.DateOfBirth : dest.DateOfBirth))
             .ForMember(dest => dest.LastLoginDate, opt => opt.Ignore())
             .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
@@ -208,17 +205,6 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
 
 
 
-
-            CreateMap<User, UserDetailDto>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
-            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.RoleName))
-            .ForMember(dest => dest.RoleName_Farsi, opt => opt.MapFrom(src => src.Role.RoleName_Farsi))
-            .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.UserDetail.Gender))
-            .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.UserDetail.DateOfBirth))
-            .ForMember(dest => dest.LastLoginDate, opt => opt.MapFrom(src => src.UserDetail.LastLoginDate))
-            .ForMember(dest => dest.ProfilePicture, opt => opt.MapFrom(src => src.UserDetail.ProfilePicture))
-            .ForMember(dest => dest.PermissionGroup, opt => opt.Ignore());
 
             CreateMap<Permission, PermissionsDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

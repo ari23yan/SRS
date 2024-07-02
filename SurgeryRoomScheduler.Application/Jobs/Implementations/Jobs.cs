@@ -27,10 +27,11 @@ namespace SurgeryRoomScheduler.Application.Jobs.Implementations
         private readonly IRepository<Doctor> _docRepository;
         private readonly IRepository<User> _userRepository;
         private readonly IMedicalDataService _medicalDataService;
+        private readonly ITimingService _timingService;
         private readonly ILogService _logService;
         private readonly IMapper _mapper;
         public Jobs(IExternalService externalService, ILogService logService,
-            IMapper mapper,IUserService userService, IRepository<User> userrepository, IRepository<Doctor> docRepository
+            IMapper mapper, ITimingService timingService, IUserService userService, IRepository<User> userrepository, IRepository<Doctor> docRepository
             , IMedicalDataService medicalDataService)
         {
             _externalService = externalService;
@@ -40,16 +41,40 @@ namespace SurgeryRoomScheduler.Application.Jobs.Implementations
             _userService = userService;
             _docRepository = docRepository;
             _userRepository = userrepository;
+            _timingService = timingService;
         }
 
-        public Task<bool> ExteraTiming()
+        public async Task<bool> ExteraTiming()
         {
-            throw new NotImplementedException();
+            var log = new JobLog { JobName = "ExteraTiming", StartTime = DateTime.Now, IsSuccessful = false };
+            await _logService.InsertJobLog(log);
+            try
+            {
+                
+                   
+                    //var timing = await _timingService.GetPaginatedTimingListByRoomAndDate
+
+
+                    log.EndTime = DateTime.Now;
+                    log.IsSuccessful = true;
+                    //log.Description = "Total Doctor Count = " + doctors.Count();
+                    await _logService.UpdateJobLog(log);
+                    return true;
+            }
+            catch (Exception ex)
+            {
+                log.EndTime = DateTime.Now;
+                log.IsSuccessful = false;
+                log.ErrorDetails = ex.ToString();
+                log.Description = "Exception On Authentication";
+                await _logService.UpdateJobLog(log);
+                return false;
+            }
         }
 
         public async Task<bool> GetDoctorsListJob()
         {
-            var log = new JobLog { JobName = "Doctors List", StartTime = DateTime.Now,IsSuccessful =false};
+            var log = new JobLog { JobName = "DoctorsList", StartTime = DateTime.Now, IsSuccessful = false };
             await _logService.InsertJobLog(log);
             try
             {
@@ -61,7 +86,7 @@ namespace SurgeryRoomScheduler.Application.Jobs.Implementations
                         var doctors = JsonConvert.DeserializeObject<List<DoctorDto>>(doctorsListService.Data);
                         var uniqeDoctors = doctors.DistinctBy(x => x.NoNezam).ToList();
 
-                        var mappedDoctors = _mapper.Map<List<DoctorDto>,List <Doctor>> (uniqeDoctors);
+                        var mappedDoctors = _mapper.Map<List<DoctorDto>, List<Doctor>>(uniqeDoctors);
 
                         var deleteDoctorsOldDataFromDoctorTable = await _medicalDataService.DeleteDoctors();
                         await _docRepository.AddRangeAsync(mappedDoctors);
@@ -69,7 +94,7 @@ namespace SurgeryRoomScheduler.Application.Jobs.Implementations
                         var mappedUsersDoctors = _mapper.Map<List<DoctorDto>, List<User>>(uniqeDoctors);
 
                         var deleteDoctorOldDataFromUserTable = await _userService.DeleteDoctors();
-                         await _userRepository.AddRangeAsync(mappedUsersDoctors);
+                        await _userRepository.AddRangeAsync(mappedUsersDoctors);
                         log.EndTime = DateTime.Now;
                         log.IsSuccessful = true;
                         log.Description = "Total Doctor Count = " + doctors.Count();

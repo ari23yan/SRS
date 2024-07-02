@@ -29,7 +29,7 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Reservation
         public bool IsConfirmedBySupervisor { get; set; } = false;//  سوپروایزر
         public Guid? ConfirmedSupervisorUserId { get; set; }
         public TimeSpan RequestedTime { get; set; }
-        public ReservationConfirmationStatus StatusType { get; set; }
+        public int StatusType { get; set; }
         public string Status { get; set; }
         public Guid? ReservationRejectionId { get; set; }
 

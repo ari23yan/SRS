@@ -15,13 +15,13 @@ namespace SurgeryRoomScheduler.Data.Context
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> dbContext) : base(dbContext){}
-        public DbSet<User> Users  { get; set; }
-        public DbSet<Otp> Otps  { get; set; }
+        public AppDbContext(DbContextOptions<AppDbContext> dbContext) : base(dbContext) { }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Otp> Otps { get; set; }
         //public DbSet<UserDetail> UserDetails { get; set; }
-        public DbSet<Role> Roles  { get; set; }
-        public DbSet<Permission> Permissions  { get; set; }
-        public DbSet<RolePermission> RolePermissions  { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<PermissionGroup> PermissionGroup { get; set; }
         public DbSet<PermissionGroup_Permission> permissionGroup_Permissions { get; set; }
         public DbSet<Menu> Menus { get; set; }
@@ -40,8 +40,8 @@ namespace SurgeryRoomScheduler.Data.Context
         public DbSet<SurgeryName> SurgeryNames { get; set; }
         public DbSet<Insurance> Insurances { get; set; }
         public DbSet<DoctorRoom> DoctorRooms { get; set; }
-        public DbSet<UsersAccessLog> UsersAccessLogs  { get; set; }
-        public DbSet<ApplicationLog> ApplicationLogs  { get; set; }
+        public DbSet<UsersAccessLog> UsersAccessLogs { get; set; }
+        public DbSet<ApplicationLog> ApplicationLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -49,6 +49,7 @@ namespace SurgeryRoomScheduler.Data.Context
                 .HasOne(r => r.ReservationConfirmation)
                 .WithOne(rc => rc.Reservation)
                 .HasForeignKey<ReservationConfirmation>(rc => rc.ReservationId);
+
 
             base.OnModelCreating(modelBuilder);
         }

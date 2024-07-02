@@ -69,14 +69,14 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "امکان کنسل کردن این رکورد وجود ندارد زیرا توسط مدارک پزشکی تایید شده است" };
             }
-            reservationConf.Status = ReservationConfirmationStatus.CancelledByDoctor;
+            reservationConf.StatusId = (int)Domain.Enums.ReservationConfirmationStatus.CancelledByDoctor;
             reservationConf.ModifiedDate = DateTime.Now;
             reservationConf.IsModified = true;
             reservationConf.ModifiedBy = operatorId;
             await _reservationConfirmation.UpdateAsync(reservationConf);
             reservation.IsCanceled = true;
             reservation.CancelationDescription = request.CancellationDescription;
-            reservation.ReservationCancelationReasonId = request.ReservationRejectionReasonId;
+            reservation.ReservationConfirmation.ReservationRejection.Id = request.ReservationRejectionReasonId;
             reservation.ModifiedDate = DateTime.Now;
             reservation.IsModified = true;
             reservation.ModifiedBy = operatorId;
@@ -96,7 +96,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "درخواست یافت نشد" };
             }
-            if (reservationConf.Status != ReservationConfirmationStatus.Pending)
+            if (reservationConf.StatusId != (int)Domain.Enums.ReservationConfirmationStatus.Pending)
             {
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا تعیین وضعیت شده است" };
             }
@@ -112,7 +112,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     else
                     {
                         // Approved
-                        reservationConf.Status = ReservationConfirmationStatus.ApprovedByMedicalRecord;
+                        reservationConf.StatusId = (int)Domain.Enums.ReservationConfirmationStatus.ApprovedByMedicalRecord;
                         reservationConf.ConfirmedMedicalRecordsUserId = operatorId;
                         reservationConf.IsConfirmedByMedicalRecords = true;
                         await _reservationConfirmation.UpdateAsync(reservationConf);
@@ -135,7 +135,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     else
                     {
                         // Approved
-                        reservationConf.Status = ReservationConfirmationStatus.ApprovedBySupervisor;
+                        reservationConf.StatusId = (int)Domain.Enums.ReservationConfirmationStatus.ApprovedBySupervisor;
                         reservationConf.ConfirmedSupervisorUserId = operatorId;
                         reservationConf.IsConfirmedBySupervisor = true;
                         await _reservationConfirmation.UpdateAsync(reservationConf);
@@ -155,7 +155,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     else
                     {
                         //Approved
-                        reservationConf.Status = ReservationConfirmationStatus.ApprovedByMedicalRecord;
+                        reservationConf.StatusId = (int)Domain.Enums.ReservationConfirmationStatus.ApprovedByMedicalRecord;
                         reservationConf.ConfirmedMedicalRecordsUserId = operatorId;
                         reservationConf.IsConfirmedByMedicalRecords = true;
                         await _reservationConfirmation.UpdateAsync(reservationConf);
@@ -435,7 +435,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "درخواست یافت نشد" };
             }
-            if (reservationConf.Status != ReservationConfirmationStatus.Pending)
+            if (reservationConf.StatusId != (int)Domain.Enums.ReservationConfirmationStatus.Pending)
             {
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا تعیین وضعیت شده است" };
             }
@@ -458,7 +458,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                         };
                         await _reservationRejection.AddAsync(reservationRejection);
 
-                        reservationConf.Status = ReservationConfirmationStatus.RejectedByMedicalRecord;
+                        reservationConf.StatusId = (int)Domain.Enums.ReservationConfirmationStatus.RejectedByMedicalRecord;
                         reservationConf.ReservationRejectionId = reservationRejection.Id;
                         reservationConf.RejectionUserId = operatorId;
                         await _reservationConfirmation.UpdateAsync(reservationConf);
@@ -492,7 +492,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                         };
                         await _reservationRejection.AddAsync(reservationRejection);
 
-                        reservationConf.Status = ReservationConfirmationStatus.RejectedByMedicalRecord;
+                        reservationConf.StatusId = (int)Domain.Enums.ReservationConfirmationStatus.RejectedByMedicalRecord;
                         reservationConf.ReservationRejectionId = reservationRejection.Id;
                         reservationConf.RejectionUserId = operatorId;
                         await _reservationConfirmation.UpdateAsync(reservationConf);
@@ -515,7 +515,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                         };
                         await _reservationRejection.AddAsync(reservationRejection);
 
-                        reservationConf.Status = ReservationConfirmationStatus.RejectedBySupervisor;
+                        reservationConf.StatusId = (int)Domain.Enums.ReservationConfirmationStatus.RejectedBySupervisor;
                         reservationConf.ReservationRejectionId = reservationRejection.Id;
                         reservationConf.RejectionUserId = operatorId;
                         await _reservationConfirmation.UpdateAsync(reservationConf);

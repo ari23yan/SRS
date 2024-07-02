@@ -13,6 +13,7 @@ using SurgeryRoomScheduler.Domain.Dtos.Timing;
 using SurgeryRoomScheduler.Domain.Dtos.Common.Pagination;
 using Microsoft.EntityFrameworkCore;
 using SurgeryRoomScheduler.Domain.Enums;
+using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
 
 namespace SurgeryRoomScheduler.Data.Repositories
 {
@@ -211,5 +212,9 @@ namespace SurgeryRoomScheduler.Data.Repositories
             return timingDto;
         }
 
+        public Task<ResponseDto<IEnumerable<TimingDto>>> GetTimingListByDate(DateOnly date)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
     public class ReservationConfirmationStatus
     {
         [Key]
-        public SurgeryRoomScheduler.Domain.Enums.ReservationConfirmationStatus Id { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
         [MaxLength(200)]
 
