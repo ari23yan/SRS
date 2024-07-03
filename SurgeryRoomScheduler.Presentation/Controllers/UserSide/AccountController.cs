@@ -50,7 +50,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
         [HttpGet]
         public async Task<IActionResult> test()
         {
-            var result = await _jobs.GetDoctorsListJob();
+            var result = await _jobs.ExteraTimingJob();
             return Ok();
         }
 

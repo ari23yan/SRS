@@ -1,17 +1,14 @@
-﻿using SurgeryRoomScheduler.Domain.Entities.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SurgeryRoomScheduler.Domain.Entities.General
+namespace SurgeryRoomScheduler.Domain.Dtos.Timing
 {
-    [Table("Timings", Schema = "General")]
-
-    public class Timing:BaseEntity
+    public class NotFullyReservedTimingsDto
     {
+        public Guid TimingId { get; set; }
         public string? AssignedDoctorNoNezam { get; set; }
         public long AssignedRoomCode { get; set; }
         public TimeOnly ScheduledStartTime { get; set; }
@@ -20,7 +17,8 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
         public TimeSpan ScheduledDuration { get; set; }
         public string ScheduledDate_Shamsi { get; set; }
         public string CreatedDate_Shamsi { get; set; }
-        public bool IsExtraTiming { get; set; } = false; // مازاد
-        public string? PreviousOwner { get; set; } //Doctor NoNezam 
+        public bool IsExtraTiming { get; set; } = false;
+        public Guid? PreviousOwner { get; set; }
+        public TimeSpan UsageTime { get; set; } // مدت زمان استفاده از زمان بندی 
     }
 }

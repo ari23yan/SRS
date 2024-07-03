@@ -14,6 +14,7 @@ using SurgeryRoomScheduler.Domain.Dtos.Common.Pagination;
 using Microsoft.EntityFrameworkCore;
 using SurgeryRoomScheduler.Domain.Enums;
 using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
+using SurgeryRoomScheduler.Domain.Dtos;
 
 namespace SurgeryRoomScheduler.Data.Repositories
 {
@@ -28,14 +29,13 @@ namespace SurgeryRoomScheduler.Data.Repositories
             return await Context.Timings
                  .AnyAsync(x => x.AssignedDoctorNoNezam.Equals(request.NoNezam) &&
                                 x.AssignedRoomCode.Equals(request.RoomCode) &&
-                                x.ScheduledDate < request.Date &&
-                                x.ScheduledStartTime < request.EndTime &&
-                                x.ScheduledEndTime > request.StartTime);
+                                x.ScheduledDate == request.Date && 
+                                x.ScheduledStartTime < request.EndTime && // Check for time overlap
+                                x.ScheduledEndTime > request.StartTime); // Check for time overlap
         }
-
-        public async Task<IEnumerable<TimingDto>> GetDoctorTimingByRoomIdAndDate(long roomCode,string noNezam, DateTime sDate, DateTime eDate)
+        public async Task<IEnumerable<TimingDto>> GetDoctorTimingByRoomIdAndDate(long roomCode, string noNezam, DateTime sDate, DateTime eDate)
         {
-            var timings = await(
+            var timings = await (
                from timing in Context.Timings
                join doctor in Context.Doctors on timing.AssignedDoctorNoNezam equals doctor.NoNezam
                join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
@@ -112,7 +112,7 @@ namespace SurgeryRoomScheduler.Data.Repositories
             var baseQuery = from timing in Context.Timings
                             join doctor in Context.Doctors on timing.AssignedDoctorNoNezam equals doctor.NoNezam
                             join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
-                            where !timing.IsDeleted && timing.IsActive && timing.AssignedRoomCode.Equals(roomCode)  && timing.ScheduledDate == date
+                            where !timing.IsDeleted && timing.IsActive && timing.AssignedRoomCode.Equals(roomCode) && timing.ScheduledDate == date
                             && timing.ScheduledDate <= date
                             select new TimingDto
                             {
@@ -212,16 +212,138 @@ namespace SurgeryRoomScheduler.Data.Repositories
             return timingDto;
         }
 
-        public async Task<IEnumerable<Timing>> GetTimingListByDate(DateOnly date)
+        public async Task<GetExteraTimingDto> GetExteraTimingListByDate(DateOnly date)
         {
+            GetExteraTimingDto timingDto = new GetExteraTimingDto();
             var threeDaysAgoTimings = await Context.Timings.Where(x => x.ScheduledDate <= date && !x.IsExtraTiming && !x.IsDeleted && x.IsActive).ToListAsync();
             var timingsIds = threeDaysAgoTimings.Select(x => x.Id).ToList();
-            var notReservedTimings = await Context.Reservations.Where(x=> !timingsIds.Contains(x.TimingId) && x.IsActive && !x.IsDeleted && !x.IsCanceled).ToListAsync();
-            //var notReservedTimingsIds = notReservedTimings.Select(x => !x.Id).ToList();
+            // 3 days Ago Not Used Timings
+            var notReservedTimings =  threeDaysAgoTimings
+            .GroupJoin(
+            Context.Reservations.Where(r => r.IsActive && !r.IsDeleted && !r.IsCanceled),
+            timing => timing.Id,
+            reservation => reservation.TimingId,
+            (timing, reservations) => new { timing, reservations }
+            )
+            .SelectMany(
+            x => x.reservations.DefaultIfEmpty(),
+            (x, reservation) => new { x.timing, reservation }
+            )
+            .Where(x => x.reservation == null)
+            .Select(x => x.timing).ToList();
+            
 
-            //return await threeDaysAgoTimings.Select(x => notReservedTimingsIds);
+            //var notReservedTimingsIds = notReservedTimings.Select(x => x.TimingId).ToList();
+            timingDto.UnreservedTimings = notReservedTimings;
+            // 3 days Ago Not Fully Reserved Timings
 
-            return new List<Timing>();
+
+            // var notFullyReservedTimings = await Context.Reservations
+            //.Where(x => !timingsIds.Contains(x.TimingId)
+            //            && x.UsageTime > TimeSpan.FromMinutes(20)
+            //            && x.IsActive
+            //            && !x.IsDeleted
+            //            && !x.IsCanceled)
+            //.ToListAsync();
+            // var notFullyReservedTimingsIds = notFullyReservedTimings.Select(x => x.TimingId).ToList();
+
+            // List<NotFullyReservedTimingsDto> notFullyReservedList = new List<NotFullyReservedTimingsDto>();
+            // foreach (var item in notFullyReservedTimings)
+            // {
+            //  var notFullyReserved = new NotFullyReservedTimingsDto
+            //  {
+            //      AssignedDoctorNoNezam = 
+            //  }
+            // }
+            // timingDto.NotFullyReservedTimings = threeDaysAgoTimings.Where(x => notFullyReservedTimingsIds.Contains(x.Id));
+            //return timingDto;
+
+
+            //var notFullyReservedTimings = await Context.Reservations
+            //.Where(x => !timingsIds.Contains(x.TimingId)
+            //   && x.UsageTime > TimeSpan.FromMinutes(20)
+            //   && x.IsActive
+            //   && !x.IsDeleted
+            //   && !x.IsCanceled)
+            //.ToListAsync();
+
+            
+                var notFullyReservedTimings = await Context.Timings
+                .Where(x => x.ScheduledDate <= date && !x.IsExtraTiming && !x.IsDeleted && x.IsActive)
+                .GroupJoin(
+                    Context.Reservations
+                        .Where(r => r.IsActive && !r.IsDeleted && !r.IsCanceled && r.UsageTime > TimeSpan.FromMinutes(20)),
+                    timing => timing.Id,
+                    reservation => reservation.TimingId,
+                    (timing, reservations) => new { timing, reservations }
+                )
+                .SelectMany(
+                    x => x.reservations.DefaultIfEmpty(),
+                    (x, reservation) => new { x.timing, reservation }
+                )
+                .Where(x => x.reservation != null) // Only timings without reservations
+                .Select(x => new NotFullyReservedTimingsDto
+                {
+                    TimingId = x.timing.Id,
+                    UsageTime = x.reservation.UsageTime,
+                    AssignedDoctorNoNezam = x.timing.AssignedDoctorNoNezam,
+                    CreatedDate_Shamsi = x.timing.CreatedDate_Shamsi,
+                    AssignedRoomCode = x.timing.AssignedRoomCode,
+                    IsExtraTiming = x.timing.IsExtraTiming,
+                    ScheduledDate = x.timing.ScheduledDate,
+                    ScheduledDate_Shamsi = x.timing.ScheduledDate_Shamsi,
+                    ScheduledDuration = x.timing.ScheduledDuration,
+                    ScheduledEndTime = x.timing.ScheduledEndTime,
+                    ScheduledStartTime = x.timing.ScheduledStartTime
+                })
+                .ToListAsync();
+
+
+
+
+           
+
+
+
+
+
+
+            //var notFullyReservedTimingsIds = notFullyReservedTimings.Select(x => x.TimingId).ToList();
+
+            //List<NotFullyReservedTimingsDto> notFullyReservedList = new List<NotFullyReservedTimingsDto>();
+
+            //foreach (var item in notFullyReservedTimings)
+            //{
+            //    var notFullyReserved = new NotFullyReservedTimingsDto
+            //    {
+            //        TimingId = item.TimingId,
+            //        UsageTime = item.UsageTime,
+            //        // Map other properties as needed
+            //    };
+            //    notFullyReservedList.Add(notFullyReserved);
+            //}
+
+            //timingDto.NotFullyReservedTimings = threeDaysAgoTimings
+            //    .Where(x => notFullyReservedTimingsIds.Contains(x.Id))
+            //    .Select(x => new NotFullyReservedTimingsDto
+            //    {
+            //        TimingId = x.Id,
+            //        UsageTime = notFullyReservedTimings.First(y => y.TimingId == x.Id).UsageTime,
+            //        AssignedDoctorNoNezam = x.AssignedDoctorNoNezam,
+            //        CreatedDate_Shamsi = x.CreatedDate_Shamsi,
+            //        AssignedRoomCode = x.AssignedRoomCode,
+            //        IsExtraTiming = x.IsExtraTiming,
+            //        PreviousOwner = x.PreviousOwner,
+            //        ScheduledDate = x.ScheduledDate,
+            //        ScheduledDate_Shamsi = x.ScheduledDate_Shamsi,
+            //        ScheduledDuration = x.ScheduledDuration,
+            //        ScheduledEndTime = x.ScheduledEndTime,
+            //        ScheduledStartTime = x.ScheduledStartTime,
+            //    }).ToList();
+            timingDto.NotFullyReservedTimings = notFullyReservedTimings;
+
+            return timingDto;
+
         }
     }
 }

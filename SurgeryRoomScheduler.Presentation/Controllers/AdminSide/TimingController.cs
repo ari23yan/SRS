@@ -129,7 +129,6 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
                 #region Inserting Log 
                 if (_configuration.GetValue<bool>("ApplicationLogIsActive"))
                 {
-
                     var userAgent = _httpContextAccessor.HttpContext?.Request.Headers["User-Agent"];
                     var userIp = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
                     var routeData = ControllerContext.RouteData;

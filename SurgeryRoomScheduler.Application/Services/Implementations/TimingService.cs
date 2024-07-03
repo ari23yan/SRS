@@ -22,6 +22,7 @@ using SurgeryRoomScheduler.Domain.Dtos.Common;
 using SurgeryRoomScheduler.Domain.Dtos.Common.AccessLog;
 using SurgeryRoomScheduler.Domain.Enums;
 using static System.Net.Mime.MediaTypeNames;
+using SurgeryRoomScheduler.Domain.Dtos;
 
 namespace SurgeryRoomScheduler.Application.Services.Implementations
 {
@@ -176,9 +177,9 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             };
         }
 
-        public Task<ResponseDto<IEnumerable<TimingDto>>> GetTimingListByDate(DateOnly date)
+        public async Task<GetExteraTimingDto> GetExteraTimingListByDate(DateOnly date)
         {
-            throw new NotImplementedException();
+           return await _timingRepository.GetExteraTimingListByDate(date);
         }
 
         public async Task<int> GetTimingsCount()
@@ -198,6 +199,11 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             timing.IsModified = true;
             await _timingRepository.UpdateAsync(mappedTiming);
             return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
+        }
+
+        public async Task<Timing> GetTimingByTimingId(Guid timingId)
+        {
+            return await _timingRepository.GetTimingById(timingId);
         }
     }
 }

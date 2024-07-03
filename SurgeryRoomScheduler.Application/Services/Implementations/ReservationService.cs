@@ -180,10 +180,6 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 {
                     return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "زمان بندی مورد نظر یافت نشد" };
                 }
-                //if (timing.ScheduledDuration <= request.RequestedTime)
-                //{
-                //    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "مدت زمان درخواستی نمیتواند از زمان زمانبندی شده بیشتر باشد" };
-                //}
                 var doctor = await _userRepository.GetUserByUserId(currentUser);
                 if (doctor == null)
                 {
@@ -198,22 +194,14 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 var reservation = _mapper.Map<Reservation>(request);
                 reservation.UsageTime = timing.ScheduledDuration - request.RequestedTime;
                 reservation.RequestedDate = timing.ScheduledDate.ToDateTime(TimeOnly.Parse("00:00:00 PM")); ;
-                // Step 2: Add the reservation to the repository asynchronously
                 await _reservationRepository.AddAsync(reservation);
-
-                // Step 3: Create a new ReservationConfirmation with the corresponding reservation ID
                 var reservationConfirmation = new ReservationConfirmation
                 {
                     ReservationId = reservation.Id,
-                    ReservationConfirmationTypeId = new Guid("c25c174c-efd0-4a69-8207-a48fe437268b")
+                    ReservationConfirmationTypeId = new Guid("c25c174c-efd0-4a69-8207-a48fe437268b") // pending
                 };
-                // Step 4: Add the reservation confirmation to the repository asynchronously
                 await _reservationConfirmation.AddAsync(reservationConfirmation);
-
-                // Step 5: Update the reservation with the new ReservationConfirmationId
                 reservation.ReservationConfirmationId = reservationConfirmation.Id;
-
-                // Step 6: Update the reservation in the repository asynchronously
                 await _reservationRepository.UpdateAsync(reservation);
                 return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
             }
