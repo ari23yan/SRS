@@ -22,6 +22,7 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Reservation
 
         public long RoomCode { get; set; }
         public string? Description { get; set; }
+        //public bool IsExtera { get; set; } = false;
         //public DateTime RequestedDate { get; set; }
         public TimeSpan RequestedTime { get; set; }
     }

@@ -31,7 +31,22 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         {
           return await _doctorRepository.DeleteDoctors();
         }
-
+        public async Task<bool> DeleteDoctorsAssignedRooms()
+        {
+            return await _doctorRepository.DeleteDoctorsAssignedRooms();
+        }
+        public async Task<bool> DeleteInsurances()
+        {
+            return await _doctorRepository.DeleteInsurances();
+        }
+        public async Task<bool> DeleteRooms()
+        {
+            return await _doctorRepository.DeleteRooms();
+        }
+        public async Task<bool> DeleteSurgeryNames()
+        {
+            return await _doctorRepository.DeleteInsurances();
+        }
         public async Task<ResponseDto<IEnumerable<DoctorListDto>>> GetDoctorList(string searchKey)
         {
             var doctorsList = await _doctorRepository.GetDoctorsList(searchKey);

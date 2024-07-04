@@ -22,6 +22,7 @@ namespace SurgeryRoomScheduler.Domain.Interfaces
         Task<bool> CheckTimingExist(AddTimingDto request);
         Task<Timing?> GetTimingById(Guid timingId);
         Task<GetExteraTimingDto> GetExteraTimingListByDate(DateOnly date);
+        Task<IEnumerable<TimingDto>> GetExteraTimingListByRoomCode(PaginationDto request ,long roomCode);
 
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.OpenApi.Extensions;
 using SurgeryRoomScheduler.Data.Context;
 using SurgeryRoomScheduler.Domain.Dtos.Common.Pagination;
+using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
 using SurgeryRoomScheduler.Domain.Dtos.Reservation;
 using SurgeryRoomScheduler.Domain.Dtos.Timing;
 using SurgeryRoomScheduler.Domain.Entities.General;
@@ -31,7 +32,12 @@ namespace SurgeryRoomScheduler.Data.Repositories
                       x.TimingId.Equals(request.TimingId));
         }
 
-        public async Task<IEnumerable<ReservationDto>> GetPaginatedReservedList(PaginationDto paginationRequest, string noNezam)
+        public Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request, string roomCode, Guid? doctorId, bool isExtera)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<ReservationDto>> GetPaginatedReservedList(PaginationDto paginationRequest, string noNezam, bool isExtera)
         {
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from reservation in Context.Reservations
@@ -39,7 +45,11 @@ namespace SurgeryRoomScheduler.Data.Repositories
                             join room in Context.Rooms on reservation.RoomCode equals room.Code
                             join reservationConfirmation in Context.ReservationConfirmations on reservation.Id equals reservationConfirmation.ReservationId
                             join reservationConfirmationStatus in Context.ReservationConfirmationStatuses on reservationConfirmation.StatusId equals reservationConfirmationStatus.Id
-                            where !reservation.IsDeleted && reservation.IsActive && reservation.DoctorNoNezam.Equals(noNezam) && reservationConfirmation.IsActive && !reservationConfirmation.IsDeleted
+                            where !reservation.IsDeleted && reservation.IsActive && 
+                            reservation.DoctorNoNezam.Equals(noNezam) &&
+                            reservationConfirmation.IsActive &&
+                            !reservationConfirmation.IsDeleted
+
                             select new ReservationDto
                             {
                                 Id = reservation.Id,

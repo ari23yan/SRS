@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SurgeryRoomScheduler.Data.Context;
 
@@ -11,9 +12,11 @@ using SurgeryRoomScheduler.Data.Context;
 namespace SurgeryRoomScheduler.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240704063345_addCodeIntoInsuranceTable")]
+    partial class addCodeIntoInsuranceTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1129,9 +1132,6 @@ namespace SurgeryRoomScheduler.Data.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("Code")
-                        .HasColumnType("bigint");
 
                     b.Property<bool?>("IsActive")
                         .HasColumnType("bit");

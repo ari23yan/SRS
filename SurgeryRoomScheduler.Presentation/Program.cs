@@ -1,10 +1,13 @@
 using FluentValidation.AspNetCore;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SurgeryRoomScheduler.Application;
+using SurgeryRoomScheduler.Application.Jobs;
+using SurgeryRoomScheduler.Application.Jobs.Interfaces;
 using SurgeryRoomScheduler.Application.Services.Implementations;
 using SurgeryRoomScheduler.Application.Services.Interfaces;
 using SurgeryRoomScheduler.Data.Context;
@@ -35,6 +38,15 @@ builder.Services.AddDbContext<AppDbContext>(option =>
         sqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "Common");
     }
 ));
+
+
+// Job Conf --- HangFire
+
+builder.Services.AddHangfire(config =>
+                   config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection"))
+               );
+builder.Services.AddHangfireServer();
+
 
 
 var secrectKey = builder.Configuration.GetSection("Authentication:IssuerSigningKey");
@@ -87,10 +99,8 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Milad Surgery Room", Version = "v1", Description = "Milad Surgery Room Rest Api Services - 2024 " });
     c.EnableAnnotations();
 
-    // Include the XML comments from your controllers
     //c.EnableAnnotations();
 
-    // Define the OpenAPI security scheme (e.g., JWT Bearer token)
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
@@ -99,7 +109,6 @@ builder.Services.AddSwaggerGen(c =>
         Type = SecuritySchemeType.Http,
         Scheme = "bearer"
     });
-    // Define the security requirements for the API
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -118,12 +127,29 @@ builder.Services.AddSwaggerGen(c =>
 
 
 var app = builder.Build();
-app.UseCors("AllowOrigin"); // Use CORS middleware with the defined policy
+app.UseCors("AllowOrigin");
+app.UseHangfireDashboard("/hangfire");
+
+app.UseWhen(context => !context.Request.Path.StartsWithSegments("/hangfire"), appBuilder =>
+{
+    // Add authentication middleware here, if any
+    appBuilder.UseAuthentication();
+    appBuilder.UseAuthorization();
+});
+
+//Jobs Configuration
+RecurringJob.AddOrUpdate<IJobs>(job => job.GetDoctorsListJob(), Cron.Daily);
+RecurringJob.AddOrUpdate<IJobs>(job => job.GetRoomListJob(), Cron.Daily);
+RecurringJob.AddOrUpdate<IJobs>(job => job.GetInsuranceListJob(), Cron.Daily);
+RecurringJob.AddOrUpdate<IJobs>(job => job.GetSurgeryNamesListJob(), Cron.Daily);
+RecurringJob.AddOrUpdate<IJobs>(job => job.GetDoctorsAssignedRooms(), Cron.Daily);
+RecurringJob.AddOrUpdate<IJobs>(job => job.ExteraTimingJob(), Cron.Daily);
+
+app.UseHangfireServer();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

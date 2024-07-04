@@ -211,7 +211,38 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             }
         }
 
-        public async Task<ResponseDto<IEnumerable<ReservationDto>>> GetPaginatedReservedList(PaginationDto request, Guid? doctorId)
+        public async Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request, Guid? doctorId, long roomCode)
+        {
+            var doctor = await _userRepository.GetUserByUserId(doctorId.Value);
+            if (doctor == null)
+            {
+                return new ResponseDto<IEnumerable<TimingDto>> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
+            }
+            if (roomCode == 0)
+            {
+                var doctorsRooms = await _doctorRepository.GetDoctorRooms(doctor.NoNezam);
+                if (doctorsRooms.Count() <= 0)
+                {
+                    return new ResponseDto<IEnumerable<TimingDto>> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "پزشک به هیچ اتاق عملی تخصیص نیافته است  " };
+                }
+                else
+                {
+                    roomCode = doctorsRooms.First().Code.Value;
+                }
+            }
+            var filtredTiming = await _timingRepository.GetExteraTimingListByRoomCode(request, roomCode);
+            var reservsCount = await GetExteraReservedCount(roomCode);
+            return new ResponseDto<IEnumerable<TimingDto>>
+            {
+                IsSuccessFull = true,
+                Data = filtredTiming,
+                Message = ErrorsMessages.Success,
+                Status = "SuccessFul",
+                TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? reservsCount : filtredTiming.Count()
+            };
+        }
+
+        public async Task<ResponseDto<IEnumerable<ReservationDto>>> GetPaginatedReservedList(PaginationDto request, Guid? doctorId, bool isExtera)
         {
 
             var doctor = await _userRepository.GetUserByUserId(doctorId.Value);
@@ -219,7 +250,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 return new ResponseDto<IEnumerable<ReservationDto>> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
             }
-            var reservs = await _reservationRepository.GetPaginatedReservedList(request, doctor.NoNezam);
+            var reservs = await _reservationRepository.GetPaginatedReservedList(request, doctor.NoNezam, isExtera);
             var reservsCount = await GetReservedCount(doctor.NoNezam);
             //var mappedTimings = _mapper.Map<IEnumerable<Timing>, IEnumerable<TimingListDto>>(timings);
             return new ResponseDto<IEnumerable<ReservationDto>>
@@ -408,6 +439,11 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 return await _reservationRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.DoctorNoNezam.Equals(noNezam));
             }
             return await _reservationRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted);
+        }
+
+        public async Task<int> GetExteraReservedCount(long roomCode)
+        {
+            return await _timingRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.IsExtraTiming && x.AssignedRoomCode == roomCode);
         }
 
         public async Task<ResponseDto<bool>> RejectReservationRequest(RejectReservationRequestDto request, Guid operatorId)
