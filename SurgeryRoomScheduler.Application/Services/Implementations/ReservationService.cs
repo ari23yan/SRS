@@ -185,6 +185,10 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 {
                     return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
                 }
+                if(request.RequestedTime > timing.ScheduledDuration)
+                {
+                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "مدت زمان انتخاب شده بیشتر  از حد مجاز است." };
+                }
                 request.DoctorNoNezam = timing.AssignedDoctorNoNezam;
                 request.RoomCode = timing.AssignedRoomCode;
                 if (timing.AssignedDoctorNoNezam != request.DoctorNoNezam)
