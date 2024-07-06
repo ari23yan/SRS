@@ -30,18 +30,20 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
     {
         private readonly IUserRepository _userRepository;
         private readonly ITimingRepository _timingRepository;
+        private readonly IDoctorRepository _doctorRepository;
         private readonly IRepository<UserDetail> _userDetailrepository;
         private readonly IMapper _mapper;
         private readonly ISender _sender;
 
         public TimingService(IUserRepository userRepository, ISender sender, ITimingRepository timingRepository,
-           IRepository<UserDetail> userDetailrepository, IMapper mapper)
+           IRepository<UserDetail> userDetailrepository, IMapper mapper, IDoctorRepository doctorRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _userDetailrepository = userDetailrepository;
             _sender = sender;
             _timingRepository = timingRepository;
+            _doctorRepository = doctorRepository;
         }
 
         public async Task<ResponseDto<bool>> CreateTiming(AddTimingDto request, Guid operatorId)
@@ -54,6 +56,16 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             if(request.Date < DateOnly.FromDateTime(DateTime.Now))
             {
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "تاریخ های گذشته را نمیتوان زمانبندی کرد", };
+            }
+            var rooms = await _doctorRepository.GetDoctorRooms(request.NoNezam);
+            if(rooms.Count() < 0)
+            {
+                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "اتاقی برای این دکتر تخصیص نیافته است", };
+            }
+            var check = rooms.Any(x => x.Code == request.RoomCode);
+            if(!check)
+            {
+                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "پزشک مورد نظر به این پزشک تخصیص داده نشده است" };
             }
             var newTiming = new Timing
             {

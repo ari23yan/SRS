@@ -43,8 +43,8 @@ namespace SurgeryRoomScheduler.Data.Repositories
                where timing.AssignedRoomCode == roomCode
                    && !timing.IsDeleted
                    && timing.IsActive
-                   && timing.ScheduledDate == DateOnly.FromDateTime(sDate.Date)
-                   //&& timing.ScheduledEndDate.Date <= eDate.Date
+                   && timing.ScheduledDate >= DateOnly.FromDateTime(sDate.Date)
+                   && timing.ScheduledDate <= DateOnly.FromDateTime(eDate.Date)
                    && timing.AssignedDoctorNoNezam.Equals(noNezam)
                select new TimingDto
                {
