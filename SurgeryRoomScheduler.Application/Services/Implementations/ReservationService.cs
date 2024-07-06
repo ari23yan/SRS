@@ -76,7 +76,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             await _reservationConfirmation.UpdateAsync(reservationConf);
             reservation.IsCanceled = true;
             reservation.CancelationDescription = request.CancellationDescription;
-            reservation.ReservationConfirmation.ReservationRejection.Id = request.ReservationRejectionReasonId;
+            reservation.ReservationConfirmation.ReservationRejection.Id = request.ReservationCancellationReasonsReasonId;
             reservation.ModifiedDate = DateTime.Now;
             reservation.IsModified = true;
             reservation.ModifiedBy = operatorId;
@@ -283,7 +283,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             };
         }
 
-        public async Task<ResponseDto<IEnumerable<ReservationRejectionAndCancellationReason>>> GetRejectionsReasons(Guid operatorId)
+        public async Task<ResponseDto<IEnumerable<ReservationRejectionAndCancellationReason>>> GetRejectionsReasons(Guid operatorId, bool isCancellation)
         {
             var user = await _userRepository.GetUserWithRolesByUserId(operatorId);
             if (user == null)
@@ -292,18 +292,20 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             }
             IEnumerable<ReservationRejectionAndCancellationReason> records = new List<ReservationRejectionAndCancellationReason>();
 
-            if (user.Role.RoleName == "Supervisor")
+            if (isCancellation)
             {
-                records = await GetReservationRejectionReasonByType(RejectionReasonType.Supervisor);
-            }
-            else if (user.Role.RoleName == "MedicalRecord")
-            {
-                records = await GetReservationRejectionReasonByType(RejectionReasonType.MedicalRecords);
-
+                records = await GetReservationRejectionReasonByType(RejectionReasonType.cancellation);
             }
             else
             {
-                records = await GetReservationRejectionReasonByType(RejectionReasonType.doctor);
+                if (user.Role.RoleName == "Supervisor")
+                {
+                    records = await GetReservationRejectionReasonByType(RejectionReasonType.Supervisor);
+                }
+                else if (user.Role.RoleName == "MedicalRecord")
+                {
+                    records = await GetReservationRejectionReasonByType(RejectionReasonType.MedicalRecords);
+                }
             }
 
             return new ResponseDto<IEnumerable<ReservationRejectionAndCancellationReason>>

@@ -72,7 +72,6 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
             try
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
-
                 var result = await _reservationService.GetExteraTimingsList(request, currentUser, roomCode);
                 return Ok(result);
             }
@@ -100,7 +99,10 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
             try
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
-                request.UserId = currentUser;
+                if(request.UserId == null)
+                {
+                    request.UserId = currentUser;
+                }
                 var result = await _reservationService.GetReservationCalender(request);
                 return Ok(result);
             }
@@ -178,14 +180,15 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
             }
         }
 
+
         [HttpGet]
         //[PermissionChecker(Permission = PermissionType.Admin_GetReservations)]
-        public async Task<IActionResult> GetCancellationReasons()
+        public async Task<IActionResult> GetRejectionAndCancellationReasons(bool isCancellation = false)
         {
             try
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
-                var result = await _reservationService.GetRejectionsReasons(currentUser);
+                var result = await _reservationService.GetRejectionsReasons(currentUser, isCancellation);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -193,6 +196,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
                 #region Inserting Log 
                 if (_configuration.GetValue<bool>("ApplicationLogIsActive"))
                 {
+
                     var userAgent = _httpContextAccessor.HttpContext?.Request.Headers["User-Agent"];
                     var userIp = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
                     var routeData = ControllerContext.RouteData;

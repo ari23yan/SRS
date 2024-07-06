@@ -7,6 +7,7 @@ using SurgeryRoomScheduler.Domain.Dtos.Role;
 using SurgeryRoomScheduler.Domain.Dtos.User;
 using SurgeryRoomScheduler.Domain.Entities.Account;
 using SurgeryRoomScheduler.Domain.Entities.Common;
+using SurgeryRoomScheduler.Domain.Entities.General;
 
 namespace SurgeryRoomScheduler.Presentation.Profiles
 {
@@ -24,10 +25,8 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
             .ForMember(dest => dest.RoleMenus, opt => opt.Ignore());
 
 
-
-
-            CreateMap<DoctorDto, User>()
-           .ForMember(dest => dest.NationalCode, opt => opt.MapFrom(src => src.DoctorNationalCode))
+            CreateMap<Doctor, User>()
+           .ForMember(dest => dest.NationalCode, opt => opt.MapFrom(src => src.NationalCode))
            .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.NoNezam))
            .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => "F054C928-FDC4-469F-8307-4EF1A179F5CE")) // Doctor Role
            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom((src, dest) =>
@@ -52,17 +51,9 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
                     }
                 }
 
-                if (!string.IsNullOrEmpty(src.Mobile0) && src.Mobile0.Trim().Length > 1)
+                if (!string.IsNullOrEmpty(src.PhoneNumber) && src.PhoneNumber.Trim().Length > 1)
                 {
-                    return FormatPhoneNumber(src.Mobile0.Trim(), 1);
-                }
-                else if (!string.IsNullOrEmpty(src.Mobile1.Trim()) && src.Mobile1.Trim().Length > 1)
-                {
-                    return FormatPhoneNumber(src.Mobile1, 1);
-                }
-                else if (!string.IsNullOrEmpty(src.Mobile2.Trim()) && src.Mobile2.Trim().Length > 1)
-                {
-                    return FormatPhoneNumber(src.Mobile2.Trim(), 1);
+                    return FormatPhoneNumber(src.PhoneNumber.Trim(), 1);
                 }
                 return null;
             }))
@@ -87,39 +78,23 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
                        return UtilityManager.EncodePasswordMd5(phoneNumber);
                    }
                }
-               if (!string.IsNullOrEmpty(src.Mobile0) && src.Mobile0.Trim().Length > 1)
+               if (!string.IsNullOrEmpty(src.PhoneNumber) && src.PhoneNumber.Trim().Length > 1)
                {
-                   return FormatPhoneNumber(src.Mobile0.Trim(), 2);
-               }
-               else if (!string.IsNullOrEmpty(src.Mobile1.Trim()) && src.Mobile1.Trim().Length > 1)
-               {
-                   return FormatPhoneNumber(src.Mobile1.Trim(), 2);
-               }
-               else if (!string.IsNullOrEmpty(src.Mobile2) && src.Mobile2.Trim().Length > 1)
-               {
-                   return FormatPhoneNumber(src.Mobile2.Trim(), 2);
+                   return FormatPhoneNumber(src.PhoneNumber.Trim(), 2);
                }
                return null;
            }))
-           .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.NP))
-           .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.FP))
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+           .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.Name))
+           .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
            .ForMember(dest => dest.NoNezam, opt => opt.MapFrom(src => src.NoNezam))
-           .ForMember(dest => dest.IsActive, opt => opt.MapFrom((src, dest) =>
-           {
-               if (src.Active == 1)
-               {
-                   return true;
-               }
-               else
-               {
-                   return false;
-               }
-           }));
+           .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
+
 
 
 
             CreateMap<User, AddUserDto>();
-     
+
 
 
             CreateMap<UserDetail, AddUserDto>()

@@ -11,6 +11,7 @@ namespace SurgeryRoomScheduler.Domain.Enums
         All,
         Pending,
         Approved,
-        Rejected
+        Rejected,
+        Extera
     }
 }

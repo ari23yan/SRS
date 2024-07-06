@@ -16,11 +16,12 @@ namespace SurgeryRoomScheduler.Presentation.Validators.Account
 
         private bool BeAValidUsernameOrMobileOrNationaCode(string input)
         {
-            var usernamePattern = @"^[a-zA-Z0-9]{3,20}$";
-            var mobilePattern = @"^\d{11}$";
-            string nationalCodepattern = @"/^[0-9]{10}$/";
+           return true;
+            //var usernamePattern = @"^[a-zA-Z0-9]{3,20}$";
+            //var mobilePattern = @"^\d{11}$";
+            //string nationalCodepattern = @"/^[0-9]{10}$/";
 
-            return Regex.IsMatch(input, usernamePattern) || Regex.IsMatch(input, mobilePattern) || Regex.IsMatch(input, nationalCodepattern);
+            //return Regex.IsMatch(input, usernamePattern) || Regex.IsMatch(input, mobilePattern) || Regex.IsMatch(input, nationalCodepattern);
         }
 
     }

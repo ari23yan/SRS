@@ -10,6 +10,6 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Reservation
     {
         public Guid ReservationId { get; set; }
         public string? CancellationDescription { get; set; }
-        public Guid ReservationRejectionReasonId { get; set; }
+        public Guid ReservationCancellationReasonsReasonId { get; set; }
     }
 }

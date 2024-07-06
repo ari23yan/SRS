@@ -95,6 +95,7 @@ namespace SurgeryRoomScheduler.Data.Repositories
                 join room in Context.Rooms on reservation.RoomCode equals room.Code
                 join reservationConfirmation in Context.ReservationConfirmations on reservation.Id equals reservationConfirmation.ReservationId
                 join reservationConfirmationStatus in Context.ReservationConfirmationStatuses on reservationConfirmation.StatusId equals reservationConfirmationStatus.Id
+                join timing in Context.Timings on reservation.TimingId equals timing.Id
                 where !reservation.IsDeleted && reservation.IsActive && reservationConfirmation.IsActive && !reservationConfirmation.IsDeleted
                 select new ReservationDto
                 {
@@ -118,6 +119,8 @@ namespace SurgeryRoomScheduler.Data.Repositories
                     RequestedTime = reservation.RequestedTime,
                     Status = reservationConfirmationStatus.Name,  
                     StatusType = reservationConfirmationStatus.Id
+                    ,
+                    IsExtera = timing.IsExtraTiming
                 };
             if (operatorType == "Supervisor")
             {
@@ -132,6 +135,10 @@ namespace SurgeryRoomScheduler.Data.Repositories
                 else if (status == ReservationStatus.Pending)
                 {
                     baseQuery = baseQuery.Where(x => x.StatusType == (int)ReservationConfirmationStatus.Pending);
+                }
+                else if (status == ReservationStatus.Extera)
+                {
+                    baseQuery = baseQuery.Where(x => x.IsExtera);
                 }
             }
             else if (operatorType == "MedicalRecord")
@@ -148,10 +155,15 @@ namespace SurgeryRoomScheduler.Data.Repositories
                 {
                     baseQuery = baseQuery.Where(x => x.StatusType == (int)ReservationConfirmationStatus.Pending);
                 }
+                else if (status == ReservationStatus.Extera)
+                {
+                    baseQuery = baseQuery.Where(x => x.IsExtera);
+                }
                 else
                 {
                     baseQuery = baseQuery.Where(x => x.IsConfirmedBySupervisor);
                 }
+
             }
 
             if (!string.IsNullOrWhiteSpace(paginationRequest.Searchkey))

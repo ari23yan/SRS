@@ -10,6 +10,7 @@ namespace SurgeryRoomScheduler.Domain.Enums
     {
         Supervisor = 1,
         MedicalRecords,
-        doctor
+        cancellation,
+        
     }
 }

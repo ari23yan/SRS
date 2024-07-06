@@ -22,7 +22,7 @@ namespace SurgeryRoomScheduler.Application.Services.Interfaces
         Task<ResponseDto<IEnumerable<ReservationDto>>> GetPaginatedReservedList(PaginationDto request,Guid? doctorId, bool isExtera);
         Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request,Guid? doctorId, long roomCode);
         Task<ResponseDto<IEnumerable<ReservationDto>>> GetPaginatedReservervationsList(PaginationDto request,Guid operatorId, ReservationStatus status);
-        Task<ResponseDto<IEnumerable<ReservationRejectionAndCancellationReason>>> GetRejectionsReasons(Guid operatorId);
+        Task<ResponseDto<IEnumerable<ReservationRejectionAndCancellationReason>>> GetRejectionsReasons(Guid operatorId, bool isCancellation);
         Task<ResponseDto<bool>> ConfirmReservation(Guid reservationId, Guid operatorId);
         Task<ResponseDto<bool>> RejectReservationRequest(RejectReservationRequestDto request, Guid operatorId);
         Task<int> GetReservedCount(string? noNezam);

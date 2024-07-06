@@ -51,6 +51,10 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Exist, Status = "Failed", };
             }
+            if(request.Date < DateOnly.FromDateTime(DateTime.Now))
+            {
+                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "تاریخ های گذشته را نمیتوان زمانبندی کرد", };
+            }
             var newTiming = new Timing
             {
                 AssignedDoctorNoNezam = request.NoNezam,
@@ -181,7 +185,6 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         {
            return await _timingRepository.GetExteraTimingListByDate(date);
         }
-
         public async Task<int> GetTimingsCount()
         {
             return await _timingRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted);

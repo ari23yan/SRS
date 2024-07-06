@@ -162,10 +162,12 @@ namespace SurgeryRoomScheduler.Application.Jobs.Implementations
                         var deleteDoctorsOldDataFromDoctorTable = await _medicalDataService.DeleteDoctors();
                         await _docRepository.AddRangeAsync(mappedDoctors);
 
-                        var mappedUsersDoctors = _mapper.Map<List<DoctorDto>, List<User>>(uniqeDoctors);
+                        var fixedDoctors = mappedDoctors.Where(x => x.NoNezam != "00000202" && x.NoNezam != "00000304" && x.NoNezam != "00055555").ToList();
 
+                        var mappedUsersDoctors = _mapper.Map<List<Doctor>, List<User>>(fixedDoctors);
+                        var activeDoctors = mappedUsersDoctors.Where(x => x.IsActive).ToList();
                         var deleteDoctorOldDataFromUserTable = await _userService.DeleteDoctors();
-                        await _userRepository.AddRangeAsync(mappedUsersDoctors);
+                        await _userRepository.AddRangeAsync(activeDoctors);
                         log.EndTime = DateTime.Now;
                         log.IsSuccessful = true;
                         log.Description = "Total Doctor Count = " + doctors.Count();

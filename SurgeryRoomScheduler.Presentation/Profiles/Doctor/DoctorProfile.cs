@@ -68,7 +68,7 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
              }))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom((src, dest) =>
             {
-                if (src.Active == 0)
+                if (src.Active == 1)
                 {
                     return true;
                 }

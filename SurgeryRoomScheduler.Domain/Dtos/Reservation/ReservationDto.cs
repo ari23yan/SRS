@@ -32,6 +32,7 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Reservation
         public int StatusType { get; set; }
         public string Status { get; set; }
         public Guid? ReservationRejectionId { get; set; }
+        public bool IsExtera { get; set; }
 
     }
 }
