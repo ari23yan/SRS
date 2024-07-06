@@ -323,13 +323,11 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 return new ResponseDto<GetTimingCalenderDto> { IsSuccessFull = false, Message = ErrorsMessages.NotAuthenticated, Status = "Failed" };
             }
-
             var doctor = await _userRepository.GetUserByUserId(request.UserId.Value);
             if (doctor == null)
             {
                 return new ResponseDto<GetTimingCalenderDto> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
             }
-
             DateTime startDate;
             DateTime endDate;
             List<PersianDayInfoDto> dayInfoDtos = new List<PersianDayInfoDto>();
@@ -369,6 +367,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 }
             }
             var filtredTiming = await _timingRepository.GetDoctorTimingByRoomIdAndDate(request.RoomCode, doctor.NoNezam, startDate, endDate);
+            var filtredReservation = await _reservationRepository.GetDoctorReservationByRoomIdAndDate(request.RoomCode, doctor.NoNezam, startDate, endDate);
             calenderDto.Days = new List<DayDto<TimingDto>>();
             foreach (var item in dayInfoDtos)
             {
@@ -377,6 +376,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     Day = item.Day,
                     DayOfTheWeek = item.DayOfTheWeek,
                     Timings = filtredTiming.Where(u => u.ScheduledDate == DateOnly.FromDateTime(item.MiladiDate.Date)).ToList(),
+                    Reservations = filtredReservation.Where(u => u.RequestedDate.Date == item.MiladiDate.Date).ToList(),
                     IsEnable = item.IsEnable,
                     CountPerDay = filtredTiming.Where(u => u.ScheduledDate == DateOnly.FromDateTime(item.MiladiDate.Date)).Count(),
                     Date = item.ShamsiDate,

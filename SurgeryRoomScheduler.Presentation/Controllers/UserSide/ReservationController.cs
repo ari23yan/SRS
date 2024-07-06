@@ -63,8 +63,6 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
         }
 
 
-
-
         [HttpGet]
         //[PermissionChecker(Permission = PermissionType.GetDoctorReservedList)]
         public async Task<IActionResult> GetExteraList([FromQuery] PaginationDto request,long roomCode)

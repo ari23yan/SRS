@@ -32,6 +32,46 @@ namespace SurgeryRoomScheduler.Data.Repositories
                       x.TimingId.Equals(request.TimingId));
         }
 
+        public async Task<IEnumerable<ReservationDto>> GetDoctorReservationByRoomIdAndDate(long roomCode, string noNezam, DateTime sDate, DateTime eDate)
+        {
+            var baseQuery = from reservation in Context.Reservations
+                            join doctor in Context.Doctors on reservation.DoctorNoNezam equals doctor.NoNezam
+                            join room in Context.Rooms on reservation.RoomCode equals room.Code
+                            join reservationConfirmation in Context.ReservationConfirmations on reservation.Id equals reservationConfirmation.ReservationId
+                            join reservationConfirmationStatus in Context.ReservationConfirmationStatuses on reservationConfirmation.StatusId equals reservationConfirmationStatus.Id
+                            join timing in Context.Timings on reservation.TimingId equals timing.Id
+                            where !reservation.IsDeleted && reservation.IsActive && reservationConfirmation.IsActive && !reservationConfirmation.IsDeleted
+                            && reservation.RoomCode == roomCode && reservation.DoctorNoNezam.Equals(noNezam) 
+                            && reservation.RequestedDate.Date >= sDate.Date.Date
+                            && reservation.RequestedDate.Date <= eDate.Date.Date
+                            select new ReservationDto
+                            {
+                                Id = reservation.Id,
+                                TimingId = reservation.TimingId,
+                                PatientName = reservation.PatientName,
+                                PatientLastName = reservation.PatientLastName,
+                                PatientNationalCode = reservation.PatientNationalCode,
+                                PatientPhoneNumber = reservation.PatientPhoneNumber,
+                                DoctorNoNezam = doctor.NoNezam,
+                                DoctorName = doctor.Name,
+                                RoomName = room.Name,
+                                RoomCode = room.Code,
+                                Description = reservation.Description,
+                                RequestedDate = reservation.RequestedDate,
+                                IsConfirmedByMedicalRecords = reservationConfirmation.IsConfirmedByMedicalRecords,
+                                IsConfirmedBySupervisor = reservationConfirmation.IsConfirmedBySupervisor,
+                                ConfirmedMedicalRecordsUserId = reservationConfirmation.ConfirmedMedicalRecordsUserId,
+                                ConfirmedSupervisorUserId = reservationConfirmation.ConfirmedSupervisorUserId,
+                                ReservationRejectionId = reservationConfirmation.ReservationRejectionId,
+                                RequestedTime = reservation.RequestedTime,
+                                Status = reservationConfirmationStatus.Name,
+                                StatusType = reservationConfirmationStatus.Id,
+                                IsExtera = timing.IsExtraTiming
+                            };
+
+            return await baseQuery.ToListAsync();
+        }
+
         public Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request, string roomCode, Guid? doctorId, bool isExtera)
         {
             throw new NotImplementedException();

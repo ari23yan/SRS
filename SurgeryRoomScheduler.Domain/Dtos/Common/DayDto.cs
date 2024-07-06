@@ -1,4 +1,5 @@
-﻿using SurgeryRoomScheduler.Domain.Dtos.Timing;
+﻿using SurgeryRoomScheduler.Domain.Dtos.Reservation;
+using SurgeryRoomScheduler.Domain.Dtos.Timing;
 using SurgeryRoomScheduler.Domain.Entities.General;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Common
         public string DayOfTheWeek { get; set; }
         public string Date { get; set; }
         public List<T> Timings { get; set; }
+        public List<ReservationDto> Reservations { get; set; }
         public bool IsEnable { get; set; }
         public int? CountPerDay { get; set; }
     }
