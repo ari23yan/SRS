@@ -65,7 +65,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             var check = rooms.Any(x => x.Code == request.RoomCode);
             if(!check)
             {
-                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "پزشک مورد نظر به این پزشک تخصیص داده نشده است" };
+                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "پزشک مورد نظر به این اتاق تخصیص داده نشده است" };
             }
             var newTiming = new Timing
             {

@@ -36,36 +36,50 @@ namespace SurgeryRoomScheduler.Data.Repositories
         }
         public async Task<IEnumerable<TimingDto>> GetDoctorTimingByRoomIdAndDate(long roomCode, string noNezam, DateTime sDate, DateTime eDate)
         {
-            var timings = await (
-               from timing in Context.Timings
-               join doctor in Context.Doctors on timing.AssignedDoctorNoNezam equals doctor.NoNezam
-               join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
-               where timing.AssignedRoomCode == roomCode
-                   && !timing.IsDeleted
-                   && timing.IsActive
-                   && timing.ScheduledDate >= DateOnly.FromDateTime(sDate.Date)
-                   && timing.ScheduledDate <= DateOnly.FromDateTime(eDate.Date)
-                   && timing.AssignedDoctorNoNezam.Equals(noNezam)
-               select new TimingDto
-               {
-                   Id = timing.Id,
-                   DoctorNoNezam = doctor.NoNezam,
-                   DoctorName = doctor.Name,
-                   RoomName = room.Name,
-                   RoomCode = room.Code,
-                   ScheduledDate = timing.ScheduledDate,
-                   ScheduledStartTime = timing.ScheduledStartTime,
-                   ScheduledEndTime = timing.ScheduledEndTime,
-                   ScheduledDuration = timing.ScheduledDuration,
-                   ScheduledDate_Shamsi = timing.ScheduledDate_Shamsi,
-                   CreatedDate = timing.CreatedDate,
-                   CreatedDate_Shamsi = timing.CreatedDate_Shamsi,
-                   IsDeleted = timing.IsDeleted,
-                   IsActive = timing.IsActive
-               }
-           ).ToListAsync();
+var timingsData = await (
+   from timing in Context.Timings
+   join doctor in Context.Doctors on timing.AssignedDoctorNoNezam equals doctor.NoNezam
+   join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
+   where timing.AssignedRoomCode == roomCode
+       && !timing.IsDeleted
+       && timing.IsActive
+       && timing.ScheduledDate >= DateOnly.FromDateTime(sDate.Date)
+       && timing.ScheduledDate <= DateOnly.FromDateTime(eDate.Date)
+       && timing.AssignedDoctorNoNezam.Equals(noNezam)
+   select new
+   {
+       Timing = timing,
+       Doctor = doctor,
+       Room = room,
+       Reservations = Context.Reservations
+           .Where(x => x.TimingId.Equals(timing.Id))
+           .Select(x => x.RequestedTime)
+           .ToList() // Retrieve the reservations for each timing
+   }
+).ToListAsync();
+
+            // Perform the remaining calculations in-memory
+            var timings = timingsData.Select(t => new TimingDto
+            {
+                Id = t.Timing.Id,
+                DoctorNoNezam = t.Doctor.NoNezam,
+                DoctorName = t.Doctor.Name,
+                RoomName = t.Room.Name,
+                RoomCode = t.Room.Code,
+                ScheduledDate = t.Timing.ScheduledDate,
+                ScheduledStartTime = t.Timing.ScheduledStartTime,
+                ScheduledEndTime = t.Timing.ScheduledEndTime,
+                ScheduledDuration = t.Timing.ScheduledDuration,
+                ScheduledDate_Shamsi = t.Timing.ScheduledDate_Shamsi,
+                CreatedDate = t.Timing.CreatedDate,
+                CreatedDate_Shamsi = t.Timing.CreatedDate_Shamsi,
+                IsDeleted = t.Timing.IsDeleted,
+                IsActive = t.Timing.IsActive,
+                RemainingTime = t.Timing.ScheduledDuration - t.Reservations.Aggregate(TimeSpan.Zero, (sum, next) => sum + next)
+            }).ToList();
 
             return timings;
+
         }
 
         public async Task<IEnumerable<TimingDto>> GetPaginatedTimingList(PaginationDto paginationRequest)

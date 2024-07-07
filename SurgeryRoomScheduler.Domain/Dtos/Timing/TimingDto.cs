@@ -23,6 +23,7 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Timing
         public string CreatedDate_Shamsi { get; set; }
         public bool? IsDeleted { get; set; }
         public bool? IsActive { get; set; }
+        public TimeSpan? RemainingTime { get; set; } // مدت زمان باقی مانده از زمان بندی 
 
     }
 }

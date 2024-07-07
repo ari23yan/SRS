@@ -66,7 +66,8 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                 RequestedTime = reservation.RequestedTime,
                                 Status = reservationConfirmationStatus.Name,
                                 StatusType = reservationConfirmationStatus.Id,
-                                IsExtera = timing.IsExtraTiming
+                                IsExtera = timing.IsExtraTiming,
+                                PatientHaveInsurance = reservation.PatientHaveInsurance
                             };
 
             return await baseQuery.ToListAsync();

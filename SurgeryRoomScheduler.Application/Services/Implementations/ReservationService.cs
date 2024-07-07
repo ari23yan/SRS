@@ -340,7 +340,6 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 var currentPersianDate = UtilityManager.GregorianDateTimeToPersianDateDashType(DateTime.Now);
                 startDate = UtilityManager.ConvertPersianToGregorian(currentPersianDate + "-" + "01");
-
                 var splitDate = currentPersianDate.Split("-");
                 var year = int.Parse(splitDate[0]);
                 var month = int.Parse(splitDate[1]);
