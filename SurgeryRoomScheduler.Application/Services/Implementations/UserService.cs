@@ -28,31 +28,29 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IRepository<UserDetail> _userDetailrepository;
         private readonly IRepository<Role> _roleRepository;
         private readonly IRepository<Otp> _otpRepository;
         private readonly IRepository<RolePermission> _rolePermissionRepository;
-        private readonly IRepository<UsersAccessLog> _usersAccessLogRepository;
         private readonly IRepository<RoleMenu> _roleMenuRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IMapper _mapper;
         private readonly ISender _sender;
+        private readonly ILogService _logService;
 
-        public UserService(IUserRepository userRepository, IRepository<UsersAccessLog> usersAccessLogRepository,
+        public UserService(IUserRepository userRepository, ILogService logService,
             IRepository<Role> roleRepository, IRepository<RolePermission> rolePermissionRepository,
-            IRepository<RoleMenu> roleMenuRepository, IRepository<Otp> otpRepository, ISender sender,
-            IRepository<UserDetail> userDetailrepository, IPasswordHasher passwordHasher, IMapper mapper)
+            IRepository<RoleMenu> roleMenuRepository, IRepository<Otp> otpRepository, ISender sender
+            , IPasswordHasher passwordHasher, IMapper mapper)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _mapper = mapper;
-            _userDetailrepository = userDetailrepository;
             _roleRepository = roleRepository;
-            _usersAccessLogRepository = usersAccessLogRepository;
             _rolePermissionRepository = rolePermissionRepository;
             _roleMenuRepository = roleMenuRepository;
             _otpRepository = otpRepository;
             _sender = sender;
+            _logService = logService;   
         }
         public async Task<bool> CheckUserHavePermission(Guid roleId, Guid permissionId)
         {
@@ -232,19 +230,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     await _userRepository.UpdateAsync(user);
                     return (UserAuthResponse.TooManyTries, null);
                 }
-            }
-            if (user.UserDetail == null)
-            {
-                var newUserDetail = new UserDetail
-                {
-                    UserId = user.Id,
-                    LastLoginDate = DateTime.Now,
-                };
-                await _userDetailrepository.AddAsync(newUserDetail);
-            }
-            else
-            {
-                user.UserDetail.LastLoginDate = DateTime.Now;
+                user.LastLoginDate = DateTime.Now;
                 await _userRepository.UpdateAsync(user);
             }
 
@@ -263,9 +249,6 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             request.CreatedBy = operatorId;
             var mappedUser = _mapper.Map<User>(request);
             await _userRepository.AddAsync(mappedUser);
-            request.UserId = mappedUser.Id;
-            var userDetail = _mapper.Map<UserDetail>(request);
-            await _userDetailrepository.AddAsync(userDetail);
             return new ResponseDto<AddUserDto> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
         }
 
@@ -297,17 +280,12 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     UserId = userId,
                     OperatorId = operatorId,
                 };
-                await InserAccessLog(AccessLogType.RoleChange, logDto);
+                await _logService.InserAccessLog(AccessLogType.RoleChange, logDto);
             }
             var mappedUser = _mapper.Map(request, user);
             mappedUser.ModifiedBy = operatorId;
             mappedUser.IsModified = true;
             await _userRepository.UpdateAsync(mappedUser);
-            var mappedDetail = _mapper.Map(request, user.UserDetail);
-            mappedDetail.UserId = userId;
-            mappedDetail.IsModified = true;
-            mappedDetail.ModifiedBy = operatorId;
-            await _userDetailrepository.UpdateAsync(mappedDetail);
             return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
 
         }
@@ -459,7 +437,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     UserId = roleId,
                     OperatorId = operatorId
                 };
-                await InserAccessLog(AccessLogType.MenuChange, logDto);
+                await _logService.InserAccessLog(AccessLogType.MenuChange, logDto);
             }
 
 
@@ -480,7 +458,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     UserId = roleId,
                     OperatorId = operatorId
                 };
-                await InserAccessLog(AccessLogType.PermissionChange, logDto);
+                await _logService.InserAccessLog(AccessLogType.PermissionChange, logDto);
             }
             role.ModifiedBy = operatorId;
             role.IsModified = true;
@@ -488,33 +466,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
         }
 
-        public async Task<bool> InserAccessLog(AccessLogType type, InsertUserAccessLogDto request)
-        {
-            var operatorUser = await _userRepository.GetUserByUserId(request.OperatorId);
-            var user = _userRepository.GetUserByUserId(request.UserId);
-            UsersAccessLog usersAccess = new UsersAccessLog();
-            usersAccess.OperatorId = request.OperatorId;
-            usersAccess.UserId = request.UserId;
-            var name = operatorUser.FirstName + " " + operatorUser.LastName;
-            string persianDate = UtilityManager.ConvertGregorianDateTimeToPersianDate(DateTime.Now);
-            if (type == AccessLogType.RoleChange)
-            {
-                usersAccess.Type = AccessLogType.RoleChange;
-                usersAccess.Action = "تغییر نقش کاربر توسط " + name + " در تاریخ " + persianDate + " صورت گرفته است";
-            }
-            else if (type == AccessLogType.PermissionChange)
-            {
-                usersAccess.Type = AccessLogType.PermissionChange;
-                usersAccess.Action = "تغییر سطح دسترسی کاربر توسط " + name + " در تاریخ " + persianDate + " صورت گرفته است";
-            }
-            else if (type == AccessLogType.MenuChange)
-            {
-                usersAccess.Type = AccessLogType.MenuChange;
-                usersAccess.Action = "تغییر منوی  کاربر توسط " + name + " در تاریخ " + persianDate + " صورت گرفته است";
-            }
-            await _usersAccessLogRepository.AddAsync(usersAccess);
-            return true;
-        }
+
 
         public async Task<ResponseDto<bool>> CreateRole(AddRoleDto request, Guid operatorId)
         {
@@ -606,7 +558,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         public async Task<ResponseDto<UserLoginDto>> ConfirmOtp(ConfirmOtpDto request)
         {
             var user = await _userRepository.GetUserAndOtpByMobile(request.PhoneNumber);
-            if(user == null)
+            if (user == null)
             {
                 return new ResponseDto<UserLoginDto> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "لطفا مجدد درخواست دهید" };
             }
@@ -699,6 +651,11 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             await _userRepository.UpdateAsync(user);
             return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "عملیات موفقیت آمیز" };
 
+        }
+
+        public async Task<bool> DeleteDoctors()
+        {
+            return await _userRepository.DeleteDoctors();
         }
     }
 }

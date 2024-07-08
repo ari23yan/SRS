@@ -47,16 +47,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
         }
 
 
-        [HttpGet]
-        public async Task<IActionResult> test()
-        {
-            var result = await _jobs.GetDoctorsListJob();
-            return Ok();
-        }
-
-
-
-            [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> Login(LoginUserDto request)
         {
             try

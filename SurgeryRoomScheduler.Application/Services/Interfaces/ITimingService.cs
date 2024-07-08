@@ -1,8 +1,10 @@
-﻿using SurgeryRoomScheduler.Domain.Dtos.Common;
+﻿using SurgeryRoomScheduler.Domain.Dtos;
+using SurgeryRoomScheduler.Domain.Dtos.Common;
 using SurgeryRoomScheduler.Domain.Dtos.Common.Pagination;
 using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
 using SurgeryRoomScheduler.Domain.Dtos.Role;
 using SurgeryRoomScheduler.Domain.Dtos.Timing;
+using SurgeryRoomScheduler.Domain.Entities.General;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +17,13 @@ namespace SurgeryRoomScheduler.Application.Services.Interfaces
     {
         Task<ResponseDto<IEnumerable<TimingDto>>> GetPaginatedTimingList(PaginationDto request);
         Task<ResponseDto<IEnumerable<TimingDto>>> GetPaginatedTimingListByRoomAndDate(PaginationDto request, long roomCode, DateOnly date);
+        Task<GetExteraTimingDto> GetExteraTimingListByDate(DateOnly date);
         Task<ResponseDto<GetTimingCalenderDto>> GetTimingCalender(GetListByMonthDto request);
         Task<int> GetTimingsCount();
         Task<ResponseDto<TimingDto>> GetTimingDetailByTimingId(Guid timingId);
         Task<ResponseDto<bool>> CreateTiming(AddTimingDto request, Guid operatorId);
         Task<ResponseDto<bool>> DeleteTimingByTimingId(GetByIdDto request, Guid operatorId);
         Task<ResponseDto<bool>> UpdateTimingByTimingId(Guid timingId, UpdateTimingDto request, Guid operatorId);
+        Task<Timing?> GetTimingByTimingId(Guid timingId);
     }
 }

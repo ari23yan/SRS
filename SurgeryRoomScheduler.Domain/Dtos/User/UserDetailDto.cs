@@ -22,9 +22,9 @@ namespace SurgeryRoomScheduler.Domain.Dtos.User
         public bool? EmailConfirmed { get; set; }
         public Guid? IsCreatedBy { get; set; }
         public Guid RoleId { get; set; }
-        public DateTime? DateOfBirth { get; set; }
-        public DateTime? LastLoginDate { get; set; }
-        public string? ProfilePicture { get; set; }
+        //public DateTime? DateOfBirth { get; set; }
+        //public DateTime? LastLoginDate { get; set; }
+        //public string? ProfilePicture { get; set; }
         public string RoleName { get; set; }
         public string RoleName_Farsi { get; set; }
         public DateTime CreatedDate { get; set; }

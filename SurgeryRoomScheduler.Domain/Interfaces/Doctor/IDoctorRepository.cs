@@ -14,5 +14,9 @@ namespace SurgeryRoomScheduler.Domain.Interfaces
         Task<IEnumerable<Room>> GetRoomsList(string searchKey);
         Task<IEnumerable<Room>> GetDoctorRooms(string noNezam);
         Task<bool> DeleteDoctors();
+        Task<bool> DeleteDoctorsAssignedRooms();
+        Task<bool> DeleteInsurances();
+        Task<bool> DeleteRooms();
+        Task<bool> DeleteSurgeryNames();
     }
 }

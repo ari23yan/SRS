@@ -1,4 +1,5 @@
-﻿using SurgeryRoomScheduler.Domain.Dtos.Common.Pagination;
+﻿using SurgeryRoomScheduler.Domain.Dtos;
+using SurgeryRoomScheduler.Domain.Dtos.Common.Pagination;
 using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
 using SurgeryRoomScheduler.Domain.Dtos.Timing;
 using SurgeryRoomScheduler.Domain.Entities.Account;
@@ -20,5 +21,8 @@ namespace SurgeryRoomScheduler.Domain.Interfaces
         Task<TimingDto> GetTimingDetailByTimingId(Guid timingId);
         Task<bool> CheckTimingExist(AddTimingDto request);
         Task<Timing?> GetTimingById(Guid timingId);
+        Task<GetExteraTimingDto> GetExteraTimingListByDate(DateOnly date);
+        Task<IEnumerable<TimingDto>> GetExteraTimingListByRoomCode(PaginationDto request ,long roomCode);
+
     }
 }

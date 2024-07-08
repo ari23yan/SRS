@@ -1,14 +1,20 @@
 ﻿using AutoMapper;
+using SurgeryRoomScheduler.Application.Security;
+using SurgeryRoomScheduler.Application.Utilities;
+using SurgeryRoomScheduler.Domain.Dtos;
 using SurgeryRoomScheduler.Domain.Dtos.Permission;
 using SurgeryRoomScheduler.Domain.Dtos.Role;
 using SurgeryRoomScheduler.Domain.Dtos.User;
 using SurgeryRoomScheduler.Domain.Entities.Account;
 using SurgeryRoomScheduler.Domain.Entities.Common;
+using SurgeryRoomScheduler.Domain.Entities.General;
 
 namespace SurgeryRoomScheduler.Presentation.Profiles
 {
     public class UserProfile : Profile
     {
+
+
         public UserProfile()
         {
 
@@ -19,11 +25,76 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
             .ForMember(dest => dest.RoleMenus, opt => opt.Ignore());
 
 
+            CreateMap<Doctor, User>()
+           .ForMember(dest => dest.NationalCode, opt => opt.MapFrom(src => src.NationalCode))
+           .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.NoNezam))
+           .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => "F054C928-FDC4-469F-8307-4EF1A179F5CE")) // Doctor Role
+           .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom((src, dest) =>
+            {
+                string FormatPhoneNumber(string phoneNumber, int type)
+                {
+                    if (type == 1)
+                    {
+                        if (!phoneNumber.Trim().StartsWith("0"))
+                        {
+                            return "0" + phoneNumber.Trim();
+                        }
+                        return phoneNumber.Trim();
+                    }
+                    else
+                    {
+                        if (phoneNumber.Trim().StartsWith("0"))
+                        {
+                            return phoneNumber.Trim().Substring(1);
+                        }
+                        return phoneNumber.Trim();
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(src.PhoneNumber) && src.PhoneNumber.Trim().Length > 1)
+                {
+                    return FormatPhoneNumber(src.PhoneNumber.Trim(), 1);
+                }
+                return null;
+            }))
+           .ForMember(dest => dest.Password, opt => opt.MapFrom((src, dest) =>
+           {
+               string FormatPhoneNumber(string phoneNumber, int type)
+               {
+                   if (type == 1)
+                   {
+                       if (!phoneNumber.Trim().StartsWith("0"))
+                       {
+                           return UtilityManager.EncodePasswordMd5(phoneNumber);
+                       }
+                       return UtilityManager.EncodePasswordMd5(phoneNumber);
+                   }
+                   else
+                   {
+                       if (phoneNumber.Trim().StartsWith("0"))
+                       {
+                           return UtilityManager.EncodePasswordMd5(phoneNumber);
+                       }
+                       return UtilityManager.EncodePasswordMd5(phoneNumber);
+                   }
+               }
+               if (!string.IsNullOrEmpty(src.PhoneNumber) && src.PhoneNumber.Trim().Length > 1)
+               {
+                   return FormatPhoneNumber(src.PhoneNumber.Trim(), 2);
+               }
+               return null;
+           }))
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+           .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.Name))
+           .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
+           .ForMember(dest => dest.NoNezam, opt => opt.MapFrom(src => src.NoNezam))
+           .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
 
 
-            CreateMap<User, AddUserDto>()
-           .ForMember(dest => dest.Gender, opt => opt.Ignore())
-           .ForMember(dest => dest.DateOfBirth, opt => opt.Ignore()).ReverseMap();
+
+
+            CreateMap<User, AddUserDto>();
+
 
 
             CreateMap<UserDetail, AddUserDto>()
@@ -98,8 +169,6 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
             CreateMap<UpdateUserDto, UserDetail>()
             .ForMember(dest => dest.ModifiedDate, opt => opt.MapFrom(src => DateTime.Now))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom((src, dest) => src.IsActive != null ? src.IsActive : dest.IsActive))
-            .ForMember(dest => dest.Gender, opt => opt.MapFrom((src, dest) => src.Gender != null ? src.Gender : dest.Gender))
-            .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom((src, dest) => src.DateOfBirth != null ? src.DateOfBirth : dest.DateOfBirth))
             .ForMember(dest => dest.LastLoginDate, opt => opt.Ignore())
             .ForMember(dest => dest.IsDeleted, opt => opt.Ignore())
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
@@ -111,17 +180,6 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
 
 
 
-
-            CreateMap<User, UserDetailDto>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
-            .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.RoleName))
-            .ForMember(dest => dest.RoleName_Farsi, opt => opt.MapFrom(src => src.Role.RoleName_Farsi))
-            .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.UserDetail.Gender))
-            .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.UserDetail.DateOfBirth))
-            .ForMember(dest => dest.LastLoginDate, opt => opt.MapFrom(src => src.UserDetail.LastLoginDate))
-            .ForMember(dest => dest.ProfilePicture, opt => opt.MapFrom(src => src.UserDetail.ProfilePicture))
-            .ForMember(dest => dest.PermissionGroup, opt => opt.Ignore());
 
             CreateMap<Permission, PermissionsDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

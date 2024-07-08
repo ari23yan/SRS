@@ -24,7 +24,9 @@ namespace SurgeryRoomScheduler.Domain.Dtos
         public string? AccNezam { get; set; }
         public int? GroupCode { get; set; }
         public string? DoctorNationalCode { get; set; }
+        public string? Mobile0 { get; set; }
         public string? Mobile1 { get; set; }
+        public string? Mobile2 { get; set; }
         public string? Perscode { get; set; }
         public string? NationalTariffCode { get; set; }
     }

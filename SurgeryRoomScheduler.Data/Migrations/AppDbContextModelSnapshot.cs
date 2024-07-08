@@ -395,6 +395,9 @@ namespace SurgeryRoomScheduler.Data.Migrations
                     b.Property<bool>("IsModified")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("LastLoginDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("LastName")
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
@@ -436,63 +439,6 @@ namespace SurgeryRoomScheduler.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users", "Account");
-                });
-
-            modelBuilder.Entity("SurgeryRoomScheduler.Domain.Entities.Account.UserDetail", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateOfBirth")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<byte?>("Gender")
-                        .HasColumnType("tinyint");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsModified")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastLoginDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("ModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ProfilePicture")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("UserDetails", "Account");
                 });
 
             modelBuilder.Entity("SurgeryRoomScheduler.Domain.Entities.Common.ApplicationLog", b =>
@@ -550,8 +496,8 @@ namespace SurgeryRoomScheduler.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ErrorDetails")
-                        .HasMaxLength(1024)
-                        .HasColumnType("nvarchar(1024)");
+                        .HasMaxLength(5000)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsSuccessful")
                         .HasColumnType("bit");
@@ -802,6 +748,9 @@ namespace SurgeryRoomScheduler.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<long>("Code")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -861,6 +810,9 @@ namespace SurgeryRoomScheduler.Data.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("PatientHaveInsurance")
+                        .HasColumnType("bit");
+
                     b.Property<string>("PatientLastName")
                         .IsRequired()
                         .HasMaxLength(60)
@@ -895,6 +847,9 @@ namespace SurgeryRoomScheduler.Data.Migrations
 
                     b.Property<Guid>("TimingId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeSpan>("UsageTime")
+                        .HasColumnType("time");
 
                     b.HasKey("Id");
 
@@ -958,7 +913,7 @@ namespace SurgeryRoomScheduler.Data.Migrations
                     b.Property<Guid?>("ReservationRejectionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Status")
+                    b.Property<int>("StatusId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -970,7 +925,30 @@ namespace SurgeryRoomScheduler.Data.Migrations
 
                     b.HasIndex("ReservationRejectionId");
 
+                    b.HasIndex("StatusId");
+
                     b.ToTable("ReservationConfirmations", "General");
+                });
+
+            modelBuilder.Entity("SurgeryRoomScheduler.Domain.Entities.General.ReservationConfirmationStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ReservationConfirmationStatuses", "General");
                 });
 
             modelBuilder.Entity("SurgeryRoomScheduler.Domain.Entities.General.ReservationConfirmationType", b =>
@@ -1060,6 +1038,9 @@ namespace SurgeryRoomScheduler.Data.Migrations
                     b.Property<Guid>("ReservationId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("ReservationRejectionAndCancellationReasonId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("ReservationRejectionReasonId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1067,12 +1048,12 @@ namespace SurgeryRoomScheduler.Data.Migrations
 
                     b.HasIndex("ReservationId");
 
-                    b.HasIndex("ReservationRejectionReasonId");
+                    b.HasIndex("ReservationRejectionAndCancellationReasonId");
 
                     b.ToTable("ReservationRejections", "General");
                 });
 
-            modelBuilder.Entity("SurgeryRoomScheduler.Domain.Entities.General.ReservationRejectionReason", b =>
+            modelBuilder.Entity("SurgeryRoomScheduler.Domain.Entities.General.ReservationRejectionAndCancellationReason", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1115,7 +1096,7 @@ namespace SurgeryRoomScheduler.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ReservationRejectionReasons", "General");
+                    b.ToTable("ReservationRejectionAndCancellationReasons", "General");
                 });
 
             modelBuilder.Entity("SurgeryRoomScheduler.Domain.Entities.General.Room", b =>
@@ -1149,6 +1130,9 @@ namespace SurgeryRoomScheduler.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<long>("Code")
+                        .HasColumnType("bigint");
+
                     b.Property<bool?>("IsActive")
                         .HasColumnType("bit");
 
@@ -1169,10 +1153,9 @@ namespace SurgeryRoomScheduler.Data.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssignedDoctorNoNezam")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("AssignedRoomCode")
+                    b.Property<long>("AssignedRoomCode")
                         .HasColumnType("bigint");
 
                     b.Property<Guid?>("CreatedBy")
@@ -1197,6 +1180,9 @@ namespace SurgeryRoomScheduler.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsExtraTiming")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsModified")
                         .HasColumnType("bit");
 
@@ -1205,6 +1191,9 @@ namespace SurgeryRoomScheduler.Data.Migrations
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("PreviousOwner")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly>("ScheduledDate")
                         .HasColumnType("date");
@@ -1313,17 +1302,6 @@ namespace SurgeryRoomScheduler.Data.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("SurgeryRoomScheduler.Domain.Entities.Account.UserDetail", b =>
-                {
-                    b.HasOne("SurgeryRoomScheduler.Domain.Entities.Account.User", "User")
-                        .WithOne("UserDetail")
-                        .HasForeignKey("SurgeryRoomScheduler.Domain.Entities.Account.UserDetail", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("SurgeryRoomScheduler.Domain.Entities.Common.ReservationConfirmationLog", b =>
                 {
                     b.HasOne("SurgeryRoomScheduler.Domain.Entities.General.ReservationConfirmationType", "ReservationConfirmationType")
@@ -1353,11 +1331,19 @@ namespace SurgeryRoomScheduler.Data.Migrations
                         .WithMany()
                         .HasForeignKey("ReservationRejectionId");
 
+                    b.HasOne("SurgeryRoomScheduler.Domain.Entities.General.ReservationConfirmationStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Reservation");
 
                     b.Navigation("ReservationConfirmationType");
 
                     b.Navigation("ReservationRejection");
+
+                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("SurgeryRoomScheduler.Domain.Entities.General.ReservationRejection", b =>
@@ -1368,15 +1354,15 @@ namespace SurgeryRoomScheduler.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SurgeryRoomScheduler.Domain.Entities.General.ReservationRejectionReason", "ReservationRejectionReason")
+                    b.HasOne("SurgeryRoomScheduler.Domain.Entities.General.ReservationRejectionAndCancellationReason", "ReservationRejectionAndCancellationReason")
                         .WithMany()
-                        .HasForeignKey("ReservationRejectionReasonId")
+                        .HasForeignKey("ReservationRejectionAndCancellationReasonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Reservation");
 
-                    b.Navigation("ReservationRejectionReason");
+                    b.Navigation("ReservationRejectionAndCancellationReason");
                 });
 
             modelBuilder.Entity("SurgeryRoomScheduler.Domain.Entities.Account.Permission", b =>
@@ -1401,9 +1387,6 @@ namespace SurgeryRoomScheduler.Data.Migrations
             modelBuilder.Entity("SurgeryRoomScheduler.Domain.Entities.Account.User", b =>
                 {
                     b.Navigation("Otps");
-
-                    b.Navigation("UserDetail")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("SurgeryRoomScheduler.Domain.Entities.Common.Menu", b =>

@@ -22,7 +22,7 @@ namespace SurgeryRoomScheduler.Domain.Entities.Common
         public DateTime CreatedDate { get; set; } = DateTime.Now;    
         public DateTime StartTime { get; set; }       
         public DateTime? EndTime { get; set; }   
-        [MaxLength(1024)]
+        [MaxLength(5000)]
 
         public string? ErrorDetails { get; set; }      // Error details if the job failed
     }

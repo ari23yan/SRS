@@ -5,9 +5,12 @@ using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
 using SurgeryRoomScheduler.Domain.Entities.Account;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -22,7 +25,14 @@ namespace SurgeryRoomScheduler.Application.Utilities
             return Regex.IsMatch(input, mobilePattern);
         }
 
-
+        public static string GetDisplayName(this Enum enumValue)
+        {
+            return enumValue.GetType()
+                            .GetMember(enumValue.ToString())
+                            .First()
+                            .GetCustomAttribute<DisplayAttribute>()
+                            ?.GetName() ?? enumValue.ToString();
+        }
         public static bool IsValidNationalCode(string input)
         {
             string pattern = @"^[0-9]{10}$";
@@ -63,6 +73,19 @@ namespace SurgeryRoomScheduler.Application.Utilities
             }
             var user = httpContextAccessor.HttpContext.User;
             return Guid.Parse(user.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+        }
+
+        public static string EncodePasswordMd5(string pass)
+        {
+            Byte[] originalBytes;
+            Byte[] encodedBytes;
+            MD5 md5;
+            //Instantiate MD5CryptoServiceProvider, get bytes for original password and compute hash (encoded password)   
+            md5 = new MD5CryptoServiceProvider();
+            originalBytes = ASCIIEncoding.Default.GetBytes(pass);
+            encodedBytes = md5.ComputeHash(originalBytes);
+            //Convert encoded bytes back to a 'readable' string   
+            return BitConverter.ToString(encodedBytes);
         }
 
         public static string ConvertGregorianDateTimeToPersianDate(DateTime date)
@@ -291,18 +314,16 @@ namespace SurgeryRoomScheduler.Application.Utilities
             }
 
             DateTime today = DateTime.Now;
-            // Weekday names in Persian
+            DateTime threeDaysLater = today.AddDays(3);
 
-            // Iterate through each day of the month
             for (int day = 1; day <= lastDay; day++)
             {
                 DateTime miladiDate = persianCalendar.ToDateTime(year, month, day, 0, 0, 0, 0);
                 string shamsiDate = $"{year:0000}/{month:00}/{day:00}";
 
-                // Determine the weekday in Gregorian calendar and map to Persian weekday name
                 int gregorianDayOfWeek = (int)miladiDate.DayOfWeek;
                 string persianWeekDay = PersianDayOfWeekNames[gregorianDayOfWeek];
-                bool isEnable = miladiDate >= today;
+                bool isEnable = !(miladiDate < today || miladiDate < threeDaysLater);
 
                 daysOfMonth.Add(new PersianDayInfoDto
                 {

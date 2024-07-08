@@ -13,6 +13,7 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
     public class Insurance
     {
         public long Id { get; set; }
+        public long Code { get; set; }
         [MaxLength(500)]
         public string Name { get; set; }
     }

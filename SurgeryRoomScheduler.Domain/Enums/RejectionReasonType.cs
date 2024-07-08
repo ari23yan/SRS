@@ -9,6 +9,8 @@ namespace SurgeryRoomScheduler.Domain.Enums
     public enum RejectionReasonType:byte
     {
         Supervisor = 1,
-        MedicalRecords
+        MedicalRecords,
+        cancellation,
+        
     }
 }

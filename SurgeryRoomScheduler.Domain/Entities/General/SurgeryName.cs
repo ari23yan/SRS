@@ -15,6 +15,7 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
         public long Id { get; set; }
         [MaxLength(500)]
         public string Name { get; set; }
+        public long Code { get; set; }
         public bool? IsActive { get; set; }
     }
 }

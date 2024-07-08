@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 
 namespace SurgeryRoomScheduler.Domain.Entities.General
 {
-    [Table("ReservationRejectionReasons", Schema = "General")]
-    public class ReservationRejectionReason:BaseEntity
+    [Table("ReservationRejectionAndCancellationReasons", Schema = "General")]
+    public class ReservationRejectionAndCancellationReason: BaseEntity
     {
         public RejectionReasonType RejectionReasonType { get; set; }
         [MaxLength(5000)]

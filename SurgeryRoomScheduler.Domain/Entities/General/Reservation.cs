@@ -24,6 +24,7 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
         public string PatientNationalCode { get; set; }
         [MaxLength(11)]
         public string PatientPhoneNumber { get; set; }
+        public bool PatientHaveInsurance { get; set; }
         [MaxLength(256)]
         public string DoctorNoNezam { get; set; }
         public long? RoomCode { get; set; }
@@ -31,7 +32,10 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
         public string? Description { get; set; }
         public DateTime RequestedDate { get; set; }
         public TimeSpan RequestedTime { get; set; }
+        public TimeSpan UsageTime { get; set; } // مدت زمان استفاده از زمان بندی 
         public bool IsCanceled { get; set; } = false;
+        //public Guid ReservationCancelationReasonId { get; set; }
+        //public ReservationRejectionAndCancellationReason ReservationRejectionAndCancellationReason { get; set; }
         [MaxLength(5000)]
         public string? CancelationDescription { get; set; }
         public Guid ReservationConfirmationId { get; set; }

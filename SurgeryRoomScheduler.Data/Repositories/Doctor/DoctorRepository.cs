@@ -29,6 +29,58 @@ namespace SurgeryRoomScheduler.Data.Repositories
                 throw;
             }
         }
+        public async Task<bool> DeleteDoctorsAssignedRooms()
+        {
+            try
+            {
+                await Context.DoctorRooms.ExecuteDeleteAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+                throw;
+            }
+        }
+        public async Task<bool> DeleteInsurances()
+        {
+            try
+            {
+                await Context.Insurances.ExecuteDeleteAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+                throw;
+            }
+        }
+        public async Task<bool> DeleteSurgeryNames()
+        {
+            try
+            {
+                await Context.SurgeryNames.ExecuteDeleteAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+                throw;
+            }
+        }
+        public async Task<bool> DeleteRooms()
+        {
+            try
+            {
+                await Context.Rooms.ExecuteDeleteAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+                throw;
+            }
+        }
 
         public async Task<IEnumerable<Room>> GetDoctorRooms(string noNezam)
         {

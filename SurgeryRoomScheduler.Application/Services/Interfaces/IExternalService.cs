@@ -14,5 +14,6 @@ namespace SurgeryRoomScheduler.Application.Services.Interfaces
         Task<ResponseDto<string>> GetRoomsList();
         Task<ResponseDto<string>> GetInsuranceList();
         Task<ResponseDto<string>> GetSurgeryNamesList();
+        Task<ResponseDto<string>> GetDoctorsAssignedRooms();
     }
 }

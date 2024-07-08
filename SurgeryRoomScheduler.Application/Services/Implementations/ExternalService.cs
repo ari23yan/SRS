@@ -13,6 +13,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using SurgeryRoomScheduler.Domain.Dtos.Jobs;
 
 namespace SurgeryRoomScheduler.Application.Services.Implementations
 {
@@ -23,6 +24,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         private readonly string? Username;
         private readonly string? Password;
         private readonly string? SecretId;
+        private readonly JwtTokenHandler jwtTokenHandler;
 
         public ExternalService(IConfiguration configuration)
         {
@@ -31,12 +33,18 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             Username = configuration.GetValue<string>("MiddlewareUsername");
             Password = configuration.GetValue<string>("MiddlewarePassword");
             SecretId = configuration.GetValue<string>("MiddlewareSecretId");
+            this.jwtTokenHandler = new JwtTokenHandler();
         }
         public async Task<ResponseDto<string>> Authenticate()
         {
             try
             {
-                if(middlewareAddress.IsNullOrEmpty() || Username.IsNullOrEmpty() || Password.IsNullOrEmpty() || SecretId.IsNullOrEmpty())
+                if (jwtTokenHandler.IsTokenValid())
+                {
+                    return new ResponseDto<string> { IsSuccessFull = true, Data = jwtTokenHandler.Token };
+                }
+
+                if (middlewareAddress.IsNullOrEmpty() || Username.IsNullOrEmpty() || Password.IsNullOrEmpty() || SecretId.IsNullOrEmpty())
                 {
                     return new ResponseDto<string> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "کانفیگ های ارتباطی در اپ ستینگ یافت نشد." };
                 }
@@ -57,6 +65,14 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     {
                         var responseBody = await response.Content.ReadAsStringAsync();
                         var responseDto = JsonConvert.DeserializeObject<ResponseDto<string>>(responseBody);
+                        if (responseDto.IsSuccessFull.HasValue && responseDto.IsSuccessFull.Value)
+                        {
+                            jwtTokenHandler.Token = responseDto.Data;
+                            var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+                            var jwtToken = tokenHandler.ReadJwtToken(responseDto.Data);
+                            var expiry = jwtToken.Claims.First(c => c.Type == "exp").Value;
+                            jwtTokenHandler.ExpiryTime = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiry)).UtcDateTime;
+                        }
                         return responseDto;
                     }
                     else
@@ -103,6 +119,37 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 }
             }
         }
+        public async Task<ResponseDto<string>> GetDoctorsAssignedRooms()
+        {
+            var authenticateResponse = await Authenticate();
+            if (authenticateResponse.IsSuccessFull.Value == false)
+            {
+                return authenticateResponse;
+            }
+            using (var httpClient = new HttpClient())
+            {
+                // Set JWT token in request headers
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authenticateResponse.Data);
+                try
+                {
+                    var url = $"{middlewareAddress}Api/GetDoctorsAssignedRooms?secretId={WebUtility.UrlEncode(SecretId)}";
+                    var response = await httpClient.GetAsync(url);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseBody = await response.Content.ReadAsStringAsync();
+                        return new ResponseDto<string> { IsSuccessFull = true, Data = responseBody, Message = ErrorsMessages.Success, Status = "SuccessFul" };
+                    }
+                    else
+                    {
+                        return new ResponseDto<string> { IsSuccessFull = false, Data = response.StatusCode.ToString() + "  /  " + response.Content.ToString(), Message = ErrorsMessages.Faild, Status = "Api Response Status Code Is Not 200" };
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return new ResponseDto<string> { IsSuccessFull = false, Data = ex.Message, Message = ErrorsMessages.InternalServerError, Status = "Exception" };
+                }
+            }
+        }
         public async Task<ResponseDto<string>> GetInsuranceList()
         {
             var authenticateResponse = await Authenticate();
@@ -121,8 +168,8 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     if (response.IsSuccessStatusCode)
                     {
                         string responseBody = await response.Content.ReadAsStringAsync();
-                        var responseDto = JsonConvert.DeserializeObject<ResponseDto<string>>(responseBody);
-                        return responseDto;
+                        return new ResponseDto<string> { IsSuccessFull = true, Data = responseBody, Message = ErrorsMessages.Success, Status = "SuccessFul" };
+
                     }
                     else
                     {
@@ -152,8 +199,8 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     if (response.IsSuccessStatusCode)
                     {
                         string responseBody = await response.Content.ReadAsStringAsync();
-                        var responseDto = JsonConvert.DeserializeObject<ResponseDto<string>>(responseBody);
-                        return responseDto;
+                        return new ResponseDto<string> { IsSuccessFull = true, Data = responseBody, Message = ErrorsMessages.Success, Status = "SuccessFul" };
+
                     }
                     else
                     {
@@ -178,13 +225,12 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authenticateResponse.Data);
                 try
                 {
-                    var url = $"{middlewareAddress}Api/GetSurgeryNamesList?secretId={WebUtility.UrlEncode(SecretId)}";
+                    var url = $"{middlewareAddress}Api/GetSurgeryNameList?secretId={WebUtility.UrlEncode(SecretId)}&querySize=5000";
                     var response = await httpClient.GetAsync(url);
                     if (response.IsSuccessStatusCode)
                     {
                         string responseBody = await response.Content.ReadAsStringAsync();
-                        var responseDto = JsonConvert.DeserializeObject<ResponseDto<string>>(responseBody);
-                        return responseDto;
+                        return new ResponseDto<string> { IsSuccessFull = true, Data = responseBody, Message = ErrorsMessages.Success, Status = "SuccessFul" };
                     }
                     else
                     {
