@@ -76,7 +76,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             await _reservationConfirmation.UpdateAsync(reservationConf);
             reservation.IsCanceled = true;
             reservation.CancelationDescription = request.CancellationDescription;
-            reservation.ReservationConfirmation.ReservationRejection.Id = request.ReservationCancellationReasonsReasonId;
+            reservation.ReservationConfirmation.ReservationRejection.Id = request.ReservationCancellationReasonId;
             reservation.ModifiedDate = DateTime.Now;
             reservation.IsModified = true;
             reservation.ModifiedBy = operatorId;

@@ -314,18 +314,16 @@ namespace SurgeryRoomScheduler.Application.Utilities
             }
 
             DateTime today = DateTime.Now;
-            // Weekday names in Persian
+            DateTime threeDaysLater = today.AddDays(3);
 
-            // Iterate through each day of the month
             for (int day = 1; day <= lastDay; day++)
             {
                 DateTime miladiDate = persianCalendar.ToDateTime(year, month, day, 0, 0, 0, 0);
                 string shamsiDate = $"{year:0000}/{month:00}/{day:00}";
 
-                // Determine the weekday in Gregorian calendar and map to Persian weekday name
                 int gregorianDayOfWeek = (int)miladiDate.DayOfWeek;
                 string persianWeekDay = PersianDayOfWeekNames[gregorianDayOfWeek];
-                bool isEnable = miladiDate >= today;
+                bool isEnable = !(miladiDate < today || miladiDate < threeDaysLater);
 
                 daysOfMonth.Add(new PersianDayInfoDto
                 {
