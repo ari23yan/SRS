@@ -267,6 +267,27 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             };
         }
 
+        public async Task<ResponseDto<IEnumerable<ReservationDto>>> GetReservationCancelledList(PaginationDto request, Guid? doctorId)
+        {
+
+            var doctor = await _userRepository.GetUserByUserId(doctorId.Value);
+            if (doctor == null)
+            {
+                return new ResponseDto<IEnumerable<ReservationDto>> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
+            }
+            var reservs = await _reservationRepository.GetReservationCancelledList(request, doctor.NoNezam);
+            var reservsCount = await GetCancelledReservedCount(doctor.NoNezam);
+            //var mappedTimings = _mapper.Map<IEnumerable<Timing>, IEnumerable<TimingListDto>>(timings);
+            return new ResponseDto<IEnumerable<ReservationDto>>
+            {
+                IsSuccessFull = true,
+                Data = reservs,
+                Message = ErrorsMessages.Success,
+                Status = "SuccessFul",
+                TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? reservsCount : reservs.Count()
+            };
+        }
+
         public async Task<ResponseDto<IEnumerable<ReservationDto>>> GetPaginatedReservervationsList(PaginationDto request, Guid operatorId, ReservationStatus status)
         {
             var user = await _userRepository.GetUserWithRolesByUserId(operatorId);
@@ -445,6 +466,12 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             }
             return await _reservationRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted);
         }
+
+        public async Task<int> GetCancelledReservedCount(string? noNezam)
+        {
+            return await _reservationRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.IsCanceled && x.DoctorNoNezam.Equals(noNezam));
+        }
+
 
         public async Task<int> GetExteraReservedCount(long roomCode)
         {

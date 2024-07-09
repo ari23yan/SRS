@@ -73,10 +73,6 @@ namespace SurgeryRoomScheduler.Data.Repositories
             return await baseQuery.ToListAsync();
         }
 
-        public Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request, string roomCode, Guid? doctorId, bool isExtera)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<IEnumerable<ReservationDto>> GetPaginatedReservedList(PaginationDto paginationRequest, string noNezam, bool isExtera)
         {
@@ -127,6 +123,62 @@ namespace SurgeryRoomScheduler.Data.Repositories
 
             return await pagedQuery.ToListAsync();
         }
+
+
+        public async Task<IEnumerable<ReservationDto>> GetReservationCancelledList(PaginationDto paginationRequest, string noNezam)
+        {
+            var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
+            var baseQuery = from reservation in Context.Reservations
+                            join doctor in Context.Doctors on reservation.DoctorNoNezam equals doctor.NoNezam
+                            join room in Context.Rooms on reservation.RoomCode equals room.Code
+                            join reservationConfirmation in Context.ReservationConfirmations on reservation.Id equals reservationConfirmation.ReservationId
+                            join reservationConfirmationStatus in Context.ReservationConfirmationStatuses on reservationConfirmation.StatusId equals reservationConfirmationStatus.Id
+                            join reservationRejectionAndCancellationReasons in Context.ReservationRejectionAndCancellationReasons on reservation.ReservationCancelationReasonId equals reservationRejectionAndCancellationReasons.Id
+                            where !reservation.IsDeleted && reservation.IsActive &&
+                            reservation.DoctorNoNezam.Equals(noNezam) &&
+                            reservationConfirmation.IsActive &&
+                            !reservationConfirmation.IsDeleted && reservation.IsCanceled && reservation.IsCanceled == true
+                            select new ReservationDto
+                            {
+                                Id = reservation.Id,
+                                TimingId = reservation.TimingId,
+                                PatientName = reservation.PatientName,
+                                PatientLastName = reservation.PatientLastName,
+                                PatientNationalCode = reservation.PatientNationalCode,
+                                PatientPhoneNumber = reservation.PatientPhoneNumber,
+                                DoctorNoNezam = doctor.NoNezam,
+                                DoctorName = doctor.Name,
+                                RoomName = room.Name,
+                                RoomCode = room.Code,
+                                Description = reservation.Description,
+                                RequestedDate = reservation.RequestedDate,
+                                IsConfirmedByMedicalRecords = reservationConfirmation.IsConfirmedByMedicalRecords,
+                                IsConfirmedBySupervisor = reservationConfirmation.IsConfirmedBySupervisor,
+                                ConfirmedMedicalRecordsUserId = reservationConfirmation.ConfirmedMedicalRecordsUserId,
+                                ConfirmedSupervisorUserId = reservationConfirmation.ConfirmedSupervisorUserId,
+                                ReservationRejectionId = reservationConfirmation.ReservationRejectionId,
+                                RequestedTime = reservation.RequestedTime,
+                                Status = reservationConfirmationStatus.Name,
+                                StatusType = reservationConfirmationStatus.Id,
+                                IsCanceled = reservation.IsCanceled,
+                                CancelationDescription = reservation.CancelationDescription,
+                                ReservationCancelationReasonId = reservationRejectionAndCancellationReasons.Id,
+                                ReservationCancelationReason = reservationRejectionAndCancellationReasons.Reason
+                            };
+            if (!string.IsNullOrWhiteSpace(paginationRequest.Searchkey))
+            {
+                baseQuery = baseQuery.Where(u => u.DoctorNoNezam.Contains(paginationRequest.Searchkey) || u.DoctorName.Contains(paginationRequest.Searchkey));
+            }
+
+            var query = paginationRequest.FilterType == FilterType.Asc ?
+                        baseQuery.OrderBy(u => u.Id) :
+                        baseQuery.OrderByDescending(u => u.Id);
+
+            var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
+
+            return await pagedQuery.ToListAsync();
+        }
+
 
         public async Task<IEnumerable<ReservationDto>> GetPaginatedReservervationsList(PaginationDto paginationRequest, string operatorType, ReservationStatus status)
         {

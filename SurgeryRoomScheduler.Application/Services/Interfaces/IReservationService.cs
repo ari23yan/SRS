@@ -20,12 +20,14 @@ namespace SurgeryRoomScheduler.Application.Services.Interfaces
 
         Task<ResponseDto<GetTimingCalenderDto>> GetReservationCalender(GetListByMonthDto request);
         Task<ResponseDto<IEnumerable<ReservationDto>>> GetPaginatedReservedList(PaginationDto request,Guid? doctorId, bool isExtera);
+        Task<ResponseDto<IEnumerable<ReservationDto>>> GetReservationCancelledList(PaginationDto request,Guid? doctorId);
         Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request,Guid? doctorId, long roomCode);
         Task<ResponseDto<IEnumerable<ReservationDto>>> GetPaginatedReservervationsList(PaginationDto request,Guid operatorId, ReservationStatus status);
         Task<ResponseDto<IEnumerable<ReservationRejectionAndCancellationReason>>> GetRejectionsReasons(Guid operatorId, bool isCancellation);
         Task<ResponseDto<bool>> ConfirmReservation(Guid reservationId, Guid operatorId);
         Task<ResponseDto<bool>> RejectReservationRequest(RejectReservationRequestDto request, Guid operatorId);
         Task<int> GetReservedCount(string? noNezam);
+        Task<int> GetCancelledReservedCount(string? noNezam);
         Task<int> GetExteraReservedCount(long roomCode);
         Task<int> GetReservedConfirmationCountByType(string? operatorType, ReservationStatus status);
 

@@ -33,5 +33,11 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Reservation
         public Guid? ReservationRejectionId { get; set; }
         public bool IsExtera { get; set; }
 
+        public bool? IsCanceled { get; set; }
+        public Guid? ReservationCancelationReasonId { get; set; }
+        public string? ReservationCancelationReason { get; set; }
+
+        public string? CancelationDescription { get; set; }
+
     }
 }
