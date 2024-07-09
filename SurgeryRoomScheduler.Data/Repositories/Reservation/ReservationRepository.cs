@@ -163,7 +163,8 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                 IsCanceled = reservation.IsCanceled,
                                 CancelationDescription = reservation.CancelationDescription,
                                 ReservationCancelationReasonId = reservationRejectionAndCancellationReasons.Id,
-                                ReservationCancelationReason = reservationRejectionAndCancellationReasons.Reason
+                                ReservationCancelationReason = reservationRejectionAndCancellationReasons.Reason,
+                                PatientHaveInsurance = reservation.PatientHaveInsurance
                             };
             if (!string.IsNullOrWhiteSpace(paginationRequest.Searchkey))
             {
@@ -212,7 +213,9 @@ namespace SurgeryRoomScheduler.Data.Repositories
                     RequestedTime = reservation.RequestedTime,
                     Status = reservationConfirmationStatus.Name,  
                     StatusType = reservationConfirmationStatus.Id,
-                    IsExtera = timing.IsExtraTiming
+                    IsExtera = timing.IsExtraTiming,
+                    PatientHaveInsurance = reservation.PatientHaveInsurance
+
                 };
             if (operatorType == "Supervisor")
             {
