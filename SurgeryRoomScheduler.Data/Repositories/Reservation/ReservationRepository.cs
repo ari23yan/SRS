@@ -159,8 +159,7 @@ namespace SurgeryRoomScheduler.Data.Repositories
                     ReservationRejectionId = reservationConfirmation.ReservationRejectionId,
                     RequestedTime = reservation.RequestedTime,
                     Status = reservationConfirmationStatus.Name,  
-                    StatusType = reservationConfirmationStatus.Id
-                    ,
+                    StatusType = reservationConfirmationStatus.Id,
                     IsExtera = timing.IsExtraTiming
                 };
             if (operatorType == "Supervisor")
