@@ -22,6 +22,7 @@ using Microsoft.IdentityModel.Tokens;
 using SurgeryRoomScheduler.Domain.Enums;
 using Azure.Core;
 using Microsoft.OpenApi.Models;
+using SurgeryRoomScheduler.Domain.Entities.Common;
 
 namespace SurgeryRoomScheduler.Application.Services.Implementations
 {
@@ -32,11 +33,12 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         private readonly IUserRepository _userRepository;
         private readonly IDoctorRepository _doctorRepository;
         private readonly IRepository<ReservationConfirmation> _reservationConfirmation;
+        private readonly IRepository<ReservationConfirmationLog> _reservationConfirmationLog;
         private readonly IRepository<ReservationRejection> _reservationRejection;
         private readonly IMapper _mapper;
         public ReservationService(IUserRepository userRepository, ISender sender, ITimingRepository timingRepository,
             IReservationRepository reservationRepository, IMapper mapper, IDoctorRepository doctorRepository,
-             IRepository<ReservationRejection> reservationRejection,
+             IRepository<ReservationRejection> reservationRejection, IRepository<ReservationConfirmationLog> reservationConfirmationLog,
             IRepository<ReservationConfirmation> reservationConfirmation)
         {
             _userRepository = userRepository;
@@ -46,6 +48,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             _doctorRepository = doctorRepository;
             _reservationConfirmation = reservationConfirmation;
             _reservationRejection = reservationRejection;
+            _reservationConfirmationLog = reservationConfirmationLog;
         }
 
         public async Task<ResponseDto<bool>> CancelReservation(CancelReservationDto request, Guid operatorId)
@@ -86,6 +89,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
 
         public async Task<ResponseDto<bool>> ConfirmReservation(Guid reservationId, Guid operatorId)
         {
+
             var user = await _userRepository.GetUserWithRolesByUserId(operatorId);
             if (user == null)
             {
@@ -100,6 +104,23 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا تعیین وضعیت شده است" };
             }
+
+
+
+
+
+            ReservationConfirmationLog confirmationLog = new ReservationConfirmationLog
+            {
+                ConfirmationAction = ConfirmationAction.Approved,
+                ReservationConfirmationTypeId = reservationConf.ReservationConfirmationType.Id,
+                OperatorId = operatorId,
+                ReservationId = reservationId,
+            };
+
+            await _reservationConfirmationLog.AddAsync(confirmationLog);
+
+
+
 
             if (reservationConf.ReservationConfirmationType.Name == "Normal-Reservation") // نوبت های عادی
             {
@@ -185,7 +206,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 {
                     return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
                 }
-                if(request.RequestedTime > timing.ScheduledDuration)
+                if (request.RequestedTime > timing.ScheduledDuration)
                 {
                     return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "مدت زمان انتخاب شده بیشتر  از حد مجاز است." };
                 }
@@ -494,6 +515,17 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا تعیین وضعیت شده است" };
             }
+
+            ReservationConfirmationLog confirmationLog = new ReservationConfirmationLog
+            {
+                ConfirmationAction = ConfirmationAction.Rejected,
+                ReservationConfirmationTypeId = reservationConf.ReservationConfirmationType.Id,
+                OperatorId = operatorId,
+                ReservationId = request.ReservationId,
+            };
+
+            await _reservationConfirmationLog.AddAsync(confirmationLog);
+
 
             if (reservationConf.ReservationConfirmationType.Name == "Normal-Reservation") // نوبت های عادی
             {

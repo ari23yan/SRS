@@ -9,6 +9,6 @@ namespace SurgeryRoomScheduler.Domain.Enums
     public enum ConfirmationAction:byte
     {
         Rejected = 0,
-        Accepted = 1
+        Approved = 1
     }
 }

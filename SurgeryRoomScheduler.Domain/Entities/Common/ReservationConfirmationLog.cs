@@ -13,12 +13,13 @@ namespace SurgeryRoomScheduler.Domain.Entities.Common
     [Table("ReservationConfirmationLogs", Schema = "Common")]
     public class ReservationConfirmationLog:BaseEntity
     {
-        public Guid UserId { get; set; }
+        public Guid OperatorId { get; set; }
         public ConfirmationAction ConfirmationAction { get; set; }
         [MaxLength(250)]
         public string? LogDetails { get; set; }
-        public DateTime LogDate { get; set; }
         public Guid ReservationConfirmationTypeId { get; set; }
         public ReservationConfirmationType ReservationConfirmationType { get; set; }
+        public Guid ReservationId { get; set; }
+        public Reservation Reservation { get; set; }
     }
 }
