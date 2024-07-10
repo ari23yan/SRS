@@ -47,9 +47,9 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         {
             return await _doctorRepository.DeleteInsurances();
         }
-        public async Task<ResponseDto<IEnumerable<DoctorListDto>>> GetDoctorList(string searchKey)
+        public async Task<ResponseDto<IEnumerable<DoctorListDto>>> GetDoctorList(long roomCode,string searchKey)
         {
-            var doctorsList = await _doctorRepository.GetDoctorsList(searchKey);
+            var doctorsList = await _doctorRepository.GetDoctorsList(roomCode,searchKey);
             if (doctorsList == null)
             {
                 return new ResponseDto<IEnumerable<DoctorListDto>> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Not Found" };

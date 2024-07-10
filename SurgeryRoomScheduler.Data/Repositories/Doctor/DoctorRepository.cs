@@ -23,7 +23,7 @@ namespace SurgeryRoomScheduler.Data.Repositories
                 await Context.Doctors.ExecuteDeleteAsync();
                 return true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return false;
                 throw;
@@ -97,9 +97,12 @@ namespace SurgeryRoomScheduler.Data.Repositories
             return doctorRooms;
         }
 
-        public async Task<IEnumerable<Doctor>> GetDoctorsList(string searchKey)
+        public async Task<IEnumerable<Doctor>> GetDoctorsList(long roomCode, string searchKey)
         {
-            var query = Context.Doctors.Where(x => x.IsActive.Value).Take(50);
+
+            var rooms = Context.DoctorRooms.Where(x => x.RoomCode == roomCode);
+            var doctorIds = rooms.Select(x => x.NoNezam);
+            var query = Context.Doctors.Where(x => doctorIds.Contains(x.NoNezam) && x.IsActive.Value).Take(50);
             if (!string.IsNullOrEmpty(searchKey))
             {
                 query = query.Where(x => x.NoNezam.Contains(searchKey) || x.FullName.Contains(searchKey)).Take(50);

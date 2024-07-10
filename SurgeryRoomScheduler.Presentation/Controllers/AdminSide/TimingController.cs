@@ -203,11 +203,11 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
 
         [HttpGet]
         [PermissionChecker(Permission = PermissionType.Admin_GetDoctorsList)]
-        public async Task<IActionResult> GetDoctorsList([FromQuery] string searchKey)
+        public async Task<IActionResult> GetDoctorsList([FromQuery] long roomCode , string searchKey)
         {
             try
             {
-                var result = await _doctorService.GetDoctorList(searchKey);
+                var result = await _doctorService.GetDoctorList(roomCode,searchKey);
                 Response.Headers.Add("Total-Count", result.TotalCount.ToString());
 
                 return Ok(result);

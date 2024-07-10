@@ -10,7 +10,7 @@ namespace SurgeryRoomScheduler.Domain.Interfaces
 {
     public interface IDoctorRepository: IRepository<Doctor>
     {
-        Task<IEnumerable<Doctor>> GetDoctorsList(string searchKey);
+        Task<IEnumerable<Doctor>> GetDoctorsList(long roomCode,string searchKey);
         Task<IEnumerable<Room>> GetRoomsList(string searchKey);
         Task<IEnumerable<Room>> GetDoctorRooms(string noNezam);
         Task<bool> DeleteDoctors();
