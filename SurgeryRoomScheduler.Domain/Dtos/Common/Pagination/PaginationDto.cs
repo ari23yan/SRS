@@ -18,6 +18,6 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Common.Pagination
         public string? Searchkey { get; set; }
         [EnumDataType(typeof(FilterType))]
 
-        public FilterType? FilterType { get; set; }
+        public FilterType? FilterType { get; set; }  = Enums.FilterType.Desc;
     }
 }

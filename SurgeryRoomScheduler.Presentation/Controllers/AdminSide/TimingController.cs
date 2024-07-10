@@ -42,6 +42,8 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             try
             {
                 var result = await _timingService.GetPaginatedTimingList(request);
+                Response.Headers.Add("Total-Count", result.TotalCount.ToString());
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -68,6 +70,8 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             try
             {
                 var result = await _timingService.GetPaginatedTimingListByRoomAndDate(request, roomCode, date);
+                Response.Headers.Add("Total-Count", result.TotalCount.ToString());
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -204,6 +208,8 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             try
             {
                 var result = await _doctorService.GetDoctorList(searchKey);
+                Response.Headers.Add("Total-Count", result.TotalCount.ToString());
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -231,6 +237,8 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             try
             {
                 var result = await _doctorService.GetRoomsList(searchKey);
+                Response.Headers.Add("Total-Count", result.TotalCount.ToString());
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -333,6 +341,8 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             try
             {
                 var result = await _doctorService.GetDoctorRooms(noNezam);
+                Response.Headers.Add("Total-Count", result.TotalCount.ToString());
+
                 return Ok(result);
             }
             catch (Exception ex)

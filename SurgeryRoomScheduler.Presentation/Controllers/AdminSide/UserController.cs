@@ -43,6 +43,8 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             try
             {
                 var result = await _userService.GetPaginatedUsersList(request);
+                Response.Headers.Add("Total-Count", result.TotalCount.ToString());
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -189,6 +191,8 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             try
             {
                 var result = await _userService.GetRolesList();
+                Response.Headers.Add("Total-Count", result.TotalCount.ToString());
+
                 return Ok(result);
             }
             catch (Exception ex)

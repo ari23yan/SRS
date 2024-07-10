@@ -37,6 +37,8 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
                 var result = await _reservationService.GetPaginatedReservervationsList(request,currentUser,statusType);
+                Response.Headers.Add("Total-Count", result.TotalCount.ToString());
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -65,6 +67,8 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
                 var result = await _reservationService.GetRejectionsReasons(currentUser,isCancellation);
+                Response.Headers.Add("Total-Count", result.TotalCount.ToString());
+
                 return Ok(result);
             }
             catch (Exception ex)

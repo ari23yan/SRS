@@ -42,7 +42,10 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
 
-                var result = await _reservationService.GetPaginatedReservedList(request, currentUser,false);
+                var result = await _reservationService.GetPaginatedReservedList(request, currentUser, false);
+
+                Response.Headers.Add("Total-Count", result.TotalCount.ToString());
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -65,12 +68,14 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
 
         [HttpGet]
         //[PermissionChecker(Permission = PermissionType.GetDoctorReservedList)]
-        public async Task<IActionResult> GetExteraList([FromQuery] PaginationDto request,long roomCode)
+        public async Task<IActionResult> GetExteraList([FromQuery] PaginationDto request, long roomCode)
         {
             try
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
                 var result = await _reservationService.GetExteraTimingsList(request, currentUser, roomCode);
+                Response.Headers.Add("Total-Count", result.TotalCount.ToString());
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -97,7 +102,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
             try
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
-                if(request.UserId == null)
+                if (request.UserId == null)
                 {
                     request.UserId = currentUser;
                 }
@@ -187,6 +192,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
                 var result = await _reservationService.GetRejectionsReasons(currentUser, isCancellation);
+                Response.Headers.Add("Total-Count", result.TotalCount.ToString());
                 return Ok(result);
             }
             catch (Exception ex)
@@ -214,7 +220,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
             try
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
-                var result = await _reservationService.CancelReservation(request,currentUser);
+                var result = await _reservationService.CancelReservation(request, currentUser);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -244,6 +250,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
                 var result = await _reservationService.GetReservationCancelledList(request, currentUser);
+                Response.Headers.Add("Total-Count", result.TotalCount.ToString());
                 return Ok(result);
             }
             catch (Exception ex)
