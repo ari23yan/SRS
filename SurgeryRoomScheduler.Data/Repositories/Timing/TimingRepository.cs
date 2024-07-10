@@ -34,29 +34,108 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                 x.ScheduledStartTime < request.EndTime && // Check for time overlap
                                 x.ScheduledEndTime > request.StartTime); // Check for time overlap
         }
+        public async Task<IEnumerable<TimingDto>> GetExteraTimingListByRoomCode(PaginationDto paginationRequest, long roomCode)
+        {
+            var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
+            IQueryable<TimingDto> timings = new List<TimingDto>().AsQueryable();
+            if (roomCode == 00) // superviser of medical Record User
+            {
+                timings = from timing in Context.Timings
+                          join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
+                          where !timing.IsDeleted && timing.IsActive 
+                          && timing.IsExtraTiming
+                          && timing.ScheduledDate >= DateOnly.FromDateTime(DateTime.Now) && timing.ScheduledDate <= DateOnly.FromDateTime(DateTime.Now.AddDays(3))
+                          select new TimingDto
+                          {
+                              Id = timing.Id,
+                              RoomName = room.Name,
+                              RoomCode = room.Code,
+                              ScheduledDate = timing.ScheduledDate,
+                              ScheduledStartTime = timing.ScheduledStartTime,
+                              ScheduledEndTime = timing.ScheduledEndTime,
+                              ScheduledDuration = timing.ScheduledDuration,
+                              ScheduledDate_Shamsi = timing.ScheduledDate_Shamsi,
+                              CreatedDate = timing.CreatedDate,
+                              CreatedDate_Shamsi = timing.CreatedDate_Shamsi,
+                              IsDeleted = timing.IsDeleted,
+                              IsActive = timing.IsActive,
+                          };
+            }
+            else
+            {
+                 timings = from timing in Context.Timings
+                                join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
+                                where !timing.IsDeleted && timing.IsActive && timing.AssignedRoomCode == roomCode && timing.IsExtraTiming
+                                && timing.ScheduledDate >= DateOnly.FromDateTime(DateTime.Now) && timing.ScheduledDate <= DateOnly.FromDateTime(DateTime.Now.AddDays(3))
+                                select new TimingDto
+                                {
+                                    Id = timing.Id,
+                                    RoomName = room.Name,
+                                    RoomCode = room.Code,
+                                    ScheduledDate = timing.ScheduledDate,
+                                    ScheduledStartTime = timing.ScheduledStartTime,
+                                    ScheduledEndTime = timing.ScheduledEndTime,
+                                    ScheduledDuration = timing.ScheduledDuration,
+                                    ScheduledDate_Shamsi = timing.ScheduledDate_Shamsi,
+                                    CreatedDate = timing.CreatedDate,
+                                    CreatedDate_Shamsi = timing.CreatedDate_Shamsi,
+                                    IsDeleted = timing.IsDeleted,
+                                    IsActive = timing.IsActive,
+                                };
+            }
+
+
+            if (!string.IsNullOrWhiteSpace(paginationRequest.Searchkey))
+            {
+                timings = timings.Where(u => u.DoctorNoNezam.Contains(paginationRequest.Searchkey) || u.DoctorName.Contains(paginationRequest.Searchkey));
+            }
+            var query = paginationRequest.FilterType == FilterType.Desc ?
+                        timings.OrderBy(u => u.ScheduledDate) :
+                        timings.OrderByDescending(u => u.ScheduledDate);
+
+            var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
+
+            var timingList = await pagedQuery.ToListAsync();
+            var timingIds = timingList.Select(x => x.Id).ToList();
+
+            var reservations = Context.Reservations.Where(x => timingIds.Contains(x.TimingId) && x.RoomCode == roomCode && x.IsActive && !x.IsDeleted)
+            .Select(x => new ReservationInfo { RequestedTime = x.RequestedTime, TimingId = x.TimingId })
+            .ToList();
+
+            foreach (var item in timingList)
+            {
+                item.RemainingTime = item.ScheduledDuration - reservations.Where(x => x.TimingId == item.Id)
+                                    .Select(x => x.RequestedTime)
+                                    .Aggregate(TimeSpan.Zero, (sum, next) => sum + next);
+            }
+
+            return timingList;
+        }
+
+
         public async Task<IEnumerable<TimingDto>> GetDoctorTimingByRoomIdAndDate(long roomCode, string noNezam, DateTime sDate, DateTime eDate)
         {
-var timingsData = await (
-   from timing in Context.Timings
-   join doctor in Context.Doctors on timing.AssignedDoctorNoNezam equals doctor.NoNezam
-   join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
-   where timing.AssignedRoomCode == roomCode
-       && !timing.IsDeleted
-       && timing.IsActive
-       && timing.ScheduledDate >= DateOnly.FromDateTime(sDate.Date)
-       && timing.ScheduledDate <= DateOnly.FromDateTime(eDate.Date)
-       && timing.AssignedDoctorNoNezam.Equals(noNezam)
-   select new
-   {
-       Timing = timing,
-       Doctor = doctor,
-       Room = room,
-       Reservations = Context.Reservations
-           .Where(x => x.TimingId.Equals(timing.Id))
-           .Select(x => x.RequestedTime)
-           .ToList() // Retrieve the reservations for each timing
-   }
-).ToListAsync();
+            var timingsData = await (
+               from timing in Context.Timings
+               join doctor in Context.Doctors on timing.AssignedDoctorNoNezam equals doctor.NoNezam
+               join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
+               where timing.AssignedRoomCode == roomCode
+              && !timing.IsDeleted
+              && timing.IsActive
+              && timing.ScheduledDate >= DateOnly.FromDateTime(sDate.Date)
+              && timing.ScheduledDate <= DateOnly.FromDateTime(eDate.Date)
+              && timing.AssignedDoctorNoNezam.Equals(noNezam)
+               select new
+               {
+                   Timing = timing,
+                   Doctor = doctor,
+                   Room = room,
+                   Reservations = Context.Reservations
+                .Where(x => x.TimingId.Equals(timing.Id))
+                .Select(x => x.RequestedTime)
+                .ToList() // Retrieve the reservations for each timing
+               }
+                    ).ToListAsync();
 
             // Perform the remaining calculations in-memory
             var timings = timingsData.Select(t => new TimingDto
@@ -260,7 +339,7 @@ var timingsData = await (
                 x => x.reservations.DefaultIfEmpty(),
                 (x, reservation) => new { x.timing, reservation }
             )
-            .Where(x => x.reservation != null) 
+            .Where(x => x.reservation != null)
             .Select(x => new NotFullyReservedTimingsDto
             {
                 TimingId = x.timing.Id,
@@ -279,42 +358,11 @@ var timingsData = await (
             timingDto.NotFullyReservedTimings = notFullyReservedTimings;
             return timingDto;
         }
-
-        public async Task<IEnumerable<TimingDto>> GetExteraTimingListByRoomCode(PaginationDto paginationRequest, long roomCode)
+        public class ReservationInfo
         {
-            var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
-            var baseQuery = from timing in Context.Timings
-                            join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
-                            where !timing.IsDeleted && timing.IsActive && timing.AssignedRoomCode == roomCode && timing.IsExtraTiming
-                            && timing.ScheduledDate >= DateOnly.FromDateTime(DateTime.Now) && timing.ScheduledDate <= DateOnly.FromDateTime(DateTime.Now.AddDays(3))
-                            select new TimingDto
-                            {
-                                Id = timing.Id,
-                                RoomName = room.Name,
-                                RoomCode = room.Code,
-                                ScheduledDate = timing.ScheduledDate,
-                                ScheduledStartTime = timing.ScheduledStartTime,
-                                ScheduledEndTime = timing.ScheduledEndTime,
-                                ScheduledDuration = timing.ScheduledDuration,
-                                ScheduledDate_Shamsi = timing.ScheduledDate_Shamsi,
-                                CreatedDate = timing.CreatedDate,
-                                CreatedDate_Shamsi = timing.CreatedDate_Shamsi,
-                                IsDeleted = timing.IsDeleted,
-                                IsActive = timing.IsActive
-                            };
-
-            if (!string.IsNullOrWhiteSpace(paginationRequest.Searchkey))
-            {
-                baseQuery = baseQuery.Where(u => u.DoctorNoNezam.Contains(paginationRequest.Searchkey) || u.DoctorName.Contains(paginationRequest.Searchkey));
-            }
-            var query = paginationRequest.FilterType == FilterType.Desc ?
-                        baseQuery.OrderBy(u => u.ScheduledDate) :
-                        baseQuery.OrderByDescending(u => u.ScheduledDate);
-
-            var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
-
-            return await pagedQuery.ToListAsync();
-
+            public TimeSpan RequestedTime { get; set; }
+            public Guid TimingId { get; set; }
         }
+
     }
 }

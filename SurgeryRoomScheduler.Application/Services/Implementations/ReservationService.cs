@@ -236,16 +236,20 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             }
         }
 
-        public async Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request, Guid? doctorId, long roomCode)
+        public async Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request, Guid? userId, long roomCode)
         {
-            var doctor = await _userRepository.GetUserByUserId(doctorId.Value);
-            if (doctor == null)
+            var user = await _userRepository.GetUserWithRolesByUserId(userId.Value);
+            if (user == null)
             {
                 return new ResponseDto<IEnumerable<TimingDto>> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
             }
-            if (roomCode == 0)
+            if(!user.Role.RoleName.Equals("NormalUser"))
             {
-                var doctorsRooms = await _doctorRepository.GetDoctorRooms(doctor.NoNezam);
+                roomCode = 00;
+            }
+            else if (roomCode == 0)
+            {
+                var doctorsRooms = await _doctorRepository.GetDoctorRooms(user.NoNezam);
                 if (doctorsRooms.Count() <= 0)
                 {
                     return new ResponseDto<IEnumerable<TimingDto>> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "پزشک به هیچ اتاق عملی تخصیص نیافته است  " };
@@ -257,6 +261,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             }
             var filtredTiming = await _timingRepository.GetExteraTimingListByRoomCode(request, roomCode);
             var reservsCount = await GetExteraReservedCount(roomCode);
+
             return new ResponseDto<IEnumerable<TimingDto>>
             {
                 IsSuccessFull = true,
@@ -287,6 +292,32 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? reservsCount : reservs.Count()
             };
         }
+
+
+
+        public async Task<ResponseDto<IEnumerable<ReservationDto>>> GetExteraReservationList(PaginationDto request, Guid? operatorId)
+        {
+
+            var user = await _userRepository.GetUserByUserId(operatorId.Value);
+            if (user == null)
+            {
+                return new ResponseDto<IEnumerable<ReservationDto>> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
+            }
+            var reservs = await _reservationRepository.GetExteraReservationList(request);
+            var reservsCount = await GetReservedCount(user.NoNezam);
+            //var mappedTimings = _mapper.Map<IEnumerable<Timing>, IEnumerable<TimingListDto>>(timings);
+            return new ResponseDto<IEnumerable<ReservationDto>>
+            {
+                IsSuccessFull = true,
+                Data = reservs,
+                Message = ErrorsMessages.Success,
+                Status = "SuccessFul",
+                TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? reservsCount : reservs.Count()
+            };
+        }
+
+
+        
 
         public async Task<ResponseDto<IEnumerable<ReservationDto>>> GetReservationCancelledList(PaginationDto request, Guid? doctorId)
         {
