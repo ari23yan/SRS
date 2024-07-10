@@ -394,7 +394,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 startDate = UtilityManager.ConvertPersianToGregorian(request.Year + "-" + request.Month + "-" + "01");
                 endDate = UtilityManager.GetLastDayOfPersianMonth(request.Year, request.Month);
-                dayInfoDtos = UtilityManager.GetDaysOfPersianMonth(request.Year, request.Month);
+                dayInfoDtos = UtilityManager.GetDaysOfPersianMonthForDoctorsCalender(request.Year, request.Month);
                 calenderDto.Year = request.Year.ToString();
                 calenderDto.Month = request.Month.ToString("D2");
             }
@@ -496,7 +496,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
 
         public async Task<int> GetExteraReservedCount(long roomCode)
         {
-            return await _timingRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.IsExtraTiming && x.AssignedRoomCode == roomCode);
+            return await _timingRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.IsExtraTiming && x.AssignedRoomCode == roomCode && x.ScheduledDate >= DateOnly.FromDateTime(DateTime.Now) && x.ScheduledDate <= DateOnly.FromDateTime(DateTime.Now.AddDays(3)));
         }
 
         public async Task<ResponseDto<bool>> RejectReservationRequest(RejectReservationRequestDto request, Guid operatorId)

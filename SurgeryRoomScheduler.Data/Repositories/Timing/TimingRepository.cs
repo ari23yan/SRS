@@ -286,6 +286,7 @@ var timingsData = await (
             var baseQuery = from timing in Context.Timings
                             join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
                             where !timing.IsDeleted && timing.IsActive && timing.AssignedRoomCode == roomCode && timing.IsExtraTiming
+                            && timing.ScheduledDate >= DateOnly.FromDateTime(DateTime.Now) && timing.ScheduledDate <= DateOnly.FromDateTime(DateTime.Now.AddDays(3))
                             select new TimingDto
                             {
                                 Id = timing.Id,
@@ -306,9 +307,9 @@ var timingsData = await (
             {
                 baseQuery = baseQuery.Where(u => u.DoctorNoNezam.Contains(paginationRequest.Searchkey) || u.DoctorName.Contains(paginationRequest.Searchkey));
             }
-            var query = paginationRequest.FilterType == FilterType.Asc ?
-                        baseQuery.OrderBy(u => u.Id) :
-                        baseQuery.OrderByDescending(u => u.Id);
+            var query = paginationRequest.FilterType == FilterType.Desc ?
+                        baseQuery.OrderBy(u => u.ScheduledDate) :
+                        baseQuery.OrderByDescending(u => u.ScheduledDate);
 
             var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
 

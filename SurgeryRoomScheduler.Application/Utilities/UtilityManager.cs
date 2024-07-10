@@ -314,6 +314,56 @@ namespace SurgeryRoomScheduler.Application.Utilities
             }
 
             DateTime today = DateTime.Now;
+            for (int day = 1; day <= lastDay; day++)
+            {
+                DateTime miladiDate = persianCalendar.ToDateTime(year, month, day, 0, 0, 0, 0);
+                string shamsiDate = $"{year:0000}/{month:00}/{day:00}";
+
+                int gregorianDayOfWeek = (int)miladiDate.DayOfWeek;
+                string persianWeekDay = PersianDayOfWeekNames[gregorianDayOfWeek];
+                bool isEnable = miladiDate >= today;
+
+                daysOfMonth.Add(new PersianDayInfoDto
+                {
+                    Day = day.ToString("00"),
+                    DayOfTheWeek = persianWeekDay,
+                    ShamsiDate = shamsiDate,
+                    MiladiDate = miladiDate,
+                    IsEnable = isEnable
+                });
+            }
+
+            return daysOfMonth;
+        }
+
+
+
+        public static List<PersianDayInfoDto> GetDaysOfPersianMonthForDoctorsCalender(int year, int month)
+        {
+            // Define the Persian calendar
+            PersianCalendar persianCalendar = new PersianCalendar();
+            // Define the Gregorian calendar
+            GregorianCalendar gregorianCalendar = new GregorianCalendar();
+
+            // List to hold the days of the month
+            List<PersianDayInfoDto> daysOfMonth = new List<PersianDayInfoDto>();
+
+            // Determine the number of days in the month
+            int lastDay;
+            if (month <= 6)
+            {
+                lastDay = 31;
+            }
+            else if (month <= 11)
+            {
+                lastDay = 30;
+            }
+            else
+            {
+                lastDay = persianCalendar.IsLeapYear(year) ? 30 : 29;
+            }
+
+            DateTime today = DateTime.Now;
             DateTime threeDaysLater = today.AddDays(3);
 
             for (int day = 1; day <= lastDay; day++)
