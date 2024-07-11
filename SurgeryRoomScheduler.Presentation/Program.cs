@@ -138,12 +138,12 @@ app.UseWhen(context => !context.Request.Path.StartsWithSegments("/hangfire"), ap
 });
 
 //Jobs Configuration
-RecurringJob.AddOrUpdate<IJobs>(job => job.GetDoctorsListJob(), Cron.Daily);
-RecurringJob.AddOrUpdate<IJobs>(job => job.GetRoomListJob(), Cron.Daily);
-RecurringJob.AddOrUpdate<IJobs>(job => job.GetInsuranceListJob(), Cron.Daily);
-RecurringJob.AddOrUpdate<IJobs>(job => job.GetSurgeryNamesListJob(), Cron.Daily);
-RecurringJob.AddOrUpdate<IJobs>(job => job.GetDoctorsAssignedRooms(), Cron.Daily);
-RecurringJob.AddOrUpdate<IJobs>(job => job.ExteraTimingJob(), Cron.Daily);
+//RecurringJob.AddOrUpdate<IJobs>(job => job.GetDoctorsListJob(), Cron.Daily);
+//RecurringJob.AddOrUpdate<IJobs>(job => job.GetRoomListJob(), Cron.Daily);
+//RecurringJob.AddOrUpdate<IJobs>(job => job.GetInsuranceListJob(), Cron.Daily);
+//RecurringJob.AddOrUpdate<IJobs>(job => job.GetSurgeryNamesListJob(), Cron.Daily);
+//RecurringJob.AddOrUpdate<IJobs>(job => job.GetDoctorsAssignedRooms(), Cron.Daily);
+//RecurringJob.AddOrUpdate<IJobs>(job => job.ExteraTimingJob(), Cron.Daily);
 
 app.UseHangfireServer();
 

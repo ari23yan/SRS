@@ -16,6 +16,7 @@ using SurgeryRoomScheduler.Domain.Enums;
 using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
 using SurgeryRoomScheduler.Domain.Dtos;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using SurgeryRoomScheduler.Domain.Dtos.Reservation;
 
 namespace SurgeryRoomScheduler.Data.Repositories
 {
@@ -82,8 +83,11 @@ var timingsData = await (
 
         }
 
-        public async Task<IEnumerable<TimingDto>> GetPaginatedTimingList(PaginationDto paginationRequest)
+        public async Task<ListResponseDto<TimingDto>> GetPaginatedTimingList(PaginationDto paginationRequest)
         {
+
+            ListResponseDto<TimingDto> responseDto = new ListResponseDto<TimingDto>();
+
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from timing in Context.Timings
                             join doctor in Context.Doctors on timing.AssignedDoctorNoNezam equals doctor.NoNezam
@@ -116,13 +120,20 @@ var timingsData = await (
                         baseQuery.OrderBy(u => u.Id) :
                         baseQuery.OrderByDescending(u => u.Id);
 
-            var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
 
-            return await pagedQuery.ToListAsync();
+            responseDto.TotalCount = await baseQuery.CountAsync();
+            var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
+            responseDto.List = await pagedQuery.ToListAsync();
+            return responseDto;
+
         }
 
-        public async Task<IEnumerable<TimingDto>> GetPaginatedTimingListByRoomAndDate(PaginationDto paginationRequest, long roomCode, DateOnly date)
+        public async Task<ListResponseDto<TimingDto>> GetPaginatedTimingListByRoomAndDate(PaginationDto paginationRequest, long roomCode, DateOnly date)
         {
+
+            ListResponseDto<TimingDto> responseDto = new ListResponseDto<TimingDto>();
+
+
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from timing in Context.Timings
                             join doctor in Context.Doctors on timing.AssignedDoctorNoNezam equals doctor.NoNezam
@@ -155,9 +166,10 @@ var timingsData = await (
                         baseQuery.OrderBy(u => u.Id) :
                         baseQuery.OrderByDescending(u => u.Id);
 
+            responseDto.TotalCount = await baseQuery.CountAsync();
             var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
-
-            return await pagedQuery.ToListAsync();
+            responseDto.List = await pagedQuery.ToListAsync();
+            return responseDto;
         }
 
         public async Task<Timing?> GetTimingById(Guid timingId)
@@ -280,8 +292,11 @@ var timingsData = await (
             return timingDto;
         }
 
-        public async Task<IEnumerable<TimingDto>> GetExteraTimingListByRoomCode(PaginationDto paginationRequest, long roomCode)
+        public async Task<ListResponseDto<TimingDto>> GetExteraTimingListByRoomCode(PaginationDto paginationRequest, long roomCode)
         {
+            ListResponseDto<TimingDto> responseDto = new ListResponseDto<TimingDto>();
+
+
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from timing in Context.Timings
                             join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
@@ -310,10 +325,10 @@ var timingsData = await (
                         baseQuery.OrderBy(u => u.Id) :
                         baseQuery.OrderByDescending(u => u.Id);
 
+            responseDto.TotalCount = await baseQuery.CountAsync();
             var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
-
-            return await pagedQuery.ToListAsync();
-
+            responseDto.List = await pagedQuery.ToListAsync();
+            return responseDto;
         }
     }
 }

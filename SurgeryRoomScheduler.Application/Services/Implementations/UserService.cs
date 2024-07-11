@@ -75,29 +75,28 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         {
             var roles = await _userRepository.GetPaginatedRolesList(request);
             var rolesCount = await GetRolesCount();
-            var mappedRoles = _mapper.Map<IEnumerable<Role>, IEnumerable<GetRolesListDto>>(roles);
+            var mappedRoles = _mapper.Map<IEnumerable<Role>, IEnumerable<GetRolesListDto>>(roles.List);
             return new ResponseDto<IEnumerable<GetRolesListDto>>
             {
                 IsSuccessFull = true,
                 Data = mappedRoles,
                 Message = ErrorsMessages.Success,
                 Status = "SuccessFul",
-                TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? rolesCount : roles.Count()
+                TotalCount = roles.TotalCount,
             };
         }
 
         public async Task<ResponseDto<IEnumerable<UsersListDto>>> GetPaginatedUsersList(PaginationDto request)
         {
             var users = await _userRepository.GetPaginatedUsersList(request);
-            var usersCount = await GetUsersCount();
-            var mappedUsers = _mapper.Map<IEnumerable<User>, IEnumerable<UsersListDto>>(users);
+            var mappedUsers = _mapper.Map<IEnumerable<User>, IEnumerable<UsersListDto>>(users.List);
             return new ResponseDto<IEnumerable<UsersListDto>>
             {
                 IsSuccessFull = true,
                 Data = mappedUsers,
                 Message = ErrorsMessages.Success,
                 Status = "SuccessFul",
-                TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? usersCount : users.Count()
+                TotalCount = users.TotalCount
             };
 
         }

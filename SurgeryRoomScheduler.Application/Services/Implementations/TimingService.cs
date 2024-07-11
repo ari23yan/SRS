@@ -100,30 +100,26 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         public async Task<ResponseDto<IEnumerable<TimingDto>>> GetPaginatedTimingList(PaginationDto request)
         {
             var timings = await _timingRepository.GetPaginatedTimingList(request);
-            var timingsCount = await GetTimingsCount();
-            //var mappedTimings = _mapper.Map<IEnumerable<Timing>, IEnumerable<TimingListDto>>(timings);
             return new ResponseDto<IEnumerable<TimingDto>>
             {
                 IsSuccessFull = true,
-                Data = timings,
+                Data = timings.List,
                 Message = ErrorsMessages.Success,
                 Status = "SuccessFul",
-                TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? timingsCount : timings.Count()
+                TotalCount = timings.TotalCount
             };
         }
 
         public async Task<ResponseDto<IEnumerable<TimingDto>>> GetPaginatedTimingListByRoomAndDate(PaginationDto request, long roomCode, DateOnly date)
         {
             var timings = await _timingRepository.GetPaginatedTimingListByRoomAndDate(request,roomCode,date);
-            var timingsCount = await _timingRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.AssignedRoomCode == roomCode && x.ScheduledDate >= date && x.ScheduledDate <= date);
-            //var mappedTimings = _mapper.Map<IEnumerable<Timing>, IEnumerable<TimingListDto>>(timings);
             return new ResponseDto<IEnumerable<TimingDto>>
             {
                 IsSuccessFull = true,
-                Data = timings,
+                Data = timings.List,
                 Message = ErrorsMessages.Success,
                 Status = "SuccessFul",
-                TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? timingsCount : timings.Count()
+                TotalCount = timings.TotalCount
             };
         }
 
@@ -137,7 +133,6 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 var currentPersianDate = UtilityManager.GregorianDateTimeToPersianDateDashType(DateTime.Now);
                 startDate = UtilityManager.ConvertPersianToGregorian(currentPersianDate + "-" + "01");
-
                 var splitDate = currentPersianDate.Split("-");
                 var year = int.Parse(splitDate[0]);
                 var month = int.Parse(splitDate[1]);

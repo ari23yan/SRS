@@ -31,8 +31,8 @@ namespace SurgeryRoomScheduler.Domain.Interfaces.Users
         Task<User?> GetUserDetailById(Guid userId);
         Task<IEnumerable<Permission>> GetAllPermissions();
         Task<IEnumerable<Menu>> GetAllMenus();
-        Task<IEnumerable<User>> GetPaginatedUsersList(PaginationDto request);
-        Task<IEnumerable<Role>> GetPaginatedRolesList(PaginationDto request);
+        Task<ListResponseDto<User>> GetPaginatedUsersList(PaginationDto request);
+        Task<ListResponseDto<Role>> GetPaginatedRolesList(PaginationDto request);
         Task<IEnumerable<Role>> GetRolesList();
         Task<IEnumerable<Menu>> GetMenusList();
         Task<Role> GetRoleById(Guid roleId);
