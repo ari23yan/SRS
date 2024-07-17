@@ -14,15 +14,15 @@ namespace SurgeryRoomScheduler.Domain.Interfaces
 {
     public interface ITimingRepository:IRepository<Timing>
     {
-        Task<IEnumerable<TimingDto>> GetPaginatedTimingList(PaginationDto request);
-        Task<IEnumerable<TimingDto>> GetPaginatedTimingListByRoomAndDate(PaginationDto request, long roomCode, DateOnly date);
+        Task<ListResponseDto<TimingDto>> GetPaginatedTimingList(PaginationDto request);
+        Task<ListResponseDto<TimingDto>> GetPaginatedTimingListByRoomAndDate(PaginationDto request, long roomCode, DateOnly date);
         Task<IEnumerable<TimingDto>> GetTimingByRoomIdAndDate(long roomCode,DateTime sDate,DateTime eDate);
         Task<IEnumerable<TimingDto>> GetDoctorTimingByRoomIdAndDate(long roomCode,string noNezam,DateTime sDate,DateTime eDate);
         Task<TimingDto> GetTimingDetailByTimingId(Guid timingId);
         Task<bool> CheckTimingExist(AddTimingDto request);
         Task<Timing?> GetTimingById(Guid timingId);
         Task<GetExteraTimingDto> GetExteraTimingListByDate(DateOnly date);
-        Task<IEnumerable<TimingDto>> GetExteraTimingListByRoomCode(PaginationDto request ,long roomCode);
+        Task<ListResponseDto<TimingDto>> GetExteraTimingListByRoomCode(PaginationDto request, long roomCode);
 
     }
 }

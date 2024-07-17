@@ -74,8 +74,11 @@ namespace SurgeryRoomScheduler.Data.Repositories
         }
 
 
-        public async Task<IEnumerable<ReservationDto>> GetPaginatedReservedList(PaginationDto paginationRequest, string noNezam, bool isExtera)
+        public async Task<ListResponseDto<ReservationDto>> GetPaginatedReservedList(PaginationDto paginationRequest, string noNezam, bool isExtera)
         {
+            ListResponseDto<ReservationDto> responseDto = new ListResponseDto<ReservationDto>();
+
+
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from reservation in Context.Reservations
                             join doctor in Context.Doctors on reservation.DoctorNoNezam equals doctor.NoNezam
@@ -118,15 +121,21 @@ namespace SurgeryRoomScheduler.Data.Repositories
             var query = paginationRequest.FilterType == FilterType.Asc ?
                         baseQuery.OrderBy(u => u.Id) :
                         baseQuery.OrderByDescending(u => u.Id);
+            responseDto.TotalCount = await baseQuery.CountAsync();
+
 
             var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
-
-            return await pagedQuery.ToListAsync();
+            responseDto.List = await pagedQuery.ToListAsync();
+            return responseDto;
         }
 
 
-        public async Task<IEnumerable<ReservationDto>> GetReservationCancelledList(PaginationDto paginationRequest, string noNezam)
+        public async Task<ListResponseDto<ReservationDto>> GetReservationCancelledList(PaginationDto paginationRequest, string noNezam)
         {
+            ListResponseDto<ReservationDto> responseDto = new ListResponseDto<ReservationDto>();
+
+
+
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from reservation in Context.Reservations
                             join doctor in Context.Doctors on reservation.DoctorNoNezam equals doctor.NoNezam
@@ -175,14 +184,18 @@ namespace SurgeryRoomScheduler.Data.Repositories
                         baseQuery.OrderBy(u => u.Id) :
                         baseQuery.OrderByDescending(u => u.Id);
 
+            responseDto.TotalCount = await baseQuery.CountAsync();
             var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
-
-            return await pagedQuery.ToListAsync();
+            responseDto.List = await pagedQuery.ToListAsync();
+            return responseDto;
         }
 
 
-        public async Task<IEnumerable<ReservationDto>> GetPaginatedReservervationsList(PaginationDto paginationRequest, string operatorType, ReservationStatus status)
+        public async Task<ListResponseDto<ReservationDto>> GetPaginatedReservervationsList(PaginationDto paginationRequest, string operatorType, ReservationStatus status)
         {
+            ListResponseDto<ReservationDto> responseDto = new ListResponseDto<ReservationDto>();
+
+
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from reservation in Context.Reservations
                 join doctor in Context.Doctors on reservation.DoctorNoNezam equals doctor.NoNezam
@@ -269,8 +282,11 @@ namespace SurgeryRoomScheduler.Data.Repositories
                         baseQuery.OrderBy(u => u.Id) :
                         baseQuery.OrderByDescending(u => u.Id);
 
+
+            responseDto.TotalCount = await baseQuery.CountAsync();
             var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
-            return await pagedQuery.ToListAsync();
+            responseDto.List = await pagedQuery.ToListAsync();
+            return responseDto;
         }
 
         public async Task<Reservation?> GetReservationById(Guid id)
@@ -292,8 +308,12 @@ namespace SurgeryRoomScheduler.Data.Repositories
             return await Context.ReservationRejectionAndCancellationReasons.Where(u => u.RejectionReasonType == type && !u.IsDeleted && u.IsActive).ToListAsync();
         }
 
-        public async Task<IEnumerable<ReservationDto>> GetExteraReservationList(PaginationDto paginationRequest)
+        public async Task<ListResponseDto<ReservationDto>> GetExteraReservationList(PaginationDto paginationRequest)
         {
+
+            ListResponseDto<ReservationDto> responseDto = new ListResponseDto<ReservationDto>();
+
+
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from reservation in Context.Reservations
                             join doctor in Context.Doctors on reservation.DoctorNoNezam equals doctor.NoNezam
@@ -340,9 +360,10 @@ namespace SurgeryRoomScheduler.Data.Repositories
                         baseQuery.OrderBy(u => u.Id) :
                         baseQuery.OrderByDescending(u => u.Id);
 
+            responseDto.TotalCount = await baseQuery.CountAsync();
             var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
-
-            return await pagedQuery.ToListAsync();
+            responseDto.List = await pagedQuery.ToListAsync();
+            return responseDto;
         }
 
         

@@ -66,8 +66,8 @@ namespace SurgeryRoomScheduler.Application.Utilities
         {
             if (!httpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
             {
-                return new Guid("14F942EB-161B-4F28-9F04-B5A96A96D19E");// سوپروایزر
-                //return new Guid("55bded22-d3f8-4b04-5440-08dc9faa1a8d");// دکتر
+                //return new Guid("14F942EB-161B-4F28-9F04-B5A96A96D19E");// سوپروایزر
+                return new Guid("55bded22-d3f8-4b04-5440-08dc9faa1a8d");// دکتر
                 //return new Guid("E3597C08-046F-43E5-B85B-CA43F54066F6");// مدارک پزشکی
                 return Guid.Empty;
             }

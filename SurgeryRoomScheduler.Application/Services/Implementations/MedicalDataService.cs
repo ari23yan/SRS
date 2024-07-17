@@ -2,6 +2,7 @@
 using Azure.Core;
 using SurgeryRoomScheduler.Application.Services.Interfaces;
 using SurgeryRoomScheduler.Domain.Dtos;
+using SurgeryRoomScheduler.Domain.Dtos.Common.Pagination;
 using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
 using SurgeryRoomScheduler.Domain.Dtos.Timing;
 using SurgeryRoomScheduler.Domain.Entities.Account;
@@ -57,6 +58,17 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             var mappedDoctor = _mapper.Map<IEnumerable<Doctor>, IEnumerable<DoctorListDto>>(doctorsList);
             var DoctorsCount = await _doctorRepository.GetCountAsync(x => x.IsActive.Value);
             return new ResponseDto<IEnumerable<DoctorListDto>> { IsSuccessFull = true,Data = mappedDoctor, Message = ErrorsMessages.Success, Status = "Successful", TotalCount = string.IsNullOrEmpty(searchKey) == true ? DoctorsCount : doctorsList.Count() };
+        }
+
+        public async Task<ResponseDto<IEnumerable<DoctorListDto>>> GetDoctorListPaginated(PaginationDto request)
+        {
+            var doctorsList = await _doctorRepository.GetDoctorsListPaginated(request);
+            if (doctorsList == null)
+            {
+                return new ResponseDto<IEnumerable<DoctorListDto>> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Not Found" };
+            }
+            var mappedDoctor = _mapper.Map<IEnumerable<Doctor>, IEnumerable<DoctorListDto>>(doctorsList.List);
+            return new ResponseDto<IEnumerable<DoctorListDto>> { IsSuccessFull = true, Data = mappedDoctor, Message = ErrorsMessages.Success, Status = "Successful", TotalCount = doctorsList.TotalCount };
         }
 
         public async Task<ResponseDto<IEnumerable<RoomsListDto>>> GetDoctorRooms(string noNezam)
