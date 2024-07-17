@@ -233,19 +233,19 @@ namespace SurgeryRoomScheduler.Data.Repositories
             {
                 if (status == ReservationStatus.Approved)
                 {
-                    baseQuery = baseQuery.Where(x => x.StatusType == (int)ReservationConfirmationStatus.ApprovedBySupervisor);
+                    baseQuery = baseQuery.Where(x =>x.IsExtera && !x.IsCanceled.HasValue && x.StatusType == (int)ReservationConfirmationStatus.ApprovedBySupervisor);
                 }
                 else if (status == ReservationStatus.Rejected)
                 {
-                    baseQuery = baseQuery.Where(x => x.StatusType == (int)ReservationConfirmationStatus.RejectedBySupervisor);
+                    baseQuery = baseQuery.Where(x => x.IsExtera && !x.IsCanceled.HasValue&& x.StatusType == (int)ReservationConfirmationStatus.RejectedBySupervisor);
                 }
                 else if (status == ReservationStatus.Pending)
                 {
-                    baseQuery = baseQuery.Where(x => x.StatusType == (int)ReservationConfirmationStatus.Pending);
+                    baseQuery = baseQuery.Where(x => x.IsExtera && !x.IsCanceled.HasValue &&  x.StatusType == (int)ReservationConfirmationStatus.Pending);
                 }
                 else if (status == ReservationStatus.Extera)
                 {
-                    baseQuery = baseQuery.Where(x => x.IsExtera);
+                    baseQuery = baseQuery.Where(x => x.IsExtera && !x.IsCanceled.HasValue);
                 }
             }
             else if (operatorType == "MedicalRecord")
