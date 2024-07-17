@@ -243,7 +243,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 return new ResponseDto<IEnumerable<TimingDto>> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
             }
-            if(!user.Role.RoleName.Equals("NormalUser"))
+            if (!user.Role.RoleName.Equals("NormalUser"))
             {
                 roomCode = 00;
             }
@@ -267,7 +267,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 Data = filtredTiming.List,
                 Message = ErrorsMessages.Success,
                 Status = "SuccessFul",
-                TotalCount =  filtredTiming.TotalCount
+                TotalCount = filtredTiming.TotalCount
             };
         }
 
@@ -313,7 +313,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         }
 
 
-        
+
 
         public async Task<ResponseDto<IEnumerable<ReservationDto>>> GetReservationCancelledList(PaginationDto request, Guid? doctorId)
         {
@@ -651,6 +651,24 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             mappedTiming.UsageTime = request.RequestedTime;
             await _reservationRepository.UpdateAsync(mappedTiming);
             return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
+        }
+
+        public async Task<ResponseDto<IEnumerable<GetTimingDto>>> GetDoctorDayOffList(PaginationDto request, string noNezam, DateOnly startDate, DateOnly endDate)
+        {
+            var timingList = await _timingRepository.GetDoctorDayOffList(request, noNezam,startDate,endDate);
+
+            return new ResponseDto<IEnumerable<GetTimingDto>>
+            {
+                IsSuccessFull = true,
+                Data = timingList.List,
+                Message = ErrorsMessages.Success,
+                Status = "SuccessFul",
+                TotalCount = timingList.TotalCount
+            };
+
+
+
+
         }
     }
 }

@@ -16,6 +16,7 @@ using SurgeryRoomScheduler.Domain.Enums;
 using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
 using SurgeryRoomScheduler.Domain.Dtos;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using SurgeryRoomScheduler.Domain.Dtos.Reservation;
 
 namespace SurgeryRoomScheduler.Data.Repositories
 {
@@ -374,10 +375,65 @@ namespace SurgeryRoomScheduler.Data.Repositories
             timingDto.NotFullyReservedTimings = notFullyReservedTimings;
             return timingDto;
         }
-        public class ReservationInfo
+
+        public async Task<ListResponseDto<GetTimingDto>> GetDoctorDayOffList(PaginationDto paginationRequest, string noNezam, DateOnly startDate, DateOnly endDate)
         {
-            public TimeSpan RequestedTime { get; set; }
-            public Guid TimingId { get; set; }
+            ListResponseDto<GetTimingDto> responseDto = new ListResponseDto<GetTimingDto>();
+
+            var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
+            var baseQuery = from timing in Context.Timings
+                            join doctor in Context.Doctors on timing.AssignedDoctorNoNezam equals doctor.NoNezam
+                            join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
+                            where !timing.IsDeleted && timing.IsActive && doctor.NoNezam.Equals(noNezam)
+                            && timing.ScheduledDate == startDate //add End Date Soon
+                            select new GetTimingDto
+                            {
+                                Id = timing.Id,
+                                DoctorNoNezam = doctor.NoNezam,
+                                DoctorName = doctor.Name,
+                                RoomName = room.Name,
+                                RoomCode = room.Code,
+                                ScheduledDate = timing.ScheduledDate,
+                                ScheduledStartTime = timing.ScheduledStartTime,
+                                ScheduledEndTime = timing.ScheduledEndTime,
+                                ScheduledDuration = timing.ScheduledDuration,
+                                ScheduledDate_Shamsi = timing.ScheduledDate_Shamsi,
+                                CreatedDate = timing.CreatedDate,
+                                CreatedDate_Shamsi = timing.CreatedDate_Shamsi,
+                                IsDeleted = timing.IsDeleted,
+                                IsActive = timing.IsActive,
+                                IsExtera = timing.IsExtraTiming,
+                                Reservations = Context.Reservations.Include(x=>x.ReservationConfirmation).ThenInclude(x=>x.Status).Where(x=>x.TimingId.Equals(timing.Id) && x.IsActive && !x.IsDeleted  && !x.IsCanceled )
+                                .Select(x=> new ReservationDto
+                                {
+                                    TimingId = x.TimingId,
+                                    PatientName = x.PatientName,
+                                    PatientHaveInsurance = x.PatientHaveInsurance,
+                                    PatientNationalCode = x.PatientNationalCode,
+                                    PatientPhoneNumber = x.PatientPhoneNumber,
+                                    PatientLastName = x.PatientLastName,
+                                    RequestedTime = x.RequestedTime,
+                                    RequestedDate = x.RequestedDate,
+                                    Status = x.ReservationConfirmation.Status.Name,
+                                }).ToList()
+                                ,
+                                IsReserved = Context.Reservations.Any(x => x.TimingId.Equals(timing.Id) && x.IsActive && !x.IsDeleted && !x.IsCanceled)
+                                //RemainingTime = t.Timing.ScheduledDuration - t.Reservations.Aggregate(TimeSpan.Zero, (sum, next) => sum + next)
+                            };
+
+            if (!string.IsNullOrWhiteSpace(paginationRequest.Searchkey))
+            {
+                baseQuery = baseQuery.Where(u => u.DoctorNoNezam.Contains(paginationRequest.Searchkey) || u.DoctorName.Contains(paginationRequest.Searchkey));
+            }
+
+            var query = paginationRequest.FilterType == FilterType.Asc ?
+                        baseQuery.OrderBy(u => u.Id) :
+                        baseQuery.OrderByDescending(u => u.Id);
+
+            responseDto.TotalCount = await baseQuery.CountAsync();
+            var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
+            responseDto.List = await pagedQuery.ToListAsync();
+            return responseDto;
         }
 
     }

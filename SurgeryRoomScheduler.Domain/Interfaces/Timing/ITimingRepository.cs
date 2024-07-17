@@ -16,6 +16,7 @@ namespace SurgeryRoomScheduler.Domain.Interfaces
     {
         Task<ListResponseDto<TimingDto>> GetPaginatedTimingList(PaginationDto request);
         Task<ListResponseDto<TimingDto>> GetPaginatedTimingListByRoomAndDate(PaginationDto request, long roomCode, DateOnly date);
+        Task<ListResponseDto<GetTimingDto>> GetDoctorDayOffList(PaginationDto request, string noNezam, DateOnly startDate, DateOnly endDate);
         Task<IEnumerable<TimingDto>> GetTimingByRoomIdAndDate(long roomCode,DateTime sDate,DateTime eDate);
         Task<IEnumerable<TimingDto>> GetDoctorTimingByRoomIdAndDate(long roomCode,string noNezam,DateTime sDate,DateTime eDate);
         Task<TimingDto> GetTimingDetailByTimingId(Guid timingId);
