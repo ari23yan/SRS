@@ -227,26 +227,28 @@ namespace SurgeryRoomScheduler.Data.Repositories
                     Status = reservationConfirmationStatus.Name,  
                     StatusType = reservationConfirmationStatus.Id,
                     IsExtera = timing.IsExtraTiming,
-                    PatientHaveInsurance = reservation.PatientHaveInsurance
+                    PatientHaveInsurance = reservation.PatientHaveInsurance,
+                    IsCanceled = reservation.IsCanceled
                 };
             if (operatorType == "Supervisor")
             {
                 if (status == ReservationStatus.Approved)
                 {
-                    baseQuery = baseQuery.Where(x =>x.IsExtera && !x.IsCanceled.HasValue && x.StatusType == (int)ReservationConfirmationStatus.ApprovedBySupervisor);
+                    baseQuery = baseQuery.Where(x =>x.IsExtera && !x.IsCanceled.Value && x.StatusType == (int)ReservationConfirmationStatus.ApprovedBySupervisor);
                 }
                 else if (status == ReservationStatus.Rejected)
                 {
-                    baseQuery = baseQuery.Where(x => x.IsExtera && !x.IsCanceled.HasValue&& x.StatusType == (int)ReservationConfirmationStatus.RejectedBySupervisor);
+                    baseQuery = baseQuery.Where(x => x.IsExtera && !x.IsCanceled.Value && x.StatusType == (int)ReservationConfirmationStatus.RejectedBySupervisor);
                 }
                 else if (status == ReservationStatus.Pending)
                 {
-                    baseQuery = baseQuery.Where(x => x.IsExtera && !x.IsCanceled.HasValue &&  x.StatusType == (int)ReservationConfirmationStatus.Pending);
+                    baseQuery = baseQuery.Where(x => x.IsExtera && !x.IsCanceled.Value &&  x.StatusType == (int)ReservationConfirmationStatus.Pending);
                 }
-                else if (status == ReservationStatus.Extera)
+                else
                 {
-                    baseQuery = baseQuery.Where(x => x.IsExtera && !x.IsCanceled.HasValue);
+                    baseQuery = baseQuery.Where(x => x.IsExtera && !x.IsCanceled.Value);
                 }
+                
             }
             else if (operatorType == "MedicalRecord")
             {
