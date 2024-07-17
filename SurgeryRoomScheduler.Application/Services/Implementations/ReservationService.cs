@@ -260,15 +260,14 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 }
             }
             var filtredTiming = await _timingRepository.GetExteraTimingListByRoomCode(request, roomCode);
-            var reservsCount = await GetExteraReservedCount(roomCode);
 
             return new ResponseDto<IEnumerable<TimingDto>>
             {
                 IsSuccessFull = true,
-                Data = filtredTiming,
+                Data = filtredTiming.List,
                 Message = ErrorsMessages.Success,
                 Status = "SuccessFul",
-                TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? reservsCount : filtredTiming.Count()
+                TotalCount =  filtredTiming.TotalCount
             };
         }
 
@@ -281,15 +280,13 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 return new ResponseDto<IEnumerable<ReservationDto>> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
             }
             var reservs = await _reservationRepository.GetPaginatedReservedList(request, doctor.NoNezam, isExtera);
-            var reservsCount = await GetReservedCount(doctor.NoNezam);
-            //var mappedTimings = _mapper.Map<IEnumerable<Timing>, IEnumerable<TimingListDto>>(timings);
             return new ResponseDto<IEnumerable<ReservationDto>>
             {
                 IsSuccessFull = true,
-                Data = reservs,
+                Data = reservs.List,
                 Message = ErrorsMessages.Success,
                 Status = "SuccessFul",
-                TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? reservsCount : reservs.Count()
+                TotalCount = reservs.TotalCount
             };
         }
 
@@ -304,15 +301,14 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 return new ResponseDto<IEnumerable<ReservationDto>> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
             }
             var reservs = await _reservationRepository.GetExteraReservationList(request);
-            var reservsCount = await GetReservedCount(user.NoNezam);
             //var mappedTimings = _mapper.Map<IEnumerable<Timing>, IEnumerable<TimingListDto>>(timings);
             return new ResponseDto<IEnumerable<ReservationDto>>
             {
                 IsSuccessFull = true,
-                Data = reservs,
+                Data = reservs.List,
                 Message = ErrorsMessages.Success,
                 Status = "SuccessFul",
-                TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? reservsCount : reservs.Count()
+                TotalCount = reservs.TotalCount
             };
         }
 
@@ -328,15 +324,14 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 return new ResponseDto<IEnumerable<ReservationDto>> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
             }
             var reservs = await _reservationRepository.GetReservationCancelledList(request, doctor.NoNezam);
-            var reservsCount = await GetCancelledReservedCount(doctor.NoNezam);
             //var mappedTimings = _mapper.Map<IEnumerable<Timing>, IEnumerable<TimingListDto>>(timings);
             return new ResponseDto<IEnumerable<ReservationDto>>
             {
                 IsSuccessFull = true,
-                Data = reservs,
+                Data = reservs.List,
                 Message = ErrorsMessages.Success,
                 Status = "SuccessFul",
-                TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? reservsCount : reservs.Count()
+                TotalCount = reservs.TotalCount
             };
         }
 
@@ -348,15 +343,14 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 return new ResponseDto<IEnumerable<ReservationDto>> { IsSuccessFull = false, Message = ErrorsMessages.UserNotfound, Status = "Failed" };
             }
             var reservs = await _reservationRepository.GetPaginatedReservervationsList(request, user.Role.RoleName, status);
-            var reservsCount = await GetReservedConfirmationCountByType(user.Role.RoleName, status);
 
             return new ResponseDto<IEnumerable<ReservationDto>>
             {
                 IsSuccessFull = true,
-                Data = reservs,
+                Data = reservs.List,
                 Message = ErrorsMessages.Success,
                 Status = "SuccessFul",
-                TotalCount = string.IsNullOrEmpty(request.Searchkey) == true ? reservsCount : reservs.Count()
+                TotalCount = reservs.TotalCount
             };
         }
 

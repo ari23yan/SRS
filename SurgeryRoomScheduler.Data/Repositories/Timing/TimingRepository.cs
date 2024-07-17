@@ -34,8 +34,11 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                 x.ScheduledStartTime < request.EndTime && // Check for time overlap
                                 x.ScheduledEndTime > request.StartTime); // Check for time overlap
         }
-        public async Task<IEnumerable<TimingDto>> GetExteraTimingListByRoomCode(PaginationDto paginationRequest, long roomCode)
+        public async Task<ListResponseDto<TimingDto>> GetExteraTimingListByRoomCode(PaginationDto paginationRequest, long roomCode)
         {
+            ListResponseDto<TimingDto> responseDto = new ListResponseDto<TimingDto>();
+
+
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             IQueryable<TimingDto> timings = new List<TimingDto>().AsQueryable();
             if (roomCode == 00) // superviser of medical Record User
@@ -93,6 +96,10 @@ namespace SurgeryRoomScheduler.Data.Repositories
                         timings.OrderBy(u => u.ScheduledDate) :
                         timings.OrderByDescending(u => u.ScheduledDate);
 
+
+            responseDto.TotalCount = await timings.CountAsync();
+
+
             var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
 
             var timingList = await pagedQuery.ToListAsync();
@@ -108,8 +115,8 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                     .Select(x => x.RequestedTime)
                                     .Aggregate(TimeSpan.Zero, (sum, next) => sum + next);
             }
-
-            return timingList;
+            responseDto.List = timingList;
+            return responseDto;
         }
 
 
@@ -161,8 +168,12 @@ namespace SurgeryRoomScheduler.Data.Repositories
 
         }
 
-        public async Task<IEnumerable<TimingDto>> GetPaginatedTimingList(PaginationDto paginationRequest)
+        public async Task<ListResponseDto<TimingDto>> GetPaginatedTimingList(PaginationDto paginationRequest)
         {
+            ListResponseDto<TimingDto> responseDto = new ListResponseDto<TimingDto>();
+
+
+
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from timing in Context.Timings
                             join doctor in Context.Doctors on timing.AssignedDoctorNoNezam equals doctor.NoNezam
@@ -195,13 +206,17 @@ namespace SurgeryRoomScheduler.Data.Repositories
                         baseQuery.OrderBy(u => u.Id) :
                         baseQuery.OrderByDescending(u => u.Id);
 
+            responseDto.TotalCount = await baseQuery.CountAsync();
             var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
-
-            return await pagedQuery.ToListAsync();
+            responseDto.List = await pagedQuery.ToListAsync();
+            return responseDto;
         }
 
-        public async Task<IEnumerable<TimingDto>> GetPaginatedTimingListByRoomAndDate(PaginationDto paginationRequest, long roomCode, DateOnly date)
+        public async Task<ListResponseDto<TimingDto>> GetPaginatedTimingListByRoomAndDate(PaginationDto paginationRequest, long roomCode, DateOnly date)
         {
+            ListResponseDto<TimingDto> responseDto = new ListResponseDto<TimingDto>();
+
+
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from timing in Context.Timings
                             join doctor in Context.Doctors on timing.AssignedDoctorNoNezam equals doctor.NoNezam
@@ -234,9 +249,10 @@ namespace SurgeryRoomScheduler.Data.Repositories
                         baseQuery.OrderBy(u => u.Id) :
                         baseQuery.OrderByDescending(u => u.Id);
 
+            responseDto.TotalCount = await baseQuery.CountAsync();
             var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
-
-            return await pagedQuery.ToListAsync();
+            responseDto.List = await pagedQuery.ToListAsync();
+            return responseDto;
         }
 
         public async Task<Timing?> GetTimingById(Guid timingId)

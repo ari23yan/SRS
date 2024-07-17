@@ -173,8 +173,6 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             }
         }
 
-        
-
 
                 [HttpGet]
         //[PermissionChecker(Permission = PermissionType.GetDoctorReservedList)]
@@ -233,6 +231,12 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
                 return Ok(new ResponseDto<Exception> { IsSuccessFull = false, Data = ex, Message = ErrorsMessages.InternalServerError, Status = "Internal Server Error" });
             }
         }
+
+
+
+
+
+
 
     }
 }

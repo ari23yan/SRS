@@ -34,8 +34,10 @@ namespace SurgeryRoomScheduler.Data.Repositories.Users
             return await Context.RolePermissions.AnyAsync(x => x.RoleId.Equals(roleId) && x.PermissionId.Equals(permissionId));
         }
 
-        public async Task<IEnumerable<User>> GetPaginatedUsersList(PaginationDto paginationRequest)
+        public async Task<ListResponseDto<User>> GetPaginatedUsersList(PaginationDto paginationRequest)
         {
+            ListResponseDto<User> responseDto = new ListResponseDto<User>();
+
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             IQueryable<User> query = Context.Users.Include(x => x.Role).Where(u => !u.IsDeleted && u.IsActive);
             if (!string.IsNullOrWhiteSpace(paginationRequest.Searchkey))
@@ -45,7 +47,10 @@ namespace SurgeryRoomScheduler.Data.Repositories.Users
             query = paginationRequest.FilterType == FilterType.Asc ?
                 query.OrderBy(u => u.Id) :
                 query.OrderByDescending(u => u.Id);
-            return await query.Skip(skipCount).Take(paginationRequest.PageSize).ToListAsync();
+            responseDto.TotalCount = await query.CountAsync();
+            var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
+            responseDto.List = await pagedQuery.ToListAsync();
+            return responseDto;
         }
 
 
@@ -133,8 +138,10 @@ namespace SurgeryRoomScheduler.Data.Repositories.Users
          .ToListAsync();
         }
 
-        public async Task<IEnumerable<Role>> GetPaginatedRolesList(PaginationDto paginationRequest)
+        public async Task<ListResponseDto<Role>> GetPaginatedRolesList(PaginationDto paginationRequest)
         {
+            ListResponseDto<Role> responseDto = new ListResponseDto<Role>();
+
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             IQueryable<Role> query = Context.Roles.Where(u => !u.IsDeleted && u.IsActive);
             if (!string.IsNullOrWhiteSpace(paginationRequest.Searchkey))
@@ -144,7 +151,10 @@ namespace SurgeryRoomScheduler.Data.Repositories.Users
             query = paginationRequest.FilterType == FilterType.Asc ?
                 query.OrderBy(u => u.Id) :
                 query.OrderByDescending(u => u.Id);
-            return await query.Skip(skipCount).Take(paginationRequest.PageSize).ToListAsync();
+            responseDto.TotalCount = await query.CountAsync();
+            var pagedQuery = query.Skip(skipCount).Take(paginationRequest.PageSize);
+            responseDto.List = await pagedQuery.ToListAsync();
+            return responseDto;
         }
 
         public async Task<IEnumerable<Menu>> GetMenusByRoleId(List<Guid> menuIds)

@@ -14,6 +14,7 @@ namespace SurgeryRoomScheduler.Application.Services.Interfaces
     public interface IMedicalDataService
     {
         Task<ResponseDto<IEnumerable<DoctorListDto>>> GetDoctorList(long roomCode,string searchKey);
+        Task<ResponseDto<IEnumerable<DoctorListDto>>> GetDoctorListPaginated(PaginationDto request);
         Task<ResponseDto<IEnumerable<RoomsListDto>>> GetRoomsList(string searchKey);
         Task<ResponseDto<IEnumerable<RoomsListDto>>> GetDoctorRooms(string noNezam);
         Task<bool> DeleteDoctors();
