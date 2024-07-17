@@ -655,7 +655,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
 
         public async Task<ResponseDto<IEnumerable<GetTimingDto>>> GetDoctorDayOffList(PaginationDto request, string noNezam, DateOnly startDate, DateOnly endDate)
         {
-            var timingList = await _timingRepository.GetDoctorDayOffList(request, noNezam,startDate,endDate);
+            var timingList = await _timingRepository.GetDoctorDayOffList(request, noNezam, startDate, endDate);
 
             return new ResponseDto<IEnumerable<GetTimingDto>>
             {
@@ -669,6 +669,57 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
 
 
 
+        }
+
+        public async Task<ResponseDto<bool>> SubmitDoctorDayOff(SubmitDoctorDayOffDto request, Guid operatorId)
+        {
+            List<Timing> timingsList = new List<Timing>();
+            foreach (var item in request.TimingId)
+            {
+                // work on Timing 
+                var timingItem = await _timingRepository.GetTimingById(item);
+                if (timingItem == null)
+                {
+                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Not Found" };
+                }
+                timingItem.IsActive = false;
+                timingItem.IsModified = true;
+                timingItem.ModifiedDate = DateTime.Now;
+                timingItem.ModifiedBy = operatorId;
+                await _timingRepository.UpdateAsync(timingItem);
+                var timing = new Timing
+                {
+                    IsExtraTiming = true,
+                    AssignedDoctorNoNezam = null,
+                    AssignedRoomCode = timingItem.AssignedRoomCode,
+                    ScheduledDate = timingItem.ScheduledDate,
+                    ScheduledStartTime = timingItem.ScheduledStartTime,
+                    ScheduledEndTime = timingItem.ScheduledEndTime,
+                    ScheduledDuration = timingItem.ScheduledDuration,
+                    CreatedDate_Shamsi = UtilityManager.GregorianDateTimeToPersianDate(DateTime.Now),
+                    ScheduledDate_Shamsi = UtilityManager.GregorianDateTimeToPersianDateOnly(timingItem.ScheduledDate),
+                    PreviousOwner = timingItem.AssignedDoctorNoNezam,
+                };
+                timingsList.Add(timing);
+
+                // work on Reservation
+
+                var reservations = await _reservationRepository.GetReservationsByTimingId(item);
+                foreach (var reservationItem in reservations)
+                {
+                    reservationItem.IsActive = false;
+                    timingItem.ModifiedBy = operatorId;
+                    reservationItem.IsCanceled = true;
+                    reservationItem.CancelationDescription = "مرخصی پزشک";
+                    await _reservationRepository.UpdateAsync(reservationItem);
+                }
+            }
+
+            if (timingsList != null && timingsList.Count > 0)
+            {
+                await _timingRepository.AddRangeAsync(timingsList);
+            }
+            return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
         }
     }
 }

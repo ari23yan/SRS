@@ -368,7 +368,9 @@ namespace SurgeryRoomScheduler.Data.Repositories
             return responseDto;
         }
 
-        
-
+        public async Task<IEnumerable<Reservation?>> GetReservationsByTimingId(Guid timingId)
+        {
+            return await Context.Reservations.Where(x => x.TimingId.Equals(timingId) && !x.IsDeleted && x.IsActive).ToListAsync();
+        }
     }
 }

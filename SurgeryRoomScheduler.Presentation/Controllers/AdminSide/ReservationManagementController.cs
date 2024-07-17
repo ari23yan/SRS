@@ -6,6 +6,7 @@ using SurgeryRoomScheduler.Application.Utilities;
 using SurgeryRoomScheduler.Domain.Dtos.Common.Pagination;
 using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
 using SurgeryRoomScheduler.Domain.Dtos.Reservation;
+using SurgeryRoomScheduler.Domain.Dtos.Timing;
 using SurgeryRoomScheduler.Domain.Enums;
 using SurgeryRoomScheduler.Presentation.Controllers.AdminSide.Common;
 
@@ -244,6 +245,35 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
                 //var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
                 var result = await _reservationService.GetDoctorDayOffList(request, noNezam, startDate, endDate);
                 Response.Headers.Add("Total-Count", result.TotalCount.ToString());
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                #region Inserting Log 
+                if (_configuration.GetValue<bool>("ApplicationLogIsActive"))
+                {
+                    var userAgent = _httpContextAccessor.HttpContext?.Request.Headers["User-Agent"];
+                    var userIp = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+                    var routeData = ControllerContext.RouteData;
+                    var controllerName = routeData.Values["controller"]?.ToString();
+                    var actionName = routeData.Values["action"]?.ToString();
+                    _logService.InsertLog(userIp, controllerName, actionName, userAgent, ex);
+                }
+                #endregion
+                return Ok(new ResponseDto<Exception> { IsSuccessFull = false, Data = ex, Message = ErrorsMessages.InternalServerError, Status = "Internal Server Error" });
+            }
+        }
+
+
+        [HttpPost]
+        //[PermissionChecker(Permission = PermissionType.GetDoctorReservedList)]
+        public async Task<IActionResult> SubmitDoctorDayOff(SubmitDoctorDayOffDto timingId)
+        {
+            try
+            {
+                var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
+                var result = await _reservationService.SubmitDoctorDayOff(timingId, currentUser);
 
                 return Ok(result);
             }

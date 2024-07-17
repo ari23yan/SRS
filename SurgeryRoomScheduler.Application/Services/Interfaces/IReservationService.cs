@@ -25,6 +25,7 @@ namespace SurgeryRoomScheduler.Application.Services.Interfaces
         Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request,Guid? doctorId, long roomCode);
 
         Task<ResponseDto<IEnumerable<GetTimingDto>>> GetDoctorDayOffList(PaginationDto request, string noNezam, DateOnly startDate, DateOnly endDate);
+        Task<ResponseDto<bool>> SubmitDoctorDayOff(SubmitDoctorDayOffDto request , Guid operatorId);
 
 
 

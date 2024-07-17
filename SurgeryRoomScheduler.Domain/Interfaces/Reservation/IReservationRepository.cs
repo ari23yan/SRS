@@ -21,6 +21,7 @@ namespace SurgeryRoomScheduler.Domain.Interfaces
         Task<ListResponseDto<ReservationDto>> GetExteraReservationList(PaginationDto request);
         //Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request, string roomCode, Guid? doctorId, bool isExtera);
         Task<Reservation?> GetReservationById(Guid id);
+        Task<IEnumerable<Reservation?>> GetReservationsByTimingId(Guid timingId);
         Task<IEnumerable<ReservationDto>> GetDoctorReservationByRoomIdAndDate(long roomCode, string noNezam, DateTime sDate, DateTime eDate);
 
         Task<ReservationConfirmation?> GetReservationConfirmationById(Guid id);
