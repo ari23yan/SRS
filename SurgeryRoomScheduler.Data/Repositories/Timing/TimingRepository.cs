@@ -46,7 +46,7 @@ namespace SurgeryRoomScheduler.Data.Repositories
             {
                 timings = from timing in Context.Timings
                           join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
-                          where !timing.IsDeleted && timing.IsActive 
+                          where !timing.IsDeleted && timing.IsActive
                           && timing.IsExtraTiming
                           && timing.ScheduledDate >= DateOnly.FromDateTime(DateTime.Now) && timing.ScheduledDate <= DateOnly.FromDateTime(DateTime.Now.AddDays(3))
                           select new TimingDto
@@ -67,25 +67,25 @@ namespace SurgeryRoomScheduler.Data.Repositories
             }
             else
             {
-                 timings = from timing in Context.Timings
-                                join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
-                                where !timing.IsDeleted && timing.IsActive && timing.AssignedRoomCode == roomCode && timing.IsExtraTiming
-                                && timing.ScheduledDate >= DateOnly.FromDateTime(DateTime.Now) && timing.ScheduledDate <= DateOnly.FromDateTime(DateTime.Now.AddDays(3))
-                                select new TimingDto
-                                {
-                                    Id = timing.Id,
-                                    RoomName = room.Name,
-                                    RoomCode = room.Code,
-                                    ScheduledDate = timing.ScheduledDate,
-                                    ScheduledStartTime = timing.ScheduledStartTime,
-                                    ScheduledEndTime = timing.ScheduledEndTime,
-                                    ScheduledDuration = timing.ScheduledDuration,
-                                    ScheduledDate_Shamsi = timing.ScheduledDate_Shamsi,
-                                    CreatedDate = timing.CreatedDate,
-                                    CreatedDate_Shamsi = timing.CreatedDate_Shamsi,
-                                    IsDeleted = timing.IsDeleted,
-                                    IsActive = timing.IsActive,
-                                };
+                timings = from timing in Context.Timings
+                          join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
+                          where !timing.IsDeleted && timing.IsActive && timing.AssignedRoomCode == roomCode && timing.IsExtraTiming
+                          && timing.ScheduledDate >= DateOnly.FromDateTime(DateTime.Now) && timing.ScheduledDate <= DateOnly.FromDateTime(DateTime.Now.AddDays(3))
+                          select new TimingDto
+                          {
+                              Id = timing.Id,
+                              RoomName = room.Name,
+                              RoomCode = room.Code,
+                              ScheduledDate = timing.ScheduledDate,
+                              ScheduledStartTime = timing.ScheduledStartTime,
+                              ScheduledEndTime = timing.ScheduledEndTime,
+                              ScheduledDuration = timing.ScheduledDuration,
+                              ScheduledDate_Shamsi = timing.ScheduledDate_Shamsi,
+                              CreatedDate = timing.CreatedDate,
+                              CreatedDate_Shamsi = timing.CreatedDate_Shamsi,
+                              IsDeleted = timing.IsDeleted,
+                              IsActive = timing.IsActive,
+                          };
             }
 
 
@@ -325,12 +325,21 @@ namespace SurgeryRoomScheduler.Data.Repositories
 
         public async Task<GetExteraTimingDto> GetExteraTimingListByDate(DateOnly date)
         {
+            var CancelledIds = new List<int> { 6, 7, 8 };
+
+
+
             GetExteraTimingDto timingDto = new GetExteraTimingDto();
-            // 3 days Ago Not Used Timings
+            // 3 days Later Not Used Timings
             var notReservedTimings = Context.Timings
             .Where(x => x.ScheduledDate <= date && !x.IsExtraTiming && !x.IsDeleted && x.IsActive)
             .GroupJoin(
-            Context.Reservations.Where(r => r.IsActive && !r.IsDeleted && !r.IsCanceled),
+
+
+            Context.Reservations.Include(x => x.ReservationConfirmation).Where(r => r.IsActive && !r.IsDeleted &&  !CancelledIds.Contains(r.ReservationConfirmation.StatusId)),
+
+
+
             timing => timing.Id,
             reservation => reservation.TimingId,
             (timing, reservations) => new { timing, reservations }
@@ -342,12 +351,15 @@ namespace SurgeryRoomScheduler.Data.Repositories
             .Where(x => x.reservation == null)
             .Select(x => x.timing).ToList();
             timingDto.UnreservedTimings = notReservedTimings;
-            // 3 days Ago Not Fully Reserved Timings
+            // 3 days Later Not Fully Reserved Timings
             var notFullyReservedTimings = await Context.Timings
             .Where(x => x.ScheduledDate <= date && !x.IsExtraTiming && !x.IsDeleted && x.IsActive)
             .GroupJoin(
                 Context.Reservations
-                    .Where(r => r.IsActive && !r.IsDeleted && !r.IsCanceled && r.UsageTime > TimeSpan.FromMinutes(20)),
+                  .Include(x => x.ReservationConfirmation)
+                                .Where(x => !CancelledIds.Contains(x.ReservationConfirmation.StatusId) &&
+                                            x.IsActive &&
+                                            !x.IsDeleted && x.UsageTime > TimeSpan.FromMinutes(20)),
                 timing => timing.Id,
                 reservation => reservation.TimingId,
                 (timing, reservations) => new { timing, reservations }
@@ -379,6 +391,7 @@ namespace SurgeryRoomScheduler.Data.Repositories
         public async Task<ListResponseDto<GetTimingDto>> GetDoctorDayOffList(PaginationDto paginationRequest, string noNezam, DateOnly startDate, DateOnly endDate)
         {
             ListResponseDto<GetTimingDto> responseDto = new ListResponseDto<GetTimingDto>();
+            var CancelledIds = new List<int> { 6, 7, 8 };
 
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             var baseQuery = from timing in Context.Timings
@@ -403,8 +416,12 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                 IsDeleted = timing.IsDeleted,
                                 IsActive = timing.IsActive,
                                 IsExtera = timing.IsExtraTiming,
-                                Reservations = Context.Reservations.Include(x=>x.ReservationConfirmation).ThenInclude(x=>x.Status).Where(x=>x.TimingId.Equals(timing.Id) && x.IsActive && !x.IsDeleted  && !x.IsCanceled )
-                                .Select(x=> new ReservationDto
+                                Reservations = Context.Reservations.Include(x => x.ReservationConfirmation).ThenInclude(x => x.Status).Where(x => !CancelledIds.Contains(x.ReservationConfirmation.StatusId) &&
+                                x.TimingId.Equals(timing.Id) &&
+                                x.IsActive &&
+                                !x.IsDeleted)
+
+                                .Select(x => new ReservationDto
                                 {
                                     TimingId = x.TimingId,
                                     PatientName = x.PatientName,
@@ -417,9 +434,16 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                     Status = x.ReservationConfirmation.Status.Name,
                                 }).ToList()
                                 ,
-                                IsReserved = Context.Reservations.Any(x => x.TimingId.Equals(timing.Id) && x.IsActive && !x.IsDeleted && !x.IsCanceled)
+                                IsReserved = Context.Reservations
+                                .Include(x => x.ReservationConfirmation)
+                                .Where(x =>!CancelledIds.Contains(x.ReservationConfirmation.StatusId) &&
+                                            x.TimingId.Equals(timing.Id) &&
+                                            x.IsActive &&
+                                            !x.IsDeleted)
+                                .Any()
                                 //RemainingTime = t.Timing.ScheduledDuration - t.Reservations.Aggregate(TimeSpan.Zero, (sum, next) => sum + next)
                             };
+
 
             if (!string.IsNullOrWhiteSpace(paginationRequest.Searchkey))
             {

@@ -16,7 +16,7 @@ namespace SurgeryRoomScheduler.Domain.Interfaces
     {
         Task<bool> CheckReservationExist(AddReservationDto request);
         Task<ListResponseDto<ReservationDto>> GetPaginatedReservedList(PaginationDto request, string noNezam, bool isExtera = false);
-        Task<ListResponseDto<ReservationDto>> GetReservationCancelledList(PaginationDto request,string noNezam);
+        Task<ListResponseDto<ReservationDto>> GetReservationRejectionList(PaginationDto request,string noNezam);
         Task<ListResponseDto<ReservationDto>> GetPaginatedReservervationsList(PaginationDto request, string operatorType, ReservationStatus status);
         Task<ListResponseDto<ReservationDto>> GetExteraReservationList(PaginationDto request);
         //Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request, string roomCode, Guid? doctorId, bool isExtera);
@@ -28,6 +28,5 @@ namespace SurgeryRoomScheduler.Domain.Interfaces
         Task<ReservationConfirmation?> GetReservationConfirmationByReservationId(Guid id);
         Task<IEnumerable<ReservationRejectionAndCancellationReason>> GetReservationRejectionReasonByType(RejectionReasonType type);
 
-       
     }
 }

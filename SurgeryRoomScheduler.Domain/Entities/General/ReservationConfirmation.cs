@@ -24,8 +24,15 @@ namespace SurgeryRoomScheduler.Domain.Entities.General
         public Guid? ConfirmedMedicalRecordsUserId { get; set; }
         public bool IsConfirmedBySupervisor { get; set; } = false;//  سوپروایزر
         public Guid? ConfirmedSupervisorUserId { get; set; }
-        public Guid? ReservationRejectionId { get; set; }
-        public ReservationRejection ReservationRejection { get; set; }
-        public Guid? RejectionUserId { get; set; }
+
+        public Guid? ReservationRejectionAndCancellationReasonId { get; set; }
+        public ReservationRejectionAndCancellationReason ReservationRejectionAndCancellationReason { get; set; }
+
+        [MaxLength(5000)]
+        public string? RejectionAndCancellationAdditionalDescription { get; set; }
+
+        //public Guid? ReservationRejectionId { get; set; }
+        //public ReservationRejection ReservationRejection { get; set; }
+        public Guid? RejectionAndCancellationUserId { get; set; }
     }
 }

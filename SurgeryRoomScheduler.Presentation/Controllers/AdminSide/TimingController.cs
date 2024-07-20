@@ -261,7 +261,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPersianDate(string date)
+        public IActionResult GetPersianDate(string date)
         {
             try
             {
@@ -285,7 +285,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             }
         }
         [HttpGet]
-        public async Task<IActionResult> GetPersianDateWithDetail(string date)
+        public IActionResult GetPersianDateWithDetail(string date)
         {
             try
             {
@@ -363,8 +363,6 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
                 return Ok(new ResponseDto<Exception> { IsSuccessFull = false, Data = ex, Message = ErrorsMessages.InternalServerError, Status = "Internal Server Error" });
             }
         }
-
-
 
 
         [HttpGet]

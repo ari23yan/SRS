@@ -30,10 +30,8 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Reservation
         public TimeSpan RequestedTime { get; set; }
         public int StatusType { get; set; }
         public string Status { get; set; }
-        public Guid? ReservationRejectionId { get; set; }
         public bool IsExtera { get; set; }
 
-        public bool? IsCanceled { get; set; }
         public Guid? ReservationCancelationReasonId { get; set; }
         public string? ReservationCancelationReason { get; set; }
 

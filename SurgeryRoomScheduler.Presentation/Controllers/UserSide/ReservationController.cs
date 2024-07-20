@@ -244,12 +244,12 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
 
         [HttpGet]
         //[PermissionChecker(Permission = PermissionType.GetDoctorReservedList)]
-        public async Task<IActionResult> GetReservationCancelledList([FromQuery] PaginationDto request)
+        public async Task<IActionResult> GetReservationRejectionList([FromQuery] PaginationDto request)
         {
             try
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
-                var result = await _reservationService.GetReservationCancelledList(request, currentUser);
+                var result = await _reservationService.GetReservationRejectionList(request, currentUser);
                 Response.Headers.Add("Total-Count", result.TotalCount.ToString());
                 return Ok(result);
             }

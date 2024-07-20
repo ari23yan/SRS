@@ -32,12 +32,12 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
         }
         [HttpGet]
         //[PermissionChecker(Permission = PermissionType.Admin_GetReservations)]
-        public async Task<IActionResult> GetList([FromQuery] PaginationDto request, ReservationStatus statusType= ReservationStatus.All)
+        public async Task<IActionResult> GetList([FromQuery] PaginationDto request, ReservationStatus statusType = ReservationStatus.All)
         {
             try
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
-                var result = await _reservationService.GetPaginatedReservervationsList(request,currentUser,statusType);
+                var result = await _reservationService.GetPaginatedReservervationsList(request, currentUser, statusType);
                 Response.Headers.Add("Total-Count", result.TotalCount.ToString());
 
                 return Ok(result);
@@ -67,7 +67,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             try
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
-                var result = await _reservationService.GetRejectionsReasons(currentUser,isCancellation);
+                var result = await _reservationService.GetRejectionsReasons(currentUser, isCancellation);
                 Response.Headers.Add("Total-Count", result.TotalCount.ToString());
 
                 return Ok(result);
@@ -174,8 +174,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             }
         }
 
-
-                [HttpGet]
+        [HttpGet]
         //[PermissionChecker(Permission = PermissionType.GetDoctorReservedList)]
         public async Task<IActionResult> GetReservationExteraList([FromQuery] PaginationDto request)
         {
@@ -202,7 +201,6 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
                 return Ok(new ResponseDto<Exception> { IsSuccessFull = false, Data = ex, Message = ErrorsMessages.InternalServerError, Status = "Internal Server Error" });
             }
         }
-
 
         [HttpGet]
         //[PermissionChecker(Permission = PermissionType.GetDoctorReservedList)]
@@ -233,12 +231,9 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             }
         }
 
-
-
-
         [HttpGet]
         //[PermissionChecker(Permission = PermissionType.GetDoctorReservedList)]
-        public async Task<IActionResult> GetDoctorDayOffList([FromQuery] PaginationDto request, string noNezam,DateOnly startDate, DateOnly endDate)
+        public async Task<IActionResult> GetDoctorDayOffList([FromQuery] PaginationDto request, string noNezam, DateOnly startDate, DateOnly endDate)
         {
             try
             {
@@ -264,7 +259,6 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
                 return Ok(new ResponseDto<Exception> { IsSuccessFull = false, Data = ex, Message = ErrorsMessages.InternalServerError, Status = "Internal Server Error" });
             }
         }
-
 
         [HttpPost]
         //[PermissionChecker(Permission = PermissionType.GetDoctorReservedList)]
@@ -293,10 +287,6 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
                 return Ok(new ResponseDto<Exception> { IsSuccessFull = false, Data = ex, Message = ErrorsMessages.InternalServerError, Status = "Internal Server Error" });
             }
         }
-
-
-
-
 
     }
 }

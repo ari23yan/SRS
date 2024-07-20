@@ -23,6 +23,7 @@ using SurgeryRoomScheduler.Domain.Enums;
 using Azure.Core;
 using Microsoft.OpenApi.Models;
 using SurgeryRoomScheduler.Domain.Entities.Common;
+using ReservationConfirmationStatus = SurgeryRoomScheduler.Domain.Enums.ReservationConfirmationStatus;
 
 namespace SurgeryRoomScheduler.Application.Services.Implementations
 {
@@ -34,11 +35,10 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         private readonly IDoctorRepository _doctorRepository;
         private readonly IRepository<ReservationConfirmation> _reservationConfirmation;
         private readonly IRepository<ReservationConfirmationLog> _reservationConfirmationLog;
-        private readonly IRepository<ReservationRejection> _reservationRejection;
         private readonly IMapper _mapper;
         public ReservationService(IUserRepository userRepository, ISender sender, ITimingRepository timingRepository,
-            IReservationRepository reservationRepository, IMapper mapper, IDoctorRepository doctorRepository,
-             IRepository<ReservationRejection> reservationRejection, IRepository<ReservationConfirmationLog> reservationConfirmationLog,
+            IReservationRepository reservationRepository, IMapper mapper, IDoctorRepository doctorRepository
+            , IRepository<ReservationConfirmationLog> reservationConfirmationLog,
             IRepository<ReservationConfirmation> reservationConfirmation)
         {
             _userRepository = userRepository;
@@ -47,7 +47,6 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             _timingRepository = timingRepository;
             _doctorRepository = doctorRepository;
             _reservationConfirmation = reservationConfirmation;
-            _reservationRejection = reservationRejection;
             _reservationConfirmationLog = reservationConfirmationLog;
         }
 
@@ -76,10 +75,10 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             reservationConf.ModifiedDate = DateTime.Now;
             reservationConf.IsModified = true;
             reservationConf.ModifiedBy = operatorId;
+            reservationConf.RejectionAndCancellationUserId = operatorId;
+            reservationConf.RejectionAndCancellationAdditionalDescription = request.CancellationDescription;
+            reservationConf.ReservationRejectionAndCancellationReasonId = request.ReservationCancellationReasonId;
             await _reservationConfirmation.UpdateAsync(reservationConf);
-            reservation.IsCanceled = true;
-            reservation.CancelationDescription = request.CancellationDescription;
-            reservation.ReservationCancelationReasonId = request.ReservationCancellationReasonId;
             reservation.ModifiedDate = DateTime.Now;
             reservation.IsModified = true;
             reservation.ModifiedBy = operatorId;
@@ -315,7 +314,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
 
 
 
-        public async Task<ResponseDto<IEnumerable<ReservationDto>>> GetReservationCancelledList(PaginationDto request, Guid? doctorId)
+        public async Task<ResponseDto<IEnumerable<ReservationDto>>> GetReservationRejectionList(PaginationDto request, Guid? doctorId)
         {
 
             var doctor = await _userRepository.GetUserByUserId(doctorId.Value);
@@ -323,7 +322,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 return new ResponseDto<IEnumerable<ReservationDto>> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
             }
-            var reservs = await _reservationRepository.GetReservationCancelledList(request, doctor.NoNezam);
+            var reservs = await _reservationRepository.GetReservationRejectionList(request, doctor.NoNezam);
             //var mappedTimings = _mapper.Map<IEnumerable<Timing>, IEnumerable<TimingListDto>>(timings);
             return new ResponseDto<IEnumerable<ReservationDto>>
             {
@@ -513,10 +512,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             return await _reservationRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted);
         }
 
-        public async Task<int> GetCancelledReservedCount(string? noNezam)
-        {
-            return await _reservationRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted && x.IsCanceled && x.DoctorNoNezam.Equals(noNezam));
-        }
+       
 
 
         public async Task<int> GetExteraReservedCount(long roomCode)
@@ -562,17 +558,12 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     }
                     else
                     {
-                        var reservationRejection = new ReservationRejection
-                        {
-                            ReservationRejectionReasonId = request.ReservationRejectionReasonId,
-                            ReservationId = request.ReservationId,
-                            AdditionalDescription = request.AdditionalDescription,
-                        };
-                        await _reservationRejection.AddAsync(reservationRejection);
 
                         reservationConf.StatusId = (int)Domain.Enums.ReservationConfirmationStatus.RejectedByMedicalRecord;
-                        reservationConf.ReservationRejectionId = reservationRejection.Id;
-                        reservationConf.RejectionUserId = operatorId;
+                        reservationConf.RejectionAndCancellationUserId = operatorId;
+                        reservationConf.RejectionAndCancellationAdditionalDescription = request.AdditionalDescription;
+                        reservationConf.ReservationRejectionAndCancellationReasonId = request.ReservationRejectionReasonId;
+
                         await _reservationConfirmation.UpdateAsync(reservationConf);
                         return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
                     }
@@ -596,17 +587,10 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     }
                     else
                     {
-                        var reservationRejection = new ReservationRejection
-                        {
-                            ReservationRejectionReasonId = request.ReservationRejectionReasonId,
-                            ReservationId = request.ReservationId,
-                            AdditionalDescription = request.AdditionalDescription,
-                        };
-                        await _reservationRejection.AddAsync(reservationRejection);
-
                         reservationConf.StatusId = (int)Domain.Enums.ReservationConfirmationStatus.RejectedByMedicalRecord;
-                        reservationConf.ReservationRejectionId = reservationRejection.Id;
-                        reservationConf.RejectionUserId = operatorId;
+                        reservationConf.RejectionAndCancellationAdditionalDescription = request.AdditionalDescription;
+                        reservationConf.RejectionAndCancellationUserId = operatorId;
+                        reservationConf.ReservationRejectionAndCancellationReasonId = request.ReservationRejectionReasonId;
                         await _reservationConfirmation.UpdateAsync(reservationConf);
                         return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
                     }
@@ -619,17 +603,10 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     }
                     else
                     {
-                        var reservationRejection = new ReservationRejection
-                        {
-                            ReservationRejectionReasonId = request.ReservationRejectionReasonId,
-                            ReservationId = request.ReservationId,
-                            AdditionalDescription = request.AdditionalDescription,
-                        };
-                        await _reservationRejection.AddAsync(reservationRejection);
-
                         reservationConf.StatusId = (int)Domain.Enums.ReservationConfirmationStatus.RejectedBySupervisor;
-                        reservationConf.ReservationRejectionId = reservationRejection.Id;
-                        reservationConf.RejectionUserId = operatorId;
+                        reservationConf.RejectionAndCancellationUserId = operatorId;
+                        reservationConf.RejectionAndCancellationAdditionalDescription = request.AdditionalDescription;
+                        reservationConf.ReservationRejectionAndCancellationReasonId = request.ReservationRejectionReasonId;
                         await _reservationConfirmation.UpdateAsync(reservationConf);
                         return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
                     }
@@ -703,14 +680,14 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 timingsList.Add(timing);
 
                 // work on Reservation
-
+                var getUser = await _userRepository.GetUserWithRolesByUserId(operatorId);
                 var reservations = await _reservationRepository.GetReservationsByTimingId(item);
                 foreach (var reservationItem in reservations)
                 {
                     reservationItem.IsActive = false;
                     timingItem.ModifiedBy = operatorId;
-                    reservationItem.IsCanceled = true;
-                    reservationItem.CancelationDescription = "مرخصی پزشک";
+                    reservationItem.ReservationConfirmation.StatusId = getUser.Role.RoleName == "Supervisor" ? (int)ReservationConfirmationStatus.CancelledBySupervisor : (int)ReservationConfirmationStatus.CancelledByMedicalRecord ;
+                    reservationItem.ReservationConfirmation.RejectionAndCancellationAdditionalDescription = "مرخصی پزشک";
                     await _reservationRepository.UpdateAsync(reservationItem);
                 }
             }

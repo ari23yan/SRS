@@ -69,8 +69,8 @@ namespace SurgeryRoomScheduler.Application.Jobs.Implementations
             await _logService.InsertJobLog(log);
             try
             {
-                var date = DateOnly.FromDateTime(DateTime.Now).AddDays(-3);
-                var timings = await _timingService.GetExteraTimingListByDate(date); // Three Days Ago Timings
+                var date = DateOnly.FromDateTime(DateTime.Now).AddDays(+3);
+                var timings = await _timingService.GetExteraTimingListByDate(date); // Three Days Later Timings
 
                 List<Timing> timingsList = new List<Timing>();
                 // Not Used Timings

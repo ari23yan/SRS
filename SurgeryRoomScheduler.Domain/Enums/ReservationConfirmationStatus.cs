@@ -16,6 +16,8 @@ namespace SurgeryRoomScheduler.Domain.Enums
         RejectedByMedicalRecord,
         RejectedBySupervisor,
         CancelledByDoctor,
+        CancelledByMedicalRecord,
+        CancelledBySupervisor,
     }
 
 }
