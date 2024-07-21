@@ -216,12 +216,13 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 else
                 {
                     request.DoctorNoNezam = timing.AssignedDoctorNoNezam;
+                    if (timing.AssignedDoctorNoNezam != request.DoctorNoNezam)
+                    {
+                        return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "زمانبندی مورد نظر برای دکتر دیگری در نظر گرفته شده است" };
+                    }
                 }
                 request.RoomCode = timing.AssignedRoomCode;
-                if (timing.AssignedDoctorNoNezam != request.DoctorNoNezam)
-                {
-                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "زمانبندی مورد نظر برای دکتر دیگری در نظر گرفته شده است" };
-                }
+               
                 var reservation = _mapper.Map<Reservation>(request);
                 reservation.UsageTime = timing.ScheduledDuration - request.RequestedTime;
                 reservation.RequestedDate = timing.ScheduledDate.ToDateTime(TimeOnly.Parse("00:00:00 PM")); ;
