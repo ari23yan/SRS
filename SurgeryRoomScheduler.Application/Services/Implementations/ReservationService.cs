@@ -209,7 +209,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 {
                     return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "مدت زمان انتخاب شده بیشتر  از حد مجاز است." };
                 }
-                if (!timing.IsExtraTiming)
+                if (timing.IsExtraTiming)
                 {
                     request.DoctorNoNezam = request.DoctorNoNezam;
                 }
