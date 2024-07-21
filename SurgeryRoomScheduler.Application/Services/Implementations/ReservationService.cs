@@ -209,7 +209,14 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 {
                     return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "مدت زمان انتخاب شده بیشتر  از حد مجاز است." };
                 }
-                request.DoctorNoNezam = timing.AssignedDoctorNoNezam;
+                if (!timing.IsExtraTiming)
+                {
+                    request.DoctorNoNezam = request.DoctorNoNezam;
+                }
+                else
+                {
+                    request.DoctorNoNezam = timing.AssignedDoctorNoNezam;
+                }
                 request.RoomCode = timing.AssignedRoomCode;
                 if (timing.AssignedDoctorNoNezam != request.DoctorNoNezam)
                 {
@@ -512,7 +519,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             return await _reservationRepository.GetCountAsync(x => x.IsActive && !x.IsDeleted);
         }
 
-       
+
 
 
         public async Task<int> GetExteraReservedCount(long roomCode)
@@ -686,7 +693,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 {
                     reservationItem.IsActive = false;
                     timingItem.ModifiedBy = operatorId;
-                    reservationItem.ReservationConfirmation.StatusId = getUser.Role.RoleName == "Supervisor" ? (int)ReservationConfirmationStatus.CancelledBySupervisor : (int)ReservationConfirmationStatus.CancelledByMedicalRecord ;
+                    reservationItem.ReservationConfirmation.StatusId = getUser.Role.RoleName == "Supervisor" ? (int)ReservationConfirmationStatus.CancelledBySupervisor : (int)ReservationConfirmationStatus.CancelledByMedicalRecord;
                     reservationItem.ReservationConfirmation.RejectionAndCancellationAdditionalDescription = "مرخصی پزشک";
                     await _reservationRepository.UpdateAsync(reservationItem);
                 }
