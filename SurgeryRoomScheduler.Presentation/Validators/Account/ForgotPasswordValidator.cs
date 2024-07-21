@@ -8,8 +8,8 @@ namespace SurgeryRoomScheduler.Presentation.Validators.Account
     {
         public ForgotPasswordValidator()
         {
-            RuleFor(x => x.NationalCode).NotNull().NotEmpty()
-            .Must(BeAValidUsernameOrMobileOrNationaCode).WithMessage("Input must be a valid NationaCode.");
+            RuleFor(x => x.Input).NotNull().NotEmpty()
+           .WithMessage("Input must be a valid NationaCode or Mobile.");
         }
 
         private bool BeAValidUsernameOrMobileOrNationaCode(string input)
