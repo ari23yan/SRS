@@ -8,6 +8,6 @@ namespace SurgeryRoomScheduler.Domain.Dtos.User
 {
     public class ForgotPasswordDto
     {
-        public string NationalCode { get; set; } 
+        public string Input { get; set; } 
     }
 }

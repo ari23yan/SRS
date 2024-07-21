@@ -50,7 +50,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             _roleMenuRepository = roleMenuRepository;
             _otpRepository = otpRepository;
             _sender = sender;
-            _logService = logService;   
+            _logService = logService;
         }
         public async Task<bool> CheckUserHavePermission(Guid roleId, Guid permissionId)
         {
@@ -586,13 +586,17 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         public async Task<ResponseDto<bool>> ForgotPassword(ForgotPasswordDto request)
         {
             User user = new User();
-            if (UtilityManager.IsValidNationalCode(request.NationalCode))
+            if (UtilityManager.IsMobile(request.Input))
             {
-                user = await _userRepository.GetUserByNationalCode(request.NationalCode);
+                user = await _userRepository.GetUserByMobile(request.Input);
+            }
+            else if (UtilityManager.IsValidNationalCode(request.Input))
+            {
+                user = await _userRepository.GetUserByNationalCode(request.Input);
             }
             else
             {
-                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "کد ملی وارد شده اشتباه می باشد." };
+                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "کد ملی  یا شماره تلفن وارد شده اشتباه می باشد." };
             }
             if (user == null)
             {

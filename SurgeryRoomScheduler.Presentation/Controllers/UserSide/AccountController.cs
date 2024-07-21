@@ -148,8 +148,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
         }
 
 
-
-        [HttpPatch]
+        [HttpPost]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordDto request)
         {
             try
