@@ -263,7 +263,7 @@ namespace SurgeryRoomScheduler.Data.Repositories
                 {
                     baseQuery = baseQuery.Where(x =>
 
-                       (x.IsExtera && x.IsConfirmedBySupervisor)
+                       (x.IsExtera && x.IsConfirmedBySupervisor && x.StatusType == (int)ReservationConfirmationStatus.RejectedByMedicalRecord)
                        ||
                        (!x.IsExtera && x.StatusType == (int)ReservationConfirmationStatus.RejectedByMedicalRecord));
 
@@ -272,7 +272,7 @@ namespace SurgeryRoomScheduler.Data.Repositories
                 {
                     baseQuery = baseQuery.Where(x =>
 
-                       (x.IsExtera && x.IsConfirmedBySupervisor)
+                       (x.IsExtera && x.IsConfirmedBySupervisor && x.StatusType == (int)ReservationConfirmationStatus.Pending)
                        ||
                        (!x.IsExtera && x.StatusType == (int)ReservationConfirmationStatus.Pending));
                 }
