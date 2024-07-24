@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using SurgeryRoomScheduler.Application.Services.Interfaces;
+﻿using SurgeryRoomScheduler.Application.Services.Interfaces;
 using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
 using SurgeryRoomScheduler.Domain.Dtos.Reservation;
 using SurgeryRoomScheduler.Domain.Entities.Account;
@@ -24,6 +23,7 @@ using Azure.Core;
 using Microsoft.OpenApi.Models;
 using SurgeryRoomScheduler.Domain.Entities.Common;
 using ReservationConfirmationStatus = SurgeryRoomScheduler.Domain.Enums.ReservationConfirmationStatus;
+using AutoMapper;
 
 namespace SurgeryRoomScheduler.Application.Services.Implementations
 {
@@ -99,10 +99,10 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "درخواست یافت نشد" };
             }
-            if (reservationConf.StatusId != (int)Domain.Enums.ReservationConfirmationStatus.Pending)
-            {
-                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا تعیین وضعیت شده است" };
-            }
+            //if (reservationConf.StatusId != (int)Domain.Enums.ReservationConfirmationStatus.Pending)
+            //{
+            //    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "این درخواست قبلا تعیین وضعیت شده است" };
+            //}
 
 
 
@@ -222,7 +222,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                     }
                 }
                 request.RoomCode = timing.AssignedRoomCode;
-               
+
                 var reservation = _mapper.Map<Reservation>(request);
                 reservation.UsageTime = timing.ScheduledDuration - request.RequestedTime;
                 reservation.RequestedDate = timing.ScheduledDate.ToDateTime(TimeOnly.Parse("00:00:00 PM")); ;
