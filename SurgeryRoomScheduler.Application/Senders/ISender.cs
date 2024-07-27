@@ -17,6 +17,6 @@ namespace SurgeryRoomScheduler.Application.Senders
         //sms
         Task<bool> LoginUserSendSmsAsync(string Mobile, string otp);
         Task<bool> ForgotPasswordSendSmsAsync(string Mobile, string otp);
-        //Task<bool> SendCreateUserViaAdmin(string Mobile, string name);
+        Task<bool> SendPatientCanecllationSmsAsync(string Mobile, string patientName, string surgeryDate);
     }
 }

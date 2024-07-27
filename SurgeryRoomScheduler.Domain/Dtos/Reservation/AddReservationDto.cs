@@ -16,6 +16,8 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Reservation
 
         public string PatientPhoneNumber { get; set; }
         public bool PatientHaveInsurance { get; set; }
+        public long? InsuranceCode { get; set; }
+        public long SurgeryCode { get; set; }
         [SwaggerSchema(ReadOnly = true)]
         public string DoctorNoNezam { get; set; }
         [SwaggerSchema(ReadOnly = true)]

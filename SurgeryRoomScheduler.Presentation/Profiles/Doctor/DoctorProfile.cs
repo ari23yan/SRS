@@ -81,6 +81,12 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
             CreateMap<Doctor, DoctorListDto>();
 
             CreateMap<Room, RoomsListDto>();
+            CreateMap<Insurance, InsuranceDto>()
+            .ForMember(dest => dest.Name_Bime, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Code_Bimeh, opt => opt.MapFrom(src => src.Code));
+            CreateMap<SurgeryName, SurgeryNameDto>()
+                          .ForMember(dest => dest.name_amal, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.code, opt => opt.MapFrom(src => src.Code)); 
         }
     }
 }

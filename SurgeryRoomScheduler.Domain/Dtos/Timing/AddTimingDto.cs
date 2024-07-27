@@ -15,7 +15,7 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Timing
 
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
-        public DateOnly Date { get; set; }
+        public DateOnly[] Date { get; set; }
 
         [SwaggerSchema(ReadOnly = true)]
         public TimeSpan ScheduledDuration

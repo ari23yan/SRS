@@ -26,14 +26,14 @@ namespace SurgeryRoomScheduler.Data.Repositories
         {
         }
 
-        public async Task<bool> CheckTimingExist(AddTimingDto request)
+        public async Task<bool> CheckTimingExist(string noNezam, long roomCode, DateOnly date, TimeOnly eDate, TimeOnly sDate)
         {
             return await Context.Timings
-                 .AnyAsync(x => x.AssignedDoctorNoNezam.Equals(request.NoNezam) &&
-                                x.AssignedRoomCode.Equals(request.RoomCode) &&
-                                x.ScheduledDate == request.Date &&
-                                x.ScheduledStartTime < request.EndTime && // Check for time overlap
-                                x.ScheduledEndTime > request.StartTime); // Check for time overlap
+                 .AnyAsync(x => x.AssignedDoctorNoNezam.Equals(noNezam) &&
+                                x.AssignedRoomCode == roomCode &&
+                                x.ScheduledDate == date &&
+                                x.ScheduledStartTime <eDate && // Check for time overlap
+                                x.ScheduledEndTime >sDate); // Check for time overlap
         }
         public async Task<ListResponseDto<TimingDto>> GetExteraTimingListByRoomCode(PaginationDto paginationRequest, long roomCode)
         {

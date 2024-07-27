@@ -2,7 +2,9 @@
 using SurgeryRoomScheduler.Domain.Dtos.Common;
 using SurgeryRoomScheduler.Domain.Dtos.Common.Pagination;
 using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
+using SurgeryRoomScheduler.Domain.Dtos.Insurance;
 using SurgeryRoomScheduler.Domain.Dtos.Reservation;
+using SurgeryRoomScheduler.Domain.Dtos.SurgeryName;
 using SurgeryRoomScheduler.Domain.Dtos.Timing;
 using SurgeryRoomScheduler.Domain.Entities.General;
 using SurgeryRoomScheduler.Domain.Enums;
@@ -21,6 +23,8 @@ namespace SurgeryRoomScheduler.Application.Services.Interfaces
         Task<ResponseDto<GetTimingCalenderDto>> GetReservationCalender(GetListByMonthDto request);
         Task<ResponseDto<IEnumerable<ReservationDto>>> GetPaginatedReservedList(PaginationDto request,Guid? doctorId, bool isExtera);
         Task<ResponseDto<IEnumerable<ReservationDto>>> GetReservationRejectionList(PaginationDto request,Guid? doctorId);
+        Task<ResponseDto<IEnumerable<InsuranceDto>>> GetInsuranceList(string searchKey);
+        Task<ResponseDto<IEnumerable<SurgeryNameDto>>> GetSurgeryNamesList(string searchKey);
         Task<ResponseDto<IEnumerable<ReservationDto>>> GetExteraReservationList(PaginationDto request,Guid? doctorId);
         Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request,Guid? doctorId, long roomCode);
 

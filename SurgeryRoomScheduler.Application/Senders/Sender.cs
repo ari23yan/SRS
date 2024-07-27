@@ -91,5 +91,21 @@ namespace SurgeryRoomScheduler.Application.Senders
                 throw;
             }
         }
+
+        public async Task<bool> SendPatientCanecllationSmsAsync(string Mobile, string patientName, string surgeryDate)
+        {
+            try
+            {
+                RestClient restClient = new RestClient(Username, Password);
+                //restClient.BaseServiceNumber(patientName, doctorName, doctorName, surgeryDate, Mobile, 223858);
+                //restClient.SendSMS();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+                throw;
+            }
+        }
     }
 }

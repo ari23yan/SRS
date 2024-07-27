@@ -146,6 +146,10 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             }
         }
 
+
+
+
+
         [HttpDelete]
         [PermissionChecker(Permission = PermissionType.Admin_DeleteTiming)]
         public async Task<IActionResult> Delete(GetByIdDto request)
