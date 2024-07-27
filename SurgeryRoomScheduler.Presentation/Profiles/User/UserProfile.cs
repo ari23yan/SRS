@@ -179,6 +179,9 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
                 .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.RoleName_Farsi));
 
 
+            CreateMap<UserDetailDto, User>();
+
+
 
 
             CreateMap<Permission, PermissionsDto>()

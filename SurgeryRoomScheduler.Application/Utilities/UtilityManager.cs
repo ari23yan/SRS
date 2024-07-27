@@ -314,6 +314,7 @@ namespace SurgeryRoomScheduler.Application.Utilities
             }
 
             DateTime today = DateTime.Now;
+            DateTime threeDaysLater = today.AddDays(3);
             for (int day = 1; day <= lastDay; day++)
             {
                 DateTime miladiDate = persianCalendar.ToDateTime(year, month, day, 0, 0, 0, 0);
@@ -321,7 +322,8 @@ namespace SurgeryRoomScheduler.Application.Utilities
 
                 int gregorianDayOfWeek = (int)miladiDate.DayOfWeek;
                 string persianWeekDay = PersianDayOfWeekNames[gregorianDayOfWeek];
-                bool isEnable = miladiDate >= today;
+                bool isEnable = !(miladiDate < today || miladiDate < threeDaysLater);
+
 
                 daysOfMonth.Add(new PersianDayInfoDto
                 {
