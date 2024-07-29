@@ -105,23 +105,23 @@ namespace SurgeryRoomScheduler.Data.Repositories
         {
             if(roomCode == 0)
             {
-                var query = Context.Doctors.Where(x => x.IsActive.Value).Take(50);
+                var query = Context.Doctors.Where(x => x.IsActive.Value);
                 if (!string.IsNullOrEmpty(searchKey))
                 {
                     query = query.Where(x => x.NoNezam.Contains(searchKey) || x.FullName.Contains(searchKey)).Take(50);
                 }
-                return await query.ToListAsync();
+                return await query.Take(50).ToListAsync();
             }
             else
             {
                 var rooms = Context.DoctorRooms.Where(x => x.RoomCode == roomCode);
                 var doctorIds = rooms.Select(x => x.NoNezam);
-                var query = Context.Doctors.Where(x => doctorIds.Contains(x.NoNezam) && x.IsActive.Value).Take(50);
+                var query = Context.Doctors.Where(x => doctorIds.Contains(x.NoNezam) && x.IsActive.Value);
                 if (!string.IsNullOrEmpty(searchKey))
                 {
-                    query = query.Where(x => x.NoNezam.Contains(searchKey) || x.FullName.Contains(searchKey)).Take(50);
+                    query = query.Where(x => x.NoNezam.Contains(searchKey) || x.FullName.Contains(searchKey));
                 }
-                return await query.ToListAsync();
+                return await query.Take(50).ToListAsync();
             }
            
         }
