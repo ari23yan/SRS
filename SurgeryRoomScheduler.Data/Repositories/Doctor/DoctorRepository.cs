@@ -2,6 +2,8 @@
 using SurgeryRoomScheduler.Data.Context;
 using SurgeryRoomScheduler.Domain.Dtos.Common.Pagination;
 using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
+using SurgeryRoomScheduler.Domain.Dtos.Insurance;
+using SurgeryRoomScheduler.Domain.Dtos.SurgeryName;
 using SurgeryRoomScheduler.Domain.Entities.Account;
 using SurgeryRoomScheduler.Domain.Entities.General;
 using SurgeryRoomScheduler.Domain.Enums;
@@ -169,6 +171,26 @@ namespace SurgeryRoomScheduler.Data.Repositories
             responseDto.List = await pagedQuery.ToListAsync();
             return responseDto;
 
+        }
+
+        public async Task<IEnumerable<Insurance>> GetInsuranceList(string searchKey)
+        {
+            var query = Context.Insurances.Where(x =>x.Code != 0);
+            if (!string.IsNullOrEmpty(searchKey))
+            {
+                query = query.Where(x => x.Name.Contains(searchKey));
+            }
+            return await query.ToListAsync();
+        }
+
+        public async Task<IEnumerable<SurgeryName>> GetSurgeryNamesList(string searchKey)
+        {
+            var query = Context.SurgeryNames.Where(x => x.IsActive.HasValue);
+            if (!string.IsNullOrEmpty(searchKey))
+            {
+                query = query.Where(x => x.Name.Contains(searchKey));
+            }
+            return await query.ToListAsync();
         }
     }
 }

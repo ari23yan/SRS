@@ -48,15 +48,8 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
 
         public async Task<ResponseDto<bool>> CreateTiming(AddTimingDto request, Guid operatorId)
         {
-            var checkExist = await _timingRepository.CheckTimingExist(request);
-            if (checkExist)
-            {
-                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Exist, Status = "Failed", };
-            }
-            if(request.Date < DateOnly.FromDateTime(DateTime.Now))
-            {
-                return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "تاریخ های گذشته را نمیتوان زمانبندی کرد", };
-            }
+      
+  
             var rooms = await _doctorRepository.GetDoctorRooms(request.NoNezam);
             if(rooms.Count() < 0)
             {
@@ -67,19 +60,33 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             {
                 return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "پزشک مورد نظر به این اتاق تخصیص داده نشده است" };
             }
-            var newTiming = new Timing
+            List<Timing> timingList = new List<Timing>();
+            foreach (var item in request.Date)
             {
-                AssignedDoctorNoNezam = request.NoNezam,
-                AssignedRoomCode = request.RoomCode,
-                ScheduledDate = request.Date,
-                ScheduledStartTime = request.StartTime,
-                ScheduledEndTime = request.EndTime,
-                ScheduledDuration = request.ScheduledDuration,
-                CreatedDate_Shamsi = UtilityManager.GregorianDateTimeToPersianDate(DateTime.Now),
-                ScheduledDate_Shamsi = UtilityManager.GregorianDateTimeToPersianDateOnly(request.Date),
-                CreatedBy = operatorId
-            };
-            await _timingRepository.AddAsync(newTiming);
+                var checkExist = await _timingRepository.CheckTimingExist(request.NoNezam,request.RoomCode, item,request.EndTime,request.StartTime);
+                if (checkExist)
+                {
+                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Exist, Status = "Failed", };
+                }
+                if (item < DateOnly.FromDateTime(DateTime.Now))
+                {
+                    return new ResponseDto<bool> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "تاریخ های گذشته را نمیتوان زمانبندی کرد", };
+                }
+                var newTiming = new Timing
+                {
+                    AssignedDoctorNoNezam = request.NoNezam,
+                    AssignedRoomCode = request.RoomCode,
+                    ScheduledDate = item,
+                    ScheduledStartTime = request.StartTime,
+                    ScheduledEndTime = request.EndTime,
+                    ScheduledDuration = request.ScheduledDuration,
+                    CreatedDate_Shamsi = UtilityManager.GregorianDateTimeToPersianDate(DateTime.Now),
+                    ScheduledDate_Shamsi = UtilityManager.GregorianDateTimeToPersianDateOnly(item),
+                    CreatedBy = operatorId
+                };
+                timingList.Add(newTiming);
+            }
+            await _timingRepository.AddRangeAsync(timingList);
             return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
         }
 

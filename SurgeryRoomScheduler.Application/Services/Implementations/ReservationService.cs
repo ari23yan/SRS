@@ -24,6 +24,8 @@ using Microsoft.OpenApi.Models;
 using SurgeryRoomScheduler.Domain.Entities.Common;
 using ReservationConfirmationStatus = SurgeryRoomScheduler.Domain.Enums.ReservationConfirmationStatus;
 using AutoMapper;
+using SurgeryRoomScheduler.Domain.Dtos.Insurance;
+using SurgeryRoomScheduler.Domain.Dtos.SurgeryName;
 
 namespace SurgeryRoomScheduler.Application.Services.Implementations
 {
@@ -33,6 +35,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
         private readonly ITimingRepository _timingRepository;
         private readonly IUserRepository _userRepository;
         private readonly IDoctorRepository _doctorRepository;
+        private readonly ISender _sender;
         private readonly IRepository<ReservationConfirmation> _reservationConfirmation;
         private readonly IRepository<ReservationConfirmationLog> _reservationConfirmationLog;
         private readonly IMapper _mapper;
@@ -48,6 +51,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             _doctorRepository = doctorRepository;
             _reservationConfirmation = reservationConfirmation;
             _reservationConfirmationLog = reservationConfirmationLog;
+            _sender = sender;
         }
 
         public async Task<ResponseDto<bool>> CancelReservation(CancelReservationDto request, Guid operatorId)
@@ -692,6 +696,9 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 var reservations = await _reservationRepository.GetReservationsByTimingId(item);
                 foreach (var reservationItem in reservations)
                 {
+
+                    await _sender.SendPatientCanecllationSmsAsync(reservationItem.PatientPhoneNumber,reservationItem.PatientName,reservationItem.RequestedDate.ToString());
+
                     reservationItem.IsActive = false;
                     timingItem.ModifiedBy = operatorId;
                     reservationItem.ReservationConfirmation.StatusId = getUser.Role.RoleName == "Supervisor" ? (int)ReservationConfirmationStatus.CancelledBySupervisor : (int)ReservationConfirmationStatus.CancelledByMedicalRecord;
@@ -705,6 +712,34 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 await _timingRepository.AddRangeAsync(timingsList);
             }
             return new ResponseDto<bool> { IsSuccessFull = true, Message = ErrorsMessages.Success, Status = "Successful" };
+        }
+
+        public async Task<ResponseDto<IEnumerable<InsuranceDto>>> GetInsuranceList(string searchKey)
+        {
+            var insuranceList = await _doctorRepository.GetInsuranceList(searchKey);
+            var insuranceListMapped = _mapper.Map<List<InsuranceDto>>(insuranceList);
+
+            return new ResponseDto<IEnumerable<InsuranceDto>>
+            {
+                IsSuccessFull = true,
+                Data = insuranceListMapped,
+                Message = ErrorsMessages.Success,
+                Status = "SuccessFul",
+            };
+        }
+
+        public async Task<ResponseDto<IEnumerable<SurgeryNameDto>>> GetSurgeryNamesList(string searchKey)
+        {
+            var surgeryNames = await _doctorRepository.GetSurgeryNamesList(searchKey);
+            var surgeryNamesMapped = _mapper.Map<List<SurgeryNameDto>>(surgeryNames);
+
+            return new ResponseDto<IEnumerable<SurgeryNameDto>>
+            {
+                IsSuccessFull = true,
+                Data = surgeryNamesMapped,
+                Message = ErrorsMessages.Success,
+                Status = "SuccessFul",
+            };
         }
     }
 }
