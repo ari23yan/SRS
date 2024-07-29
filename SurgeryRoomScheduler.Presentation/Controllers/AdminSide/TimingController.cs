@@ -148,8 +148,6 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
 
 
 
-
-
         [HttpDelete]
         [PermissionChecker(Permission = PermissionType.Admin_DeleteTiming)]
         public async Task<IActionResult> Delete(GetByIdDto request)
@@ -398,8 +396,33 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
         }
 
 
-      
 
+
+
+        [HttpGet]
+        public IActionResult GetDayOfDate([FromQuery] DayOfDateDto request)
+        {
+            try
+            {
+                var result = UtilityManager.GetDaysBetweenDate(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                #region Inserting Log 
+                if (_configuration.GetValue<bool>("ApplicationLogIsActive"))
+                {
+                    var userAgent = _httpContextAccessor.HttpContext?.Request.Headers["User-Agent"];
+                    var userIp = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
+                    var routeData = ControllerContext.RouteData;
+                    var controllerName = routeData.Values["controller"]?.ToString();
+                    var actionName = routeData.Values["action"]?.ToString();
+                    _logService.InsertLog(userIp, controllerName, actionName, userAgent, ex);
+                }
+                #endregion
+                return Ok(new ResponseDto<Exception> { IsSuccessFull = false, Data = ex, Message = ErrorsMessages.InternalServerError, Status = "Internal Server Error" });
+            }
+        }
 
 
     }

@@ -68,12 +68,12 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.UserSide
 
         [HttpGet]
         //[PermissionChecker(Permission = PermissionType.GetDoctorReservedList)]
-        public async Task<IActionResult> GetExteraList([FromQuery] PaginationDto request, long roomCode)
+        public async Task<IActionResult> GetExteraList([FromQuery] PaginationDto request)
         {
             try
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
-                var result = await _reservationService.GetExteraTimingsList(request, currentUser, roomCode);
+                var result = await _reservationService.GetExteraTimingsList(request, currentUser);
                 Response.Headers.Add("Total-Count", result.TotalCount.ToString());
 
                 return Ok(result);

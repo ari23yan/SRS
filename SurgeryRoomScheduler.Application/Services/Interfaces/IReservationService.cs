@@ -26,7 +26,7 @@ namespace SurgeryRoomScheduler.Application.Services.Interfaces
         Task<ResponseDto<IEnumerable<InsuranceDto>>> GetInsuranceList(string searchKey);
         Task<ResponseDto<IEnumerable<SurgeryNameDto>>> GetSurgeryNamesList(string searchKey);
         Task<ResponseDto<IEnumerable<ReservationDto>>> GetExteraReservationList(PaginationDto request,Guid? doctorId);
-        Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request,Guid? doctorId, long roomCode);
+        Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request,Guid? doctorId);
 
         Task<ResponseDto<IEnumerable<GetTimingDto>>> GetDoctorDayOffList(PaginationDto request, string noNezam, DateOnly startDate, DateOnly endDate);
         Task<ResponseDto<bool>> SubmitDoctorDayOff(SubmitDoctorDayOffDto request , Guid operatorId);

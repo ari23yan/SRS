@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using SurgeryRoomScheduler.Domain.Dtos.Common;
 using SurgeryRoomScheduler.Domain.Dtos.Common.ResponseModel;
 using SurgeryRoomScheduler.Domain.Entities.Account;
+using SurgeryRoomScheduler.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -389,6 +390,63 @@ namespace SurgeryRoomScheduler.Application.Utilities
 
             return daysOfMonth;
         }
+
+
+
+
+
+
+        public static List<GetDayOfDateDto> GetDaysBetweenDate(DayOfDateDto dateDto)
+        {
+
+            List<GetDayOfDateDto> result = new List<GetDayOfDateDto>();
+
+            // Convert the Gregorian start and end dates to Persian dates
+            var startDate = dateDto.StartDate.ToDateTime(new TimeOnly());
+            var endDate = dateDto.EndDate.ToDateTime(new TimeOnly());
+            var weekNum = dateDto.DayOfWeek;
+
+            // Calculate the number of days between the start and end dates
+            int totalDays = (endDate - startDate).Days;
+
+            for (int i = 0; i <= totalDays; i++)
+            {
+                GetDayOfDateDto getDayOfDateDto = new GetDayOfDateDto();
+                var currentDate = startDate.AddDays(i);
+                var persianDate = ConvertGregorianDateTimeToPersianDate(currentDate);
+                if ((WeekDays)currentDate.DayOfWeek == weekNum)
+                {
+                    getDayOfDateDto.Date = persianDate.ToString();
+                    getDayOfDateDto.DayOfWeek = GetPersianDayOfWeek(currentDate.DayOfWeek);
+                    result.Add(getDayOfDateDto);
+                }
+            }
+            return result;
+        }
+
+        public static string GetPersianDayOfWeek(DayOfWeek dayOfWeek)
+        {
+            switch (dayOfWeek)
+            {
+                case DayOfWeek.Sunday:
+                    return "یکشنبه";
+                case DayOfWeek.Monday:
+                    return "دوشنبه";
+                case DayOfWeek.Tuesday:
+                    return "سه‌شنبه";
+                case DayOfWeek.Wednesday:
+                    return "چهارشنبه";
+                case DayOfWeek.Thursday:
+                    return "پنج‌شنبه";
+                case DayOfWeek.Friday:
+                    return "جمعه";
+                case DayOfWeek.Saturday:
+                    return "شنبه";
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
 
     }
 }

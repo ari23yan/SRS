@@ -35,15 +35,14 @@ namespace SurgeryRoomScheduler.Data.Repositories
                                 x.ScheduledStartTime <eDate && // Check for time overlap
                                 x.ScheduledEndTime >sDate); // Check for time overlap
         }
-        public async Task<ListResponseDto<TimingDto>> GetExteraTimingListByRoomCode(PaginationDto paginationRequest, long roomCode)
+        public async Task<ListResponseDto<TimingDto>> GetExteraTimingListByRoomCode(PaginationDto paginationRequest)
         {
             ListResponseDto<TimingDto> responseDto = new ListResponseDto<TimingDto>();
 
 
             var skipCount = (paginationRequest.PageNumber - 1) * paginationRequest.PageSize;
             IQueryable<TimingDto> timings = new List<TimingDto>().AsQueryable();
-            if (roomCode == 00) // superviser of medical Record User
-            {
+       
                 timings = from timing in Context.Timings
                           join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
                           where !timing.IsDeleted && timing.IsActive
@@ -64,29 +63,6 @@ namespace SurgeryRoomScheduler.Data.Repositories
                               IsDeleted = timing.IsDeleted,
                               IsActive = timing.IsActive,
                           };
-            }
-            else
-            {
-                timings = from timing in Context.Timings
-                          join room in Context.Rooms on timing.AssignedRoomCode equals room.Code
-                          where !timing.IsDeleted && timing.IsActive && timing.AssignedRoomCode == roomCode && timing.IsExtraTiming
-                          && timing.ScheduledDate >= DateOnly.FromDateTime(DateTime.Now) && timing.ScheduledDate <= DateOnly.FromDateTime(DateTime.Now.AddDays(3))
-                          select new TimingDto
-                          {
-                              Id = timing.Id,
-                              RoomName = room.Name,
-                              RoomCode = room.Code,
-                              ScheduledDate = timing.ScheduledDate,
-                              ScheduledStartTime = timing.ScheduledStartTime,
-                              ScheduledEndTime = timing.ScheduledEndTime,
-                              ScheduledDuration = timing.ScheduledDuration,
-                              ScheduledDate_Shamsi = timing.ScheduledDate_Shamsi,
-                              CreatedDate = timing.CreatedDate,
-                              CreatedDate_Shamsi = timing.CreatedDate_Shamsi,
-                              IsDeleted = timing.IsDeleted,
-                              IsActive = timing.IsActive,
-                          };
-            }
 
 
             if (!string.IsNullOrWhiteSpace(paginationRequest.Searchkey))
@@ -106,7 +82,7 @@ namespace SurgeryRoomScheduler.Data.Repositories
             var timingList = await pagedQuery.ToListAsync();
             var timingIds = timingList.Select(x => x.Id).ToList();
 
-            var reservations = Context.Reservations.Where(x => timingIds.Contains(x.TimingId) && x.RoomCode == roomCode && x.IsActive && !x.IsDeleted)
+            var reservations = Context.Reservations.Where(x => timingIds.Contains(x.TimingId) && x.IsActive && !x.IsDeleted)
             .Select(x => new ReservationInfo { RequestedTime = x.RequestedTime, TimingId = x.TimingId })
             .ToList();
 

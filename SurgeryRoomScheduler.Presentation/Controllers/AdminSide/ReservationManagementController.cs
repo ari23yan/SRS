@@ -209,9 +209,8 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             try
             {
                 var currentUser = UtilityManager.GetCurrentUser(_httpContextAccessor);
-                var result = await _reservationService.GetExteraTimingsList(request, currentUser, roomCode);
+                var result = await _reservationService.GetExteraTimingsList(request, currentUser);
                 Response.Headers.Add("Total-Count", result.TotalCount.ToString());
-
                 return Ok(result);
             }
             catch (Exception ex)

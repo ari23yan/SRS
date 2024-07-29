@@ -247,30 +247,16 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
             }
         }
 
-        public async Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request, Guid? userId, long roomCode)
+        public async Task<ResponseDto<IEnumerable<TimingDto>>> GetExteraTimingsList(PaginationDto request, Guid? userId)
         {
             var user = await _userRepository.GetUserWithRolesByUserId(userId.Value);
             if (user == null)
             {
                 return new ResponseDto<IEnumerable<TimingDto>> { IsSuccessFull = false, Message = ErrorsMessages.NotFound, Status = "Failed" };
             }
-            if (!user.Role.RoleName.Equals("NormalUser"))
-            {
-                roomCode = 00;
-            }
-            else if (roomCode == 0)
-            {
-                var doctorsRooms = await _doctorRepository.GetDoctorRooms(user.NoNezam);
-                if (doctorsRooms.Count() <= 0)
-                {
-                    return new ResponseDto<IEnumerable<TimingDto>> { IsSuccessFull = false, Message = ErrorsMessages.Faild, Status = "پزشک به هیچ اتاق عملی تخصیص نیافته است  " };
-                }
-                else
-                {
-                    roomCode = doctorsRooms.First().Code.Value;
-                }
-            }
-            var filtredTiming = await _timingRepository.GetExteraTimingListByRoomCode(request, roomCode);
+
+
+            var filtredTiming = await _timingRepository.GetExteraTimingListByRoomCode(request);
 
             return new ResponseDto<IEnumerable<TimingDto>>
             {
@@ -697,7 +683,7 @@ namespace SurgeryRoomScheduler.Application.Services.Implementations
                 foreach (var reservationItem in reservations)
                 {
 
-                    await _sender.SendPatientCanecllationSmsAsync(reservationItem.PatientPhoneNumber,reservationItem.PatientName,reservationItem.RequestedDate.ToString());
+                    await _sender.SendPatientCanecllationSmsAsync(reservationItem.PatientPhoneNumber, UtilityManager.ConvertGregorianDateTimeToPersianDate(reservationItem.RequestedDate));
 
                     reservationItem.IsActive = false;
                     timingItem.ModifiedBy = operatorId;

@@ -229,7 +229,7 @@ namespace SurgeryRoomScheduler.Data.Repositories
 
                 if (status == ReservationStatus.Approved)
                 {
-                    baseQuery = baseQuery.Where(x => x.IsExtera && x.StatusType == (int)ReservationConfirmationStatus.ApprovedBySupervisor);
+                    baseQuery = baseQuery.Where(x => x.IsExtera && x.StatusType == (int)ReservationConfirmationStatus.ApprovedBySupervisor || x.StatusType == (int)ReservationConfirmationStatus.ApprovedByMedicalRecord);
                 }
                 else if (status == ReservationStatus.Rejected)
                 {

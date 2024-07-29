@@ -57,39 +57,12 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
                 }
                 return null;
             }))
-           .ForMember(dest => dest.Password, opt => opt.MapFrom((src, dest) =>
-           {
-               string FormatPhoneNumber(string phoneNumber, int type)
-               {
-                   if (type == 1)
-                   {
-                       if (!phoneNumber.Trim().StartsWith("0"))
-                       {
-                           return UtilityManager.EncodePasswordMd5(phoneNumber);
-                       }
-                       return UtilityManager.EncodePasswordMd5(phoneNumber);
-                   }
-                   else
-                   {
-                       if (phoneNumber.Trim().StartsWith("0"))
-                       {
-                           return UtilityManager.EncodePasswordMd5(phoneNumber);
-                       }
-                       return UtilityManager.EncodePasswordMd5(phoneNumber);
-                   }
-               }
-               if (!string.IsNullOrEmpty(src.PhoneNumber) && src.PhoneNumber.Trim().Length > 1)
-               {
-                   return FormatPhoneNumber(src.PhoneNumber.Trim(), 2);
-               }
-               return null;
-           }))
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
+           .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.NationalCode))
+           .ForMember(dest => dest.Id, opt => opt.Ignore())
            .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.Name))
            .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
            .ForMember(dest => dest.NoNezam, opt => opt.MapFrom(src => src.NoNezam))
            .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
-
 
 
 
