@@ -405,6 +405,7 @@ namespace SurgeryRoomScheduler.Presentation.Controllers.AdminSide
             try
             {
                 var result = UtilityManager.GetDaysBetweenDate(request);
+                Response.Headers.Add("Total-Count", result.Count.ToString());
                 return Ok(result);
             }
             catch (Exception ex)

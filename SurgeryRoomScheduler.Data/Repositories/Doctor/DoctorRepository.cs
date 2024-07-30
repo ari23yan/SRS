@@ -162,8 +162,8 @@ namespace SurgeryRoomScheduler.Data.Repositories
                 query = query.Where(u => u.FullName.Contains(paginationRequest.Searchkey) || u.NoNezam.Contains(paginationRequest.Searchkey));
             }
             query = paginationRequest.FilterType == FilterType.Asc ?
-                query.OrderBy(u => u.Id) :
-                query.OrderByDescending(u => u.Id);
+                query.OrderBy(u => u.LastName) :
+                query.OrderByDescending(u => u.LastName);
 
 
             responseDto.TotalCount = await query.CountAsync();
