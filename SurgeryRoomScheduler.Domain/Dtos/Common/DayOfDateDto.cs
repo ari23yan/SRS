@@ -15,7 +15,8 @@ namespace SurgeryRoomScheduler.Domain.Dtos.Common
     }
     public class GetDayOfDateDto
     {
-        public string Date { get; set; }
+        public string DateShamsi { get; set; }
+        public string DateMiladi { get; set; }
         public string DayOfWeek { get; set; }
     }
 

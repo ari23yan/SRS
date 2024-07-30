@@ -416,7 +416,8 @@ namespace SurgeryRoomScheduler.Application.Utilities
                 var persianDate = ConvertGregorianDateTimeToPersianDate(currentDate);
                 if ((WeekDays)currentDate.DayOfWeek == weekNum)
                 {
-                    getDayOfDateDto.Date = persianDate.ToString();
+                    getDayOfDateDto.DateShamsi = persianDate.ToString();
+                    getDayOfDateDto.DateMiladi = currentDate.ToString();
                     getDayOfDateDto.DayOfWeek = GetPersianDayOfWeek(currentDate.DayOfWeek);
                     result.Add(getDayOfDateDto);
                 }
