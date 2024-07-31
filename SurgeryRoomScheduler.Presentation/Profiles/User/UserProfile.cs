@@ -57,7 +57,7 @@ namespace SurgeryRoomScheduler.Presentation.Profiles
                 }
                 return null;
             }))
-           .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.NationalCode))
+           .ForMember(dest => dest.Password, opt => opt.MapFrom(src => UtilityManager.EncodePasswordMd5(src.NationalCode)))
            .ForMember(dest => dest.Id, opt => opt.Ignore())
            .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.Name))
            .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
